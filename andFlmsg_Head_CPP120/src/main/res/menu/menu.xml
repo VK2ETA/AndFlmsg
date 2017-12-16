@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" 
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
+   <item
+        android:id="@+id/exit"
+        android:title="EXIT">
+    </item>
+   <item
+        android:id="@+id/BTon"
+        android:title="Bluetooth ON">
+    </item>
+    <item
+        android:id="@+id/BToff"
+        android:title="Bluetooth OFF">
+    </item>
+    <item
+        android:id="@+id/prefs"
+        android:title="Preferences"/>
+
+    <!-- app:showAsAction="ifRoom|withText"
+		android:showAsAction="ifRoom|withText" -->   
+    <item
+        android:id="@+id/reloadforms"
+        android:title="Update Forms"/>
+    <item
+        android:id="@+id/About"
+        android:title="About">
+    </item>
+    
+
+</menu>

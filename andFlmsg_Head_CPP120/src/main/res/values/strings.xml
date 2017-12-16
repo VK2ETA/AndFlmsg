@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndFlmsg</string>
+    <string name="Modem_Running">Notif.Str</string>
+    <string name="hello">Hello</string>
+    <string name="crash_toast_text">Please send crash information email to the author to help with problem correction. Thanks and 73.</string>
+    <string name="arlmessage">Arl Message</string>
+</resources>

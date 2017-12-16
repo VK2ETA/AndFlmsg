@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="USEMODELIST"
+        android:summary="Use custom list of modes"
+        android:title="Use custom list of modes" >
+    </CheckBoxPreference>
+
+    <PreferenceScreen
+        android:key="modelistPS"
+        android:title="Mode List" >
+        <PreferenceCategory android:key="listofmodestouse" >
+        </PreferenceCategory>
+    </PreferenceScreen>
+    
+    <PreferenceScreen 
+        android:key="userInterfacePS" 
+        android:title="USER INTERFACE">
+        <ListPreference android:key="APPTHEME" 
+            android:entries="@array/themes" 
+            android:entryValues="@array/themes_values" 
+            android:title="App Theme" 
+            android:defaultValue="0"/>
+        
+        
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:key="modemPS"
+        android:title="MODEM" >
+        <PreferenceCategory
+            android:key="modemgeneralCAT"
+            android:title="General Settings" >
+            <ListPreference
+                android:defaultValue="10"
+                android:entries="@array/volume"
+                android:entryValues="@array/volume_values"
+                android:key="VOLUME"
+                android:summary="Modem Volume"
+                android:title="Modem Volume" >
+            </ListPreference>
+
+            <EditTextPreference
+                android:defaultValue="1500"
+                android:inputType="number"
+                android:key="AFREQUENCY"
+                android:summary="Audio Frequency 500 to 2500Hz"
+                android:title="Audio Frequency" >
+            </EditTextPreference>
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="SLOWCPU"
+                android:summary="Save CPU resources"
+                android:title="SLOW CPU" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:key="modesspecificsCAT" android:title="Modes Specific Settings"><PreferenceScreen android:key="rsidPS" android:title="IDs">
+            <CheckBoxPreference android:key="TXPOSTRSID" android:summary="Send post transmission RSID" android:title="End of xmt ID" android:defaultValue="false"/><CheckBoxPreference android:defaultValue="true" android:key="RSIDWIDESEARCH" android:title="Searches Passband" />
+            <ListPreference android:title="Allow Errors" android:key="RSID_ERRORS" android:entryValues="@array/rsid_errors_values" android:entries="@array/rsid_errors_list" android:defaultValue="2" />
+            
+            
+        </PreferenceScreen><PreferenceScreen android:key="pskPS" android:title="PSK">
+            <CheckBoxPreference android:key="8PSKPILOT" android:title="Pilot Tone" android:defaultValue="true"/>
+            <EditTextPreference android:key="8PSKPILOTPOWER" android:summary="From -60 to -20 (dB)" android:title="Pilot Power (dB)" android:defaultValue="-30.0"/>
+        </PreferenceScreen>
+        <PreferenceScreen android:key="dominoexPS" android:title="DOMINOEX">
+            
+            <CheckBoxPreference android:key="DOMINOEXFILTER" android:title="Filtering before decoding" android:defaultValue="true"/>
+            <EditTextPreference android:title="Filter bandwidth factor (1.0 to 2.0)" android:key="DOMINOEXBW" android:summary="(bandwidth relative to signal width)" android:defaultValue="2.0"/>
+            <CheckBoxPreference android:key="DOMINOEXFEC" android:title="MultiPSK-compatible FEC" android:defaultValue="false" android:shouldDisableView="true" android:enabled="false" android:selectable="false"/>
+        <EditTextPreference android:title="CWI threshold (0.0 to 1.0)" android:key="DOMCWI" android:summary="CWI detection and suppression" android:defaultValue="0.0" /></PreferenceScreen>
+        <PreferenceScreen android:key="thorPS" android:title="THOR">
+            <EditTextPreference android:title="CWI threshold (0.0 to 1.0)" android:key="THORCWI" android:summary="CWI detection and suppression" android:defaultValue="0.0"/>
+            <CheckBoxPreference android:key="THORFILTER" android:title="Filtering before decoding" android:defaultValue="true"/>
+            <EditTextPreference android:title="Filter bandwidth factor (1.0 to 2.0)" android:key="THORBW" android:summary="(bandwidth relative to signal width)" android:defaultValue="2.0"/>
+            <CheckBoxPreference android:key="THORPREAMBLE" android:summary="(and flush Rx pipeline)" android:title="Detect THOR preamble" android:defaultValue="true"/>
+            <CheckBoxPreference android:key="THORSOFTSYMBOLS" android:defaultValue="true" android:title="Soft-symbol decoding"/>
+            <CheckBoxPreference android:key="THORSOFTBITS" android:title="Soft-bit decoding" android:defaultValue="true"/>
+        </PreferenceScreen>
+        <PreferenceScreen android:title="OLIVIA" android:key="oliviaPS">
+            <ListPreference android:key="OLIVIATONES" android:summary="2,4,8,16,32,64,128 or 256" android:title="Number of tones" android:entries="@array/olivia_tones_list" android:entryValues="@array/olivia_tones_values" android:defaultValue="2"/>
+            <ListPreference android:title="Bandwidth (Hz)" android:key="OLIVIABW" android:entries="@array/olivia_bw_list" android:entryValues="@array/olivia_bw_values" android:defaultValue="2"/>
+            <EditTextPreference android:title="Tune margin (2 to 128, default 8)" android:key="OLIVIASMARGIN" android:summary="(tone frequency spacing)" android:defaultValue="8"/>
+            <EditTextPreference android:title="Integration period (2 to 128, default 4)" android:key="OLIVIASINTEG" android:summary="(number of FEC blocks)" android:defaultValue="4"/>
+            <CheckBoxPreference android:key="OLIVIARESETFEC" android:defaultValue="false" android:summary="when new BW/Tones selected" android:title="Force Integration (FEC) depth to be reset "/>
+            <CheckBoxPreference android:key="OLIVIA8BIT" android:defaultValue="true" android:title="8-bit extended characters (UTF-8)"/>
+        </PreferenceScreen>
+        <PreferenceScreen android:title="MT63" android:key="mt63PS">
+            <CheckBoxPreference android:title="8-bit extended characters" android:key="MT638BIT" android:defaultValue="true"/>
+            <CheckBoxPreference android:title="Long receive integration" android:key="MT63INTEGRATION" android:defaultValue="true"/>
+            <CheckBoxPreference android:title="Transmit lower start tone" android:key="MT63USETONES" android:defaultValue="true"/>
+            <CheckBoxPreference android:title="Also transmit upper start tone" android:summary="(only if TXing lower start tone is enabled)" android:defaultValue="true" android:key="MT63TWOTONES"/>
+            <EditTextPreference android:defaultValue="4" android:key="MT63TONEDURATION" android:title="Tone Duration in Seconds" android:summary="(1 to 10 seconds)"/>
+            <CheckBoxPreference android:title="Allow Manual Tuning" android:defaultValue="false" android:key="MT63AT500"/>
+        </PreferenceScreen>
+        
+</PreferenceCategory>
+        
+    </PreferenceScreen><PreferenceScreen android:key="imageattachmentPS" android:title="IMAGE ATTACHMENT">
+        <EditTextPreference android:title="Maximun Mega Pixels" android:summary="MaxPicture Size Before Auto-Downsize" android:defaultValue="0.5" android:key="TARGETMAXMEGAPIXELS"/>
+        <EditTextPreference android:title="Jpeg compresion Quality" android:key="JPEGQUALITY" android:summary="0 (smallest file) to 100 (best quality)" android:defaultValue="70"/>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:key="dataexchangePS"
+        android:title="DATA EXCHANGE" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="USECOMPRESSION"
+            android:summary="(Note: if it saves TX character count)"
+            android:title="use Compression for Data Exchange" >
+        </CheckBoxPreference>
+        <ListPreference android:key="COMPRESSIONENCODER" android:entries="@array/compression_encoder_list" android:entryValues="@array/compression_encoder_values" android:title="Encoder for Compression" android:defaultValue="1"/>
+        <CheckBoxPreference android:key="FORCECOMPRESSION" android:title="Force Compression on Tx" android:defaultValue="false"/>
+        <ListPreference android:key="EXTRACTTIMEOUT" 
+            android:summary="Abort Form Rx after NN seconds of inactivity" 
+            android:title="Extract times out" 
+            android:entryValues="@array/rx_timeout" 
+            android:entries="@array/rx_timeout"
+			android:defaultValue="4" />
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:key="userPS"
+        android:title="PERSONAL DATA" >
+        <EditTextPreference
+            android:defaultValue="NOCAL"
+            android:key="CALL"
+            android:title="My Callsign" >
+        </EditTextPreference>
+        <EditTextPreference android:title="My Telephone" android:key="TEL"/>
+        <EditTextPreference android:title="My Name" android:key="NAME"/>
+        <EditTextPreference android:title="My Address" android:key="ADDRESS"/>
+        <EditTextPreference android:title="My City/ State/ ZIP" android:key="CITYSTATEZIP"/>
+        <EditTextPreference android:title="Email Address" android:key="EMAIL"/>
+    </PreferenceScreen>
+    <PreferenceScreen android:title="DATE / TIME FORMAT" android:key="datetimePS">
+        <ListPreference android:entries="@array/dateformat" android:title="Date Format" android:key="DTFORMAT" android:entryValues="@array/dateformatvalues" android:defaultValue="0" />
+        <ListPreference android:title="Time Format" android:key="UTC" android:defaultValue="0" android:entries="@array/timeformat" android:entryValues="@array/timeformatvalues" />
+    </PreferenceScreen><PreferenceScreen android:title="FILE NAME" android:key="filePS">
+        <CheckBoxPreference android:title="Call Sign in File Name" android:defaultValue="true" android:key="CALL_FNAME" />
+        <CheckBoxPreference android:title="Time in File Name" android:key="DT_FNAME" android:defaultValue="true" />
+        <CheckBoxPreference android:title="Serial # in File Name" android:defaultValue="true" android:key="SERNBR_FNAME" />
+        <EditTextPreference android:title="Next Serial Number" android:key="SERNBR" android:defaultValue="1" />
+    </PreferenceScreen><PreferenceScreen android:key="RadiogramPS" android:title="RADIOGRAM">
+        <EditTextPreference android:title="Message Words/Line" android:key="RGWORDSPERLINE" android:defaultValue="5" />
+        <CheckBoxPreference android:title="Show ARL Description" android:key="SHOWARLDESC" android:summary="(On HTML display forms)" android:defaultValue="true" />
+    </PreferenceScreen><PreferenceScreen
+        android:key="GPSTimePS"
+        android:title="GPS TIME" >
+        <CheckBoxPreference
+            android:key="USEGPSTIME"
+            android:summary="For accurate time display"
+            android:title="Use GPS time" />
+
+        <EditTextPreference
+            android:defaultValue="0"
+            android:key="LEAPSECONDS"
+            android:summary="For some devices (typical 16 seconds)"
+            android:title="Leap Seconds Correction" />
+    </PreferenceScreen>
+    
+    
+    
+    
+
+</PreferenceScreen>
