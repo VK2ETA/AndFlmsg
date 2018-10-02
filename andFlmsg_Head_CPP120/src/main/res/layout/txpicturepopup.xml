@@ -21,28 +21,28 @@
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return to Modem" >
+			        android:text="@string/bt_ReturnToModem" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_close2"
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return to Modem" >
+			        android:text="@string/bt_ReturnToModem" >
 			    </Button>
 			    			    <Button
 			        android:id="@+id/button_close3"
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return to Modem" >
+			        android:text="@string/bt_ReturnToModem" >
 			    </Button>
 			    			    <Button
 			        android:id="@+id/button_close4"
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return to Modem" >
+			        android:text="@string/bt_ReturnToModem" >
 			    </Button>
 			    			    			</LinearLayout>
 			

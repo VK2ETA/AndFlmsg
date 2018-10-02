@@ -904,7 +904,7 @@ public class Modem {
                     //of the previous block? If so, restart reception
                     if (BlockString.endsWith("[WRAP:beg]")) {
                         BlockString = "[WRAP:beg]";
-                        Processor.PostToTerminal("\n\nReceiving New Message, discarding any partially received data\n");
+                        Processor.PostToTerminal(AndFlmsg.myContext.getString(R.string.txt_ReceivingNewMessageDiscardingOld));
                     } else if (BlockString.endsWith("[WRAP:lf]")) {
                         WrapLF = true;
                     } else if (BlockString.endsWith("[WRAP:crlf]")) {
@@ -931,7 +931,7 @@ public class Modem {
                         if (msc.find()) {
                             if (BlockString.endsWith(msc.group(0))) {
                                 Processor.FileNameString = msc.group(1);
-                                Processor.PostToTerminal("\nReceiving File " + Processor.FileNameString);
+                                Processor.PostToTerminal("\n" + AndFlmsg.myContext.getString(R.string.txt_ReceivingFile) + ": " + Processor.FileNameString);
                                 //Processor.PostToTerminal("\n" + msc.group(0) + "\n");
                             }
                         }
@@ -942,7 +942,7 @@ public class Modem {
                         FirstBracketReceived = true;
                         BlockString = "[WRAP:beg]";
                         Processor.ReceivingForm = true;
-                        Processor.PostToTerminal("\n\nReceiving New Message");
+                        Processor.PostToTerminal(AndFlmsg.myContext.getString(R.string.txt_ReceivingNewMessage));
                     }
 
                 }
@@ -998,7 +998,7 @@ public class Modem {
                 Processor.FileNameString = "";
                 Processor.ReceivingForm = false;
                 FirstBracketReceived = false;
-                Processor.PostToTerminal("\nAborting New Message Reception due to timeout as set in preferences)!");
+                Processor.PostToTerminal(AndFlmsg.myContext.getString(R.string.txt_MsgRxTimeout));
             }
         }
     }
@@ -1048,7 +1048,7 @@ public class Modem {
                         Modem.stopTX = false;
                         //Set flags to TXing
                         Processor.TXActive = true;
-                        Processor.Status = "Transmitting";
+                        Processor.Status = AndFlmsg.myContext.getString(R.string.txt_Transmitting);
                         AndFlmsg.mHandler.post(AndFlmsg.updatetitle);
                         //Stop the modem receiving side
                         pauseRxModem();
@@ -1184,7 +1184,8 @@ public class Modem {
                             //debugging only
                             //Message.addEntryToLog(Message.dateTimeStamp() + "Done 'deleteFile'");
                             //Ensure we are using the right env variable for this TX thread
-                            Message.addEntryToLog(Message.dateTimeStamp() + ": Sent Message file " + txFileName);
+                            Message.addEntryToLog(Message.dateTimeStamp() + " - " + AndFlmsg.myContext.getString(R.string.txt_SentMessagefile)
+                                    + ": " + txFileName);
                             Thread displayMessagesThread = new Thread(AndFlmsg.displayMessagesRunnable);
                             displayMessagesThread.start();
                             //debugging only
@@ -1195,7 +1196,7 @@ public class Modem {
                         loggingclass.writelog("Can't output sound. Is Sound device busy?", null, true);
                     } finally {
                         Processor.TXActive = false;
-                        Processor.Status = "Listening";
+                        Processor.Status = AndFlmsg.myContext.getString(R.string.txt_Listening);
                         //VK2ETA added to clear progress info during a tune
                         AndFlmsg.txProgressCount = "";
                         AndFlmsg.mHandler.post(AndFlmsg.updatetitle);

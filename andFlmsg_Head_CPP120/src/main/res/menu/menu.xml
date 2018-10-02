@@ -3,28 +3,28 @@
       xmlns:app="http://schemas.android.com/apk/res-auto" >
    <item
         android:id="@+id/exit"
-        android:title="EXIT">
+        android:title="@string/txt_Exit">
     </item>
    <item
         android:id="@+id/BTon"
-        android:title="Bluetooth ON">
+        android:title="@string/txt_AudioBTON">
     </item>
     <item
         android:id="@+id/BToff"
-        android:title="Bluetooth OFF">
+        android:title="@string/txt_AudioBTOFF">
     </item>
     <item
         android:id="@+id/prefs"
-        android:title="Preferences"/>
+        android:title="@string/txt_Preferences"/>
 
     <!-- app:showAsAction="ifRoom|withText"
 		android:showAsAction="ifRoom|withText" -->   
     <item
         android:id="@+id/reloadforms"
-        android:title="Update Forms"/>
+        android:title="@string/txt_UpdateForms"/>
     <item
         android:id="@+id/About"
-        android:title="About">
+        android:title="@string/txt_About">
     </item>
     
 

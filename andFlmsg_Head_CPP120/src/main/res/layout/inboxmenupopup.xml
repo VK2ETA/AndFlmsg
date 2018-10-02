@@ -18,7 +18,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Html Deliv." >
+			        android:text="@string/bt_HtmlDelivery" >
 			    </Button>
 
 			    <Button
@@ -26,7 +26,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Html F.Cpy" >
+			        android:text="@string/bt_HtmlFileCopy" >
 			    </Button>
 
 			    <Button
@@ -34,14 +34,14 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Plain Text" >
+			        android:text="@string/bt_PlainText" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_return"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return" >
+			        android:text="@string/bt_Return" >
 			    </Button>
 			</LinearLayout>
 
@@ -57,28 +57,28 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Copy to Drafts" >
+			        android:text="@string/bt_CopyToDrafts" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_cpoutbox"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Copy to Outbox" >
+			        android:text="@string/bt_CopyToOutbox" >
 			    </Button>
 			    			    <Button
 			        android:id="@+id/button_delete"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Delete" >
+			        android:text="@string/bt_Delete" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_shareforward"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Share" >
+			        android:text="@string/bt_Share" >
 			    </Button>
 			</LinearLayout>
 			<WebView  

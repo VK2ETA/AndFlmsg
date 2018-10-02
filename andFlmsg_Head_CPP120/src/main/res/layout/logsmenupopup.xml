@@ -21,14 +21,14 @@
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Clear Log" >
+			        android:text="@string/bt_ClearLog" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_return"
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return" >
+			        android:text="@string/bt_Return" >
 			    </Button>
 			</LinearLayout>
 			<TextView 

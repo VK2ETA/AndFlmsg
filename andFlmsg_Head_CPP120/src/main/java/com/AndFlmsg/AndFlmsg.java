@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.annotation.TargetApi;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -147,9 +149,6 @@ public class AndFlmsg extends  AppCompatActivity {
     //private static PopupWindow pw;
     // Are we in an individual form display screen?
     private static boolean inFormDisplay = false;
-    private static String welcomeString = "\n Welcome to AndFlmsg "
-	    + Processor.version
-	    + "\n\n This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n\n Swipe across the screen to navigate to the other screens and use the device Menu button to get access to the preferences and additional functions.\n\n Visit www.w1hkj.com for more details\n\n 73, The Fldigi Team \n\n";
     private static boolean hasDisplayedWelcome = false;
 
     // Horizontal Fling detection despite scrollview
@@ -554,7 +553,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    } else { //Was the second key press "in-time"?
 		if (System.currentTimeMillis() > lastBackKeyTime + 1200) {
 		    //Not in time, reset the count to zero. Need two new Back key presses.
-		    Toast.makeText(this, "Press the Back Button twice in a row to return to the list", Toast.LENGTH_SHORT).show();
+		    Toast.makeText(this, getString(R.string.txt_PressBackTwice), Toast.LENGTH_SHORT).show();
 		    backKeyPressCount = 1;
 		    //Count this back press as one
 		    lastBackKeyTime = System.currentTimeMillis();
@@ -565,7 +564,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		}
 	    }
 	} else {
-	    Toast.makeText(this, "Please Use the Menu then the Exit option to close AndFlmsg", Toast.LENGTH_SHORT).show();
+	    Toast.makeText(this, getString(R.string.txt_PleaseUseMenuExit), Toast.LENGTH_SHORT).show();
 	}
     }
     
@@ -598,7 +597,6 @@ public class AndFlmsg extends  AppCompatActivity {
 	    lastY = curY;
 	    if (!AndFlmsg.inFormDisplay) {
 		if (Math.abs(xDistance) > Math.abs(yDistance) && Math.abs(velocityX) > 1500) {
-		    // toastText("fling......");
 		    navigateScreens((int) xDistance);
 		    return false;
 		}
@@ -728,6 +726,31 @@ public class AndFlmsg extends  AppCompatActivity {
 	// Get a static copy of the base Context
 	myContext = AndFlmsg.this;
 
+		//Set JavaScript injection strings
+		jsSendNewFormDataInject = "\n"
+				+
+				// "	   	<input type=\"button\" onclick=\"queueForTx()\" value=\"Submit, Queue &#10;for TX\" />\n"
+				// +
+				"		<input type=\"button\" onclick=\"saveToOutbox('New')\" value=\"" + AndFlmsg.myContext.getString(R.string.bt_SaveToOutbox) + "\" />\n"
+				+ "		<input type=\"button\" onclick=\"saveToDrafts('New')\" value=\"" + AndFlmsg.myContext.getString(R.string.bt_SaveToDrafts) + "\" />\n"
+				+ "	   	<input type=\"button\" onclick=\"saveAsTemplate('New')\" value=\"" + AndFlmsg.myContext.getString(R.string.bt_SaveToTemplates) + "\" /><br><br>\n"
+				+
+				// "		<input type=\"button\" onclick=\"discardInput('New')\" value=\"Discard\" />\n"
+				// +
+				"		<script src=\"file:///android_asset/andflmsg.js\" type=\"text/javascript\"></script>\n";
+
+		jsSendDraftFormDataInject = "\n"
+				+
+				// "	   	<input type=\"button\" onclick=\"queueForTx('Existing')\" value=\"Submit, Queue &#10;for TX\" />\n"
+				// +
+				"		<input type=\"button\" onclick=\"saveToOutbox('Existing')\" value=\"" + AndFlmsg.myContext.getString(R.string.bt_SaveToOutbox) + "\" />\n"
+				+ "		<input type=\"button\" onclick=\"saveToDrafts('Existing')\" value=\"" + AndFlmsg.myContext.getString(R.string.bt_SaveToDrafts) + "\" />\n"
+				+ "	   	<input type=\"button\" onclick=\"saveAsTemplate('Existing')\" value=\""+ AndFlmsg.myContext.getString(R.string.bt_SaveToTemplates) + "\" /><br><br>\n"
+				+
+				// "		<input type=\"button\" onclick=\"discardInput('Existing')\" value=\"Discard\" />\n"
+				// +
+				"		<script src=\"file:///android_asset/andflmsg.js\" type=\"text/javascript\"></script>\n";
+
 	// Init config
 	mysp = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -778,14 +801,15 @@ public class AndFlmsg extends  AppCompatActivity {
 	                if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
 	                    //now file transmitting is starting, flag it!
 	                    // - make sure this disconnection not initiated for any other reason.
-		    		topToastText("BT Connected");
+		    		topToastText(getString(R.string.txt_BTConnected));
 	                } else if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
 	                    //now file transmitting has finished, can do something to the file
 	                    //if you know the file name, better to check if the file is actually there 
 	                    // - make sure this disconnection not initiated for any other reason.
-		    		topToastText("BT Disconnected");
+		    		topToastText(getString(R.string.txt_BTDisconnected));
 	                } else {
-	                    topToastText("Other Action");
+	                    //debug
+						//topToastText("Other Action");
 	                }
 	        }
 
@@ -941,8 +965,8 @@ public class AndFlmsg extends  AppCompatActivity {
 		NotificationCompat.Builder mBuilder =
 			new NotificationCompat.Builder(this)
 		.setSmallIcon(R.drawable.notificationicon)
-		.setContentTitle("Modem ON")
-		.setContentText("Fdigi Modem ON, Microphone/Bluetooth in use by Modem")
+		.setContentTitle(getString(R.string.txt_ModemON))
+		.setContentText(getString(R.string.txt_FldigiModemOn))
 		.setOngoing(true);
 
 		// Creates an explicit intent for an Activity in your app
@@ -1065,6 +1089,7 @@ public class AndFlmsg extends  AppCompatActivity {
      * @param uri The Uri to query.
      * @author paulburke
      */
+	@TargetApi(Build.VERSION_CODES.KITKAT)
     public static String getPath(final Context context, final Uri uri) {
 
 	final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -1528,7 +1553,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
 	// Chooser of filesystem options.
-	final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+	final Intent chooserIntent = Intent.createChooser(galleryIntent, getString(R.string.txt_SelectSource));
 
 	// Add the camera options.
 	chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
@@ -1592,9 +1617,9 @@ public class AndFlmsg extends  AppCompatActivity {
 	    }
 	    break;
 	case R.id.reloadforms:
-	    myAlertDialog.setMessage("This WILL OVERWRITE the Existing Forms in the NBEMS.files folder and Add New Forms. Proceed?");
+	    myAlertDialog.setMessage(getString(R.string.txt_AreYouSureOverwriteForms));
 	    myAlertDialog.setCancelable(false);
-	    myAlertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	    myAlertDialog.setPositiveButton(getString(R.string.txt_Yes), new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int id) {
 		    // First clear the flag
 		    SharedPreferences.Editor editor = AndFlmsg.mysp.edit();
@@ -1604,7 +1629,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		    Processor.handlefolderstructure();
 		}
 	    });
-	    myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+	    myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int id) {
 		    dialog.cancel();
 		}
@@ -1612,9 +1637,9 @@ public class AndFlmsg extends  AppCompatActivity {
 	    myAlertDialog.show();
 	    break;
 	case R.id.exit:
-	    myAlertDialog.setMessage("Are you sure you want to Exit?");
+	    myAlertDialog.setMessage(getString(R.string.txt_AreYouSureExit));
 	    myAlertDialog.setCancelable(false);
-	    myAlertDialog.setPositiveButton("Yes",
+	    myAlertDialog.setPositiveButton(getString(R.string.txt_Yes),
 		    new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int id) {
 		    // Toast.makeText(this, "GoodBye", Toast.LENGTH_SHORT).show();
@@ -1634,7 +1659,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		    android.os.Process.killProcess(android.os.Process.myPid());
 		}
 	    });
-	    myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+	    myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int id) {
 		    dialog.cancel();
 		}
@@ -1788,7 +1813,10 @@ public class AndFlmsg extends  AppCompatActivity {
 //	setSupportProgress(95);
 
 	// If blank (on start), display version
-	if (TerminalBuffer.length() == 0 && !hasDisplayedWelcome) {
+		final String welcomeString = "\n" + AndFlmsg.myContext.getString(R.string.txt_WelcomeToAndFlmsg) + " "
+				+ Processor.version
+				+ AndFlmsg.myContext.getString(R.string.txt_WelcomeIntro);
+		if (TerminalBuffer.length() == 0 && !hasDisplayedWelcome) {
 	    TerminalBuffer = welcomeString;
 	} else {
 	    if (TerminalBuffer.equals(welcomeString)) {
@@ -1803,7 +1831,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	// update with whatever we have already accumulated then scroll
 	AndFlmsg.mHandler.post(AndFlmsg.addtoterminal);
 	// Advise which screen we are in
-	middleToastText("Terminal Screen");
+	middleToastText(getString(R.string.txt_TerminalScreen));
 
 	// JD Initialize the Send Text button (commands in connected mode)
 	myButton = (Button) findViewById(R.id.button_sendtext);
@@ -1820,7 +1848,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		    // Processor.q.send_txrsid_command("ON");
 		    Modem.txData("", "", intext + "\n", 0, 0, false, "");
 		} else {
-		    bottomToastText("Not while in the middle of receiving a message");
+		    bottomToastText(getString(R.string.txt_NotInMiddleOfMessage));
 		}
 		//		}
 		//		catch (Exception ex) {
@@ -1842,7 +1870,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	final View fileNameDialogView = myInflater.inflate(
 		R.layout.filenamedialog, null);
 	myAlertBuilder.setView(fileNameDialogView).setCancelable(true)
-	.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	.setNegativeButton(getString(R.string.txt_Cancel), new DialogInterface.OnClickListener() {
 	    public void onClick(DialogInterface dialog, int id) {
 		// Hide the keyboard since we handle it manually
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -1850,7 +1878,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		dialog.cancel();
 	    }
 	})
-	.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+	.setPositiveButton(getString(R.string.txt_Save), new DialogInterface.OnClickListener() {
 	    public void onClick(DialogInterface dialog, int id) {
 		TextView view = (TextView) fileNameDialogView.findViewById(R.id.edit_text_input);
 		String newFileName = view.getText().toString().trim();
@@ -1860,7 +1888,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		    imm.hideSoftInputFromWindow(fileNameDialogView.getWindowToken(), 0);
 		    dialog.cancel();
-		    middleToastText("File Name can't be blank");
+		    middleToastText(getString(R.string.txt_FileNameNotBlank));
 		} else {
 		    // Hide the keyboard since we handle it
 		    // manually
@@ -1876,7 +1904,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	AlertDialog myFileNameAlert = myAlertBuilder.create();
 	EditText view = (EditText) fileNameDialogView.findViewById(R.id.edit_text_input);
 	view.setText(templateFileName);
-	myFileNameAlert.setTitle("Enter File Name");
+	myFileNameAlert.setTitle(getString(R.string.txt_EnterFileName));
 	myFileNameAlert.show();
 
     }
@@ -1935,12 +1963,16 @@ public class AndFlmsg extends  AppCompatActivity {
     		" 	\n" + 
     		"</script>\n" + 
     		"";
-    
+
+	String jsSendNewFormDataInject;
+	String jsSendDraftFormDataInject;
+/*
+	//Moved to OnCreate as it uses the context variable
     static final String jsSendNewFormDataInject = "\n"
 	    +
 	    // "	   	<input type=\"button\" onclick=\"queueForTx()\" value=\"Submit, Queue &#10;for TX\" />\n"
 	    // +
-	    "		<input type=\"button\" onclick=\"saveToOutbox('New')\" value=\"Submit, Save &#10;in Outbox\" />\n"
+	    "		<input type=\"button\" onclick=\"saveToOutbox('New')\" value=\"" + AndFlmsg.myContext.getString(R.string.bt_SaveToOutbox) + "\" />\n"
 	    + "		<input type=\"button\" onclick=\"saveToDrafts('New')\" value=\"Submit, Save &#10;in Drafts\" />\n"
 	    + "	   	<input type=\"button\" onclick=\"saveAsTemplate('New')\" value=\"Submit, Save as &#10;Template\" /><br><br>\n"
 	    +
@@ -1964,7 +1996,7 @@ public class AndFlmsg extends  AppCompatActivity {
     
     static final String jsSetAllReadOnlyInject = "\n <script type=\"text/javascript\">\n"
 	    + "window.onload=setAllReadOnly();\n" + "</script>\n" + "";
-
+*/
     
     // Must match the declaration in flmsg.h:
     // enum hdr_reason {NEW = 1, CHANGED = 2, FROM = 3};
@@ -2433,7 +2465,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
 			myAlertDialog.setMessage("This will install the received form in the DisplayForms and EntryForms folders, OVERWRITTING any existing forms. Proceed?");
 			myAlertDialog.setCancelable(false);
-			myAlertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			myAlertDialog.setPositiveButton(getString(R.string.txt_Yes), new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int id) {
 				//Copy the extracted form into both folders
 				String filePath = Processor.HomePath + Processor.Dirprefix
@@ -2444,7 +2476,7 @@ public class AndFlmsg extends  AppCompatActivity {
 				Message.saveDataStringAsFile(filePath, mFileName, mDisplayForm);
 			    }
 			});
-			myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int id) {
 				dialog.cancel();
 			    }
@@ -2613,9 +2645,9 @@ public class AndFlmsg extends  AppCompatActivity {
 	LayoutInflater myLi = LayoutInflater.from(AndFlmsg.this);
 	final View arlMsgsView = myLi.inflate(R.layout.arlmsgsdialog, null);
 	myAlertDialogBuilder.setView(arlMsgsView);
-	myAlertDialogBuilder.setMessage("Select an ARL message");
+	myAlertDialogBuilder.setMessage(getString(R.string.txt_SelectAnARLmessage));
 	myAlertDialogBuilder.setCancelable(false);
-	myAlertDialogBuilder.setPositiveButton("Add Msg",
+	myAlertDialogBuilder.setPositiveButton(getString(R.string.bt_AddMessage),
 		new DialogInterface.OnClickListener() {
 	    public void onClick(DialogInterface dialog, int id) {
 		// Extract the message from the returned value
@@ -2654,7 +2686,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		dialog.cancel();
 	    }
 	});
-	myAlertDialogBuilder.setNegativeButton("Cancel",
+	myAlertDialogBuilder.setNegativeButton(getString(R.string.txt_Cancel),
 		new DialogInterface.OnClickListener() {
 	    public void onClick(DialogInterface dialog, int id) {
 		dialog.cancel();
@@ -2753,9 +2785,9 @@ public class AndFlmsg extends  AppCompatActivity {
 	LayoutInflater myLi = LayoutInflater.from(AndFlmsg.this);
 	final View arlMsgsView = myLi.inflate(R.layout.arlhxdialog, null);
 	myAlertDialogBuilder.setView(arlMsgsView);
-	myAlertDialogBuilder.setMessage("Select ARL delivery codes");
+	myAlertDialogBuilder.setMessage(getString(R.string.txt_SelectARLDeliveryCodes));
 	myAlertDialogBuilder.setCancelable(false);
-	myAlertDialogBuilder.setPositiveButton("Add to HX Field",
+	myAlertDialogBuilder.setPositiveButton(getString(R.string.bt_AddToHXField),
 		new DialogInterface.OnClickListener() {
 	    public void onClick(DialogInterface dialog, int id) {
 		final EditText hxField = (EditText) myAlertDialog
@@ -2772,7 +2804,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		dialog.cancel();
 	    }
 	});
-	myAlertDialogBuilder.setNegativeButton("Cancel",
+	myAlertDialogBuilder.setNegativeButton(getString(R.string.txt_Cancel),
 		new DialogInterface.OnClickListener() {
 	    public void onClick(DialogInterface dialog, int id) {
 		dialog.cancel();
@@ -2858,7 +2890,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    // Set listener for item selection
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required
-	    middleToastText("Inbox View Screen \n\nLong Press on a Message for display");
+	    middleToastText(getString(R.string.txt_InboxViewscreen));
 	    msgListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 		public boolean onItemLongClick(AdapterView<?> parent,
 			// msgListView.setOnItemClickListener(new
@@ -2926,15 +2958,15 @@ public class AndFlmsg extends  AppCompatActivity {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
 				myAlertDialog.setView(((Activity) AndFlmsg.myContext).getLayoutInflater()
 					.inflate(R.layout.sharedialog, null));
-				myAlertDialog.setPositiveButton("HTML", new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_HTML), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.formatForDisplay(Processor.DirInbox, mFileName, ".html");
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".html", sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
 					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
 				    }
 				});
-				myAlertDialog.setNegativeButton("RAW-Flmsg", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_RawFlmsg), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.readFile(Processor.DirInbox, mFileName);
 					//Extract extension for the shareInfoIntent method
@@ -2944,15 +2976,15 @@ public class AndFlmsg extends  AppCompatActivity {
 						extension = mFileName.substring(mFileName.lastIndexOf("."));
 					}
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, extension, sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
 					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
 				    }
 				});
-				myAlertDialog.setNeutralButton("WRAP", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNeutralButton(getString(R.string.txt_WRAP), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.formatForTx(Processor.DirInbox, mFileName, true);//Pictures in digital form
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
 					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
 				    }
 				});
@@ -2965,7 +2997,8 @@ public class AndFlmsg extends  AppCompatActivity {
 			    public void onClick(View v) {
 				String newFileName = "Copy_of_" + mFileName;
 				if (Message.copyAnyFile(Processor.DirInbox, mFileName, Processor.DirDrafts, newFileName)) {
-				    AndFlmsg.middleToastText("Copied file: " + mFileName + " to Drafts Folder as " + newFileName + "\n");
+				    AndFlmsg.middleToastText(getString(R.string.txt_CopiedFile) + ": " + mFileName
+							+ " " + getString(R.string.txt_ToDraftsFolderAs) + " " + newFileName + "\n");
 				}
 			    }
 			});
@@ -2974,7 +3007,8 @@ public class AndFlmsg extends  AppCompatActivity {
 			myButton.setOnClickListener(new OnClickListener() {
 			    public void onClick(View v) {
 				if (Message.copyAnyFile(Processor.DirInbox, mFileName, Processor.DirOutbox, mFileName)) {
-				    AndFlmsg.middleToastText("Copied file: " + mFileName + " to Outbox Folder\n");
+				    AndFlmsg.middleToastText(getString(R.string.txt_CopiedFile) + ": "
+							+ mFileName + getString(R.string.txt_ToOutboxFolder) + "\n");
 				}
 			    }
 			});
@@ -2983,15 +3017,15 @@ public class AndFlmsg extends  AppCompatActivity {
 			myButton.setOnClickListener(new OnClickListener() {
 			    public void onClick(View v) {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
-				myAlertDialog.setMessage("Are you sure you want to Delete This Message?");
+				myAlertDialog.setMessage(getString(R.string.txt_AreYouSureDeleteMessage));
 				myAlertDialog.setCancelable(false);
-				myAlertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_Yes), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					Message.deleteFile(Processor.DirInbox, mFileName, true);// Advise deletion
 					returnFromFormView();
 				    }
 				});
-				myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 				    }
@@ -3018,7 +3052,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			mWebView.clearCache(false);
 			mFileName = (String) parent.getItemAtPosition(position);
 			// Pre-load a "Formating..." Message
-			mWebView.loadData("Formating...Please Wait", "text/html", "UTF-8");
+			mWebView.loadData(getString(R.string.txt_FormattingWait), "text/html", "UTF-8");
 			// Format for display and sharing
 			new backgroundFormatForDisplay(Processor.DirInbox).execute();
 		    } catch (Exception e) {
@@ -3039,7 +3073,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    msgListView.setSelection(0);
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required
-	    middleToastText("Compose View\n\n Long Press on a Form for creating a New Message");
+	    middleToastText(getString(R.string.txt_ComposeViewLongPress));
 	    // Set listener for item selection
 	    msgListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 		public boolean onItemLongClick(AdapterView<?> parent,
@@ -3067,9 +3101,9 @@ public class AndFlmsg extends  AppCompatActivity {
 				if (Message.isCustomForm(Message.getExtension(Message.formName, false))) {
 				    //Prompt to confirm that we want to send the raw form, not to submit the data entered
 				    AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
-				    myAlertDialog.setMessage("Warning! This is for sharing the raw Form ONLY. To save the typed data as a message, use the buttons at the bottom of the form. Proceed with sending the RAW Form (No data)?");
+				    myAlertDialog.setMessage(getString(R.string.txt_WarningSharingFormOnly));
 				    myAlertDialog.setCancelable(false);
-				    myAlertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				    myAlertDialog.setPositiveButton(getString(R.string.txt_Yes), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 					    //Wrap the HTML form in an "html_form" Flmsg format
 					    // Build message header first
@@ -3099,7 +3133,7 @@ public class AndFlmsg extends  AppCompatActivity {
 					    returnFromFormView();
 					}
 				    });
-				    myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				    myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 					    dialog.cancel();
 					}
@@ -3108,9 +3142,9 @@ public class AndFlmsg extends  AppCompatActivity {
 				} else {
 				    //Let the user know that we can't transfer that form
 				    AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
-				    myAlertDialog.setMessage("Sorry, but this is a pre-defined form (Hard Coded in Flmsg) and it cannot be transfered this way. Only Custom Forms can be transfered using this method.");
+				    myAlertDialog.setMessage(getString(R.string.txt_SorryHardCodedForm));
 				    myAlertDialog.setCancelable(false);
-				    myAlertDialog.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+				    myAlertDialog.setNegativeButton(getString(R.string.txt_Ok), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 					    dialog.cancel();
 					}
@@ -3151,7 +3185,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			// mWebView.getSettings().setUseWideViewPort(true);
 
 			// Pre-load a "Formating..." Message
-			mWebView.loadData("Formating...Please Wait", "text/html", "UTF-8");
+			mWebView.loadData(getString(R.string.txt_FormattingWait), "text/html", "UTF-8");
 			// Format for entering new message
 			mFileName = (String) parent.getItemAtPosition(position);
 			new backgroundNewFormDisplay().execute();
@@ -3173,7 +3207,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    msgListView.setSelection(0);
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required for web pages
-	    middleToastText("Drafts View Screen \n\nLong Press on a Message to Continue Editing");
+	    middleToastText(getString(R.string.txt_DraftViewLongPress));
 	    // Set listener for item selection
 	    msgListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 		public boolean onItemLongClick(AdapterView<?> parent,
@@ -3194,15 +3228,15 @@ public class AndFlmsg extends  AppCompatActivity {
 			    public void onClick(View v) {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(
 					AndFlmsg.this);
-				myAlertDialog.setMessage("Are you sure you want to Delete This Message?");
+				myAlertDialog.setMessage(getString(R.string.txt_AreYouSureDeleteMessage));
 				myAlertDialog.setCancelable(false);
-				myAlertDialog.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_Yes),new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					Message.deleteFile(Processor.DirDrafts, mFileName, true);// Advise deletion
 					returnFromFormView();
 				    }
 				});
-				myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 				    }
@@ -3228,7 +3262,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			//Prevent caching of pictures
 			mWebView.clearCache(false);
 			// Pre-load a "Formating..." Message
-			mWebView.loadData("Formating...Please Wait", "text/html", "UTF-8");
+			mWebView.loadData(getString(R.string.txt_FormattingWait), "text/html", "UTF-8");
 			// Get the file name selected in the list
 			mFileName = (String) parent.getItemAtPosition(position);
 			new backgroundFormatForEditing(Processor.DirDrafts, jsSendDraftFormDataInject).execute();
@@ -3250,7 +3284,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    msgListView.setSelection(0);
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required for web pages
-	    middleToastText("Templates View Screen \n\nLong Press on a Template to Create a New Message");
+	    middleToastText(getString(R.string.txt_TemplatesView));
 	    // Set listener for item selection
 	    msgListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 		public boolean onItemLongClick(AdapterView<?> parent,
@@ -3267,9 +3301,9 @@ public class AndFlmsg extends  AppCompatActivity {
 			myButton.setOnClickListener(new OnClickListener() {
 			    public void onClick(View v) {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
-				myAlertDialog.setMessage("Are you sure you want to Delete This Message?");
+				myAlertDialog.setMessage(getString(R.string.txt_AreYouSureDeleteMessage));
 				myAlertDialog.setCancelable(false);
-				myAlertDialog.setPositiveButton("Yes",
+				myAlertDialog.setPositiveButton(getString(R.string.txt_Yes),
 					new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					Message.deleteFile(Processor.DirTemplates, mFileName, true);// Advise deletion
@@ -3277,7 +3311,7 @@ public class AndFlmsg extends  AppCompatActivity {
 				    }
 				});
 				myAlertDialog
-				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 				    }
@@ -3303,7 +3337,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			mWebView.clearCache(false);
 			mWebView.addJavascriptInterface(new JavascriptAccess(AndFlmsg.myContext),
 				"JavascriptAccess");
-			mWebView.loadData("Formating...Please Wait", "text/html", "UTF-8");
+			mWebView.loadData(getString(R.string.txt_FormattingWait), "text/html", "UTF-8");
 			// Get the file name selected in the list
 			mFileName = (String) parent.getItemAtPosition(position);
 			new backgroundFormatForEditing(Processor.DirTemplates,
@@ -3326,7 +3360,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    msgListView.setSelection(0);
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required
-	    middleToastText("Outbox View\n\n Long Press on a Message to Select and Send");
+	    middleToastText(getString(R.string.txt_OutboxView));
 	    // Set listener for item selection
 	    msgListView
 	    .setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -3359,7 +3393,7 @@ public class AndFlmsg extends  AppCompatActivity {
 					    + bufferToTx + "... end\n\n\n", (digitalImages ? 0 : Message.attachedPictureCount),
 					    Message.attachedPictureTxSPP, Message.attachedPictureColour, Modem.modemCapListString[Processor.imageTxModemIndex]);
 				} else {
-				    topToastText("Please Wait...Still Transmitting Message(s)");
+				    topToastText(getString(R.string.txt_PleaseWaitTxing));
 				}
 			    }
 			});
@@ -3373,15 +3407,15 @@ public class AndFlmsg extends  AppCompatActivity {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
 				myAlertDialog.setView(((Activity) AndFlmsg.myContext).getLayoutInflater()
 					.inflate(R.layout.sharedialog, null));
-				myAlertDialog.setPositiveButton("HTML", new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_HTML), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.formatForDisplay(Processor.DirOutbox, mFileName, ".html");
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".html", sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
-					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+					Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
 				    }
 				});
-				myAlertDialog.setNegativeButton("RAW-Flmsg", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_RawFlmsg), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.readFile(Processor.DirOutbox, mFileName);
 					//Extract extension for the shareInfoIntent method
@@ -3391,16 +3425,16 @@ public class AndFlmsg extends  AppCompatActivity {
 					    extension = mFileName.substring(mFileName.lastIndexOf("."));
 					}
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, extension, sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
-					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+					Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
 				    }
 				});
-				myAlertDialog.setNeutralButton("WRAP", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNeutralButton(getString(R.string.txt_WRAP), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.formatForTx(Processor.DirOutbox, mFileName, true);//Images in digital form
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
-					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+					Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
 				    }
 				});
 				myAlertDialog.show();
@@ -3411,16 +3445,16 @@ public class AndFlmsg extends  AppCompatActivity {
 			myButton.setOnClickListener(new OnClickListener() {
 			    public void onClick(View v) {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
-				myAlertDialog.setMessage("Are you sure you want to Delete This Message?");
+				myAlertDialog.setMessage(getString(R.string.txt_AreYouSureDeleteMessage));
 				myAlertDialog.setCancelable(false);
-				myAlertDialog.setPositiveButton("Yes",
+				myAlertDialog.setPositiveButton(getString(R.string.txt_Yes),
 					new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					Message.deleteFile(Processor.DirOutbox, mFileName, true);// Advise deletion
 					returnFromFormView();
 				    }
 				});
-				myAlertDialog.setNegativeButton("No",
+				myAlertDialog.setNegativeButton(getString(R.string.txt_No),
 					new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
@@ -3507,7 +3541,7 @@ public class AndFlmsg extends  AppCompatActivity {
 					    itemToChange.setVisibility(View.INVISIBLE);
 					    //Re-build the bufferToTx to include the images in text mode (digital mode)
 					    bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages);
-					    imageMode = "Digital";
+					    imageMode = getString(R.string.txt_Digital);
 					    totalEstimateView.setText("");
 					    myImageModeView.setText(imageMode);
 					} else {
@@ -3531,9 +3565,10 @@ public class AndFlmsg extends  AppCompatActivity {
 							(Message.attachedPictureColour ? 3 : 1) + 3 + 1;
 					    }
 					    int[] SPPtoSpeed = {0,8,4,0,2,0,0,0,1}; //map from SPP to Xy speed display
-					    analogSpeedColour = (Message.attachedPictureColour ? "Color" : "Grey") + ",X" +
-						    Integer.toString(SPPtoSpeed[Message.attachedPictureTxSPP]);
-					    totalEstimateView.setText(Integer.toString(timeToTxImages) + "secs");
+					    analogSpeedColour = (Message.attachedPictureColour ?
+								getString(R.string.txt_Color) : getString(R.string.txt_Grey) + ",X" +
+						    Integer.toString(SPPtoSpeed[Message.attachedPictureTxSPP]));
+					    totalEstimateView.setText(Integer.toString(timeToTxImages) + getString(R.string.txt_Secs));
 					    myImageModeView.setText(imageMode + "," + analogSpeedColour);
 					}
 					// Update the time required to Tx Text, Image Mode, Image Tx Time
@@ -3593,10 +3628,10 @@ public class AndFlmsg extends  AppCompatActivity {
 					}
 					//Update display 
 					int[] SPPtoSpeed = {0,8,4,0,2,0,0,0,1}; //map from SPP to Xy speed display
-					analogSpeedColour = (Message.attachedPictureColour ? "Color" : "Grey") + ",X" +
+					analogSpeedColour = (Message.attachedPictureColour ? getString(R.string.txt_Color) : getString(R.string.txt_Grey)) + ",X" +
 						Integer.toString(SPPtoSpeed[Message.attachedPictureTxSPP]);
 					TextView totalEstimateView = (TextView) findViewById(R.id.totalestimatetext);
-					totalEstimateView.setText(Integer.toString(timeToTxImages) + "secs");
+					totalEstimateView.setText(Integer.toString(timeToTxImages) + getString(R.string.txt_Secs));
 					TextView myImageModeView = (TextView) findViewById(R.id.imagemodetext);
 					myImageModeView.setText(imageMode + "," + analogSpeedColour);
 				    }
@@ -3618,7 +3653,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			mWebView.clearCache(false);
 			mFileName = (String) parent.getItemAtPosition(position);
 			// Pre-load a "Formating..." Message
-			mWebView.loadData("Formating...Please Wait", "text/html", "UTF-8");
+			mWebView.loadData(getString(R.string.txt_FormattingWait), "text/html", "UTF-8");
 			// Format for display and sharing
 			new backgroundFormatForDisplay(Processor.DirOutbox).execute();
 			// Update mode and Tx time information
@@ -3632,7 +3667,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			    TextView totalEstimateView = (TextView) findViewById(R.id.totalestimatetext);
 			    int timeToTxImages = 0;
 			    if (digitalImages) {
-				imageMode = "Digital";
+				imageMode = getString(R.string.txt_Digital);
 				//Disable the other image buttons
 				View itemToChange = findViewById(R.id.button_speedcolour);
 				itemToChange.setVisibility(View.INVISIBLE);
@@ -3652,10 +3687,10 @@ public class AndFlmsg extends  AppCompatActivity {
 				imageMode = Modem.modemCapListString[Processor.imageTxModemIndex];
 				//Update display 
 				int[] SPPtoSpeed = {0,8,4,0,2,0,0,0,1}; //map from SPP to Xy speed display
-				analogSpeedColour = "," + (Message.attachedPictureColour ? "Color" : "Grey") + ",X" +
+				analogSpeedColour = "," + (Message.attachedPictureColour ? getString(R.string.txt_Color) : getString(R.string.txt_Grey)) + ",X" +
 					Integer.toString(SPPtoSpeed[Message.attachedPictureTxSPP]);
 				myImageModeView.setText(imageMode + analogSpeedColour);
-				totalEstimateView.setText(Integer.toString(timeToTxImages) + "secs");
+				totalEstimateView.setText(Integer.toString(timeToTxImages) + getString(R.string.txt_Secs));
 			    }
 			} else {
 			    showHide.setVisibility(View.GONE);
@@ -3685,7 +3720,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    msgListView.setSelection(0);
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required
-	    middleToastText("Sent Items View\n\nLong Press on a Message to View it");
+	    middleToastText(getString(R.string.txt_SentItemsView));
 	    // Set listener for item selection
 	    msgListView
 	    .setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -3734,14 +3769,14 @@ public class AndFlmsg extends  AppCompatActivity {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
 				myAlertDialog.setView(((Activity) AndFlmsg.myContext).getLayoutInflater()
 					.inflate(R.layout.sharedialog, null));
-				myAlertDialog.setPositiveButton("HTML", new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_HTML), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.formatForDisplay(Processor.DirSent, mFileName, ".html");
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".html", sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
-					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);				    }
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+					Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);				    }
 				});
-				myAlertDialog.setNegativeButton("RAW-Flmsg", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_RawFlmsg), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.readFile(Processor.DirSent, mFileName);
 					//Extract extension for the shareInfoIntent method
@@ -3759,8 +3794,8 @@ public class AndFlmsg extends  AppCompatActivity {
 				    public void onClick(DialogInterface dialog, int id) {
 					mDisplayForm = Message.formatForTx(Processor.DirSent, mFileName, true);//Images in digital form
 					Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
-					startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
-					Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
+					startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+					Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
 				    }
 				});
 				myAlertDialog.show();
@@ -3771,15 +3806,15 @@ public class AndFlmsg extends  AppCompatActivity {
 			myButton.setOnClickListener(new OnClickListener() {
 			    public void onClick(View v) {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
-				myAlertDialog.setMessage("Are you sure you want to Delete This Message?");
+				myAlertDialog.setMessage(getString(R.string.txt_AreYouSureDeleteMessage));
 				myAlertDialog.setCancelable(false);
-				myAlertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_Yes), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					Message.deleteFile(Processor.DirSent, mFileName, true);
 					returnFromFormView();
 				    }
 				});
-				myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 				    }
@@ -3798,7 +3833,7 @@ public class AndFlmsg extends  AppCompatActivity {
 			mWebView.clearCache(false);
 			mFileName = (String) parent.getItemAtPosition(position);
 			// Pre-load a "Formating..." Message
-			mWebView.loadData("Formating...Please Wait", "text/html", "UTF-8");
+			mWebView.loadData(getString(R.string.txt_FormattingWait), "text/html", "UTF-8");
 			// Format for display and sharing
 			new backgroundFormatForDisplay(Processor.DirSent).execute();
 		    } catch (Exception e) {
@@ -3820,7 +3855,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	    // Set listener for item selection
 	    msgListView.performHapticFeedback(MODE_APPEND);
 	    // Advise user of long pressed required
-	    middleToastText("Logs View\n\n Long Press on a Log file to view");
+	    middleToastText(getString(R.string.txt_LogsView));
 	    msgListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 		public boolean onItemLongClick(AdapterView<?> parent,
 			View view, final int position, long id) {
@@ -3861,15 +3896,15 @@ public class AndFlmsg extends  AppCompatActivity {
 			    public void onClick(View v) {
 				AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(
 					AndFlmsg.this);
-				myAlertDialog.setMessage("Are you sure you want to Delete This Log File?");
+				myAlertDialog.setMessage(getString(R.string.txt_AreYouSureDeleteLogFile));
 				myAlertDialog.setCancelable(false);
-				myAlertDialog.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+				myAlertDialog.setPositiveButton(getString(R.string.txt_Yes),new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int id) {
 					Message.deleteFile(Processor.DirLogs, Processor.messageLogFile, true);
 					returnFromFormView();
 				    }
 				});
-				myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				myAlertDialog.setNegativeButton(getString(R.string.txt_No), new DialogInterface.OnClickListener() {
 				    public void onClick(
 					    DialogInterface dialog,
 					    int id) {
@@ -3964,7 +3999,7 @@ public class AndFlmsg extends  AppCompatActivity {
 		if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
 		    new backgroundSendAllMessages().execute();
 		} else {
-		    topToastText("Please Wait...Still Transmitting Messages");
+		    topToastText(getString(R.string.txt_PleaseWaitTxing));
 		}
 	    }
 	});
@@ -4117,7 +4152,7 @@ public class AndFlmsg extends  AppCompatActivity {
 	AndFlmsg.mHandler.post(AndFlmsg.addtomodem);
 
 	// Advise user of which screen we are in
-	middleToastText("Modem Screen");
+	middleToastText(getString(R.string.txt_ModemScreen));
 	
 	if (withWaterfall) { // initialise two extra buttons
 
@@ -4234,7 +4269,7 @@ public class AndFlmsg extends  AppCompatActivity {
 				}
 			    }
 			} else {
-			    bottomToastText("Modem cannot be stopped now! Either TXing or currently Receiving a Message");
+			    bottomToastText(getString(R.string.txt_ModemCannotStopNow));
 			}
 		    } else {
 			if (Modem.modemState == Modem.RXMODEMIDLE) {

@@ -17,7 +17,7 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_weight="0.90"
-		    android:text="CPU" >
+		    android:text="@string/txt_CPU" >
 		</TextView>
 		<ProgressBar
 		    android:id="@+id/cpu_load"
@@ -42,20 +42,20 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_weight="0.5"
-            android:text="Rx RsID" />
+            android:text="@string/bt_RxRsID" />
         <CheckBox
             android:id="@+id/txrsid"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_weight="0.5"
-            android:text="Tx RsID" />
+            android:text="@string/bt_TxRsID" />
     </LinearLayout>
 	<ScrollView android:id="@+id/modemscrollview"
 		android:layout_width="fill_parent"
 		android:layout_height="0dp" 
 		android:layout_weight="0.93">
 		<TextView android:id="@+id/modemview"
-		    android:text="Modem Screen"
+		    android:text="@string/txt_ModemScreen"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
 			android:layout_weight="4">
@@ -72,7 +72,7 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_weight="0.90"
-			android:text="S2N" >
+			android:text="@string/txt_S2N" >
 		</TextView>
 		<ProgressBar
 		    android:id="@+id/signal_quality"
@@ -92,25 +92,29 @@
 		android:weightSum="1" 
 		android:layout_weight="0.03">
 		<Button android:id="@+id/button_modeUP" 
-			android:text="Next Mode"
+			android:text="@string/bt_NextMode"
 			android:layout_height="fill_parent" 
 			android:layout_weight="0.25" 
-			android:layout_width="0dp"></Button>
+			android:layout_width="0dp">
+		</Button>
 		<Button android:id="@+id/button_squelchUP" 
-			android:text="Sqlch    Up"
+			android:text="@string/bt_SqlchUp"
 			android:layout_height="fill_parent" 
 			android:layout_weight="0.25" 
-			android:layout_width="0dp"></Button>
+			android:layout_width="0dp">
+		</Button>
 		<Button android:id="@+id/button_modemONOFF" 
-			android:text="Modem On/Off"
+			android:text="@string/bt_ModemOnOff"
 			android:layout_height="fill_parent" 
 			android:layout_width="0dp" 
-			android:layout_weight="0.25"></Button>
+			android:layout_weight="0.25">
+		</Button>
 		<Button android:id="@+id/button_stopTX" 
-			android:text="Stop Tx"
+			android:text="@string/bt_StopTx"
 			android:layout_height="fill_parent" 
 			android:layout_width="0dp" 
-			android:layout_weight="0.25"></Button>
+			android:layout_weight="0.25">
+		</Button>
 	</LinearLayout>
 	<LinearLayout android:id="@+id/FrameLayout4"
 		android:layout_width="fill_parent"
@@ -118,25 +122,25 @@
 		android:layout_weight="0.03" 
 		android:weightSum="1">
 		<Button android:id="@+id/button_modeDOWN" 
-			android:text="Prev Mode"
+			android:text="@string/bt_PrevMode"
 			android:layout_height="fill_parent" 
 			android:layout_weight="0.25" 
 			android:layout_width="0dp">
 		</Button>
 		<Button android:id="@+id/button_squelchDOWN" 
-			android:text="Sqlch Down"
+			android:text="@string/bt_SqlchDown"
 			android:layout_height="fill_parent" 
 			android:layout_weight="0.25" 
 			android:layout_width="0dp">	
 		</Button>
 		<Button android:id="@+id/button_tune" 
-			android:text="Tune"
+			android:text="@string/bt_Tune"
 			android:layout_height="fill_parent"
 			android:layout_width="0dp" 
 			android:layout_weight="0.25">
 		</Button>
 		<Button android:id="@+id/button_waterfallONOFF" 
-			android:text="W.Fall On/Off"
+			android:text="@string/bt_W.FallOnOff"
 			android:layout_width="0dp" 
 			android:layout_weight="0.25" 
 			android:layout_height="fill_parent">

@@ -18,28 +18,28 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Tx over Radio" >
+			        android:text="@string/bt_TxOverRadio" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_shareoverinternet"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Share" >
+			        android:text="@string/bt_Share" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_delete"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Delete" >
+			        android:text="@string/bt_Delete" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_return"
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return" >
+			        android:text="@string/bt_Return" >
 			    </Button>
 			</LinearLayout>
 			<LinearLayout
@@ -54,7 +54,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Prev Mode" >
+			        android:text="@string/bt_PrevMode" >
 			    </Button>
 				<LinearLayout
 				    android:id="@+id/FrameLayout5"
@@ -84,7 +84,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Next Mode" >
+			        android:text="@string/bt_NextMode" >
 			    </Button>
 			</LinearLayout>
 			
@@ -101,7 +101,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Image Mode" >
+			        android:text="@string/bt_ImageMode" >
 			    </Button>
 				<LinearLayout
 				    android:id="@+id/FrameLayout4"
@@ -131,7 +131,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="70dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Speed/Color" >
+			        android:text="@string/bt_SpeedColor" >
 			    </Button>
 			</LinearLayout>
 			

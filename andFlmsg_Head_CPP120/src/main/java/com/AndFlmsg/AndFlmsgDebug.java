@@ -18,7 +18,7 @@ mailTo = "vk2eta@gmail.com",
 customReportContent = { ReportField.ANDROID_VERSION, ReportField.PHONE_MODEL, ReportField.CUSTOM_DATA, ReportField.STACK_TRACE, ReportField.LOGCAT },                
 mode = ReportingInteractionMode.TOAST,
 forceCloseDialogAfterToast = true, // optional, default false
-resToastText = R.string.crash_toast_text)
+resToastText = R.string.txt_crash_toast_text)
 
 
     public class AndFlmsgDebug extends Application {

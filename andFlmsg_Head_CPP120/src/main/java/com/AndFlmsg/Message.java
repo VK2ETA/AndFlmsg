@@ -190,8 +190,8 @@ public class Message {
 	    out = new FileWriter(fileToSave, true);
 	    out.write(dataString);
 	    out.close();
-	    AndFlmsg.topToastText("\nSaved file: " + fileName + "\n");
-	    addEntryToLog(Message.dateTimeStamp() + ": Saved file " + fileName);
+	    AndFlmsg.topToastText(AndFlmsg.myContext.getString(R.string.txt_SavedFile) + ": " + fileName + "\n");
+	    addEntryToLog(Message.dateTimeStamp() + " - " + AndFlmsg.myContext.getString(R.string.txt_SavedFile) + ": "+ fileName);
 	}
 	catch (IOException e)
 	{
@@ -212,8 +212,8 @@ public class Message {
 	} else {
 	    n.delete();
 	    if (adviseDeletion) {
-		AndFlmsg.middleToastText("Document Deleted...");
-		addEntryToLog(Message.dateTimeStamp() + ": Deleted file " + fileName);
+		AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_DocumentDeleted));
+		addEntryToLog(Message.dateTimeStamp() + " - " +  AndFlmsg.myContext.getString(R.string.txt_DocumentDeleted) + ": " + fileName);
 	    }
 	    return true;
 	}
@@ -229,8 +229,8 @@ public class Message {
 	    String fullFileName = Processor.HomePath + Processor.Dirprefix + originFolder + Processor.Separator + fileName;
 	    File mFile = new File(fullFileName);
 	    if (!mFile.isFile()) {
-		 Processor.PostToTerminal("File " + fileName + " not found in " + destinationFolder + "\n");
-		return false;
+			loggingclass.writelog("File not found: " + fullFileName, null, true);
+			return false;
 	    } else {
 		FileOutputStream fileOutputStrm = null;
 		FileInputStream fileInputStrm = null;
@@ -245,10 +245,10 @@ public class Message {
 		    }
 		}
 		catch (FileNotFoundException e) {
-		    Processor.PostToTerminal("File not found: " + fullFileName + "\n");
+			loggingclass.writelog("File not found: " + fullFileName, e, true);
 		}
 		catch (IOException e) {
-		    Processor.PostToTerminal("Error copying: " + fileName + " " + e + "\n");
+			loggingclass.writelog("Error copying: " + fileName, e, true);
 		}
 		finally {
 		    try {
@@ -260,15 +260,16 @@ public class Message {
 			}
 		    }
 		    catch (IOException e) {
-			Processor.PostToTerminal("File close error: " + e + "\n");
+				loggingclass.writelog("File close error: " + fullFileName, e, true);
 		    }
 		}
 		if (adviseCopy) 
-		    addEntryToLog(Message.dateTimeStamp() + ": Copied file " + fileName + " to " + destinationFolder);
+		    addEntryToLog(Message.dateTimeStamp() + " - " + AndFlmsg.myContext.getString(R.string.txt_CopiedFile) + ": " + fileName +
+					" " + AndFlmsg.myContext.getString(R.string.txt_ToFolder) + ": " + destinationFolder);
 		return true;
 	    }
 	} else {
-	    Processor.PostToTerminal("Directory not found: " + destinationFolder + "\n");
+		loggingclass.writelog("Directory not found: " + destinationFolder + " ", null, true);
 	    return false;
 	}
     }
@@ -299,11 +300,11 @@ public class Message {
 		    }
 		}
 		catch (FileNotFoundException e) {
-		    Processor.PostToTerminal("File not found: " + fullFileName + "\n");
+			loggingclass.writelog("File not found: " + fullFileName + " ", e, true);
 		    result = false;
 		}
 		catch (IOException e) {
-		    Processor.PostToTerminal("Error copying: " + fileName + " " + e + "\n");
+			loggingclass.writelog("Error copying: " + fileName + " ", e, true);
 		    result = false;
 		}
 		finally {
@@ -316,16 +317,17 @@ public class Message {
 			}
 		    }
 		    catch (IOException e) {
-			Processor.PostToTerminal("File close error: " + e + "\n");
+				loggingclass.writelog("File close error: " + fullFileName, e, true);
 			result = false;
 		    }
 		}
 	    }
 	} else {
-	    Processor.PostToTerminal("Directory not found: " + destinationFolder + "\n");
+		loggingclass.writelog("Directory not found: " + destinationFolder + " ", null, true);
 	    result = false;
 	}
-	if (result) addEntryToLog(Message.dateTimeStamp() + ": Copied file " + newFileName + " to " + destinationFolder);
+	if (result) addEntryToLog(Message.dateTimeStamp() + " - " + AndFlmsg.myContext.getString(R.string.txt_CopiedFile) + " " + newFileName +
+			" " + AndFlmsg.myContext.getString(R.string.txt_ToFolder) + " " + destinationFolder);
 	return result;
     }
 
@@ -447,7 +449,7 @@ public class Message {
 	    //Include error handling if form not valid or does not include a form 
 	    //  name (typically for corrupted received messages)
 	    if (!found_flmsg || !found_form){
-		AndFlmsg.middleToastText("No form name found in (corrupted?) message file or missing <flmsg> statement at start of file. Displaying raw file content.");
+		AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_NoFormNameFound));
 		//Convert the HTML reserved characters "&", "<" and ">" to their entity name
 		mDisplayForm = fullDataString.replaceAll("&", "&amp;");  //Do this first of course
 		mDisplayForm = mDisplayForm.replaceAll("<", "&lt;");
@@ -613,7 +615,7 @@ public class Message {
 	}
 	catch (FileNotFoundException e)
 	{
-	    AndFlmsg.middleToastText("Form file " + formName + " Not Found. Can't format this message, displaying raw file");
+	    AndFlmsg.middleToastText(formName + AndFlmsg.myContext.getString(R.string.txt_NotAnExistingForm));
 	    //Convert the HTML reserved characters "&", "<" and ">" to their entity name
 	    mDisplayForm = fullDataString.replaceAll("&", "&amp;");  //Do this first of course
 	    //Minimize memory usage, allow GC of String
@@ -693,7 +695,7 @@ public class Message {
 	    }
 	    //Include error handling if form not valid or does not include form name
 	    if (!found_flmsg || !found_form){
-		AndFlmsg.middleToastText("No form name found in message file or missing <flmsg> statement at start of file. Is it corrupted?");
+		AndFlmsg.middleToastText(formName + AndFlmsg.myContext.getString(R.string.txt_NoFormNameFound));
 		return "";
 	    }
 	    //First read the form file into a string variable
@@ -806,7 +808,8 @@ public class Message {
 	}
 	catch (FileNotFoundException e)
 	{
-	    AndFlmsg.middleToastText("Form file " + formName + " Not Found. Can't Edit this message");
+	    AndFlmsg.middleToastText(formName + AndFlmsg.myContext.getString(R.string.txt_NotAnExistingForm) +
+				" " + AndFlmsg.myContext.getString(R.string.txt_CantEditThatMessage));
 	}
 	catch (IOException e)
 	{
@@ -873,7 +876,7 @@ public class Message {
 	    }
 	    //Include error handling if form not valid or does not include form name
 	    if (!found_flmsg){
-		AndFlmsg.middleToastText("Missing <flmsg> statement at start of Message file. Is it corrupted?");
+		AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_NoFlmsgStatement));
 		return "";
 	    }
 	    Message.saveEnv(); //To enable access to preferences
@@ -889,7 +892,7 @@ public class Message {
 	}
 	catch (FileNotFoundException e)
 	{
-	    AndFlmsg.middleToastText("Message file " + mFileName + " Not Found. Deleted?");
+	    AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_FileNotFound) + ": " + mFileName);
 	}
 	catch (IOException e)
 	{
@@ -978,7 +981,7 @@ public class Message {
 	}
 	catch (FileNotFoundException e)
 	{
-	    AndFlmsg.middleToastText("Message file " + mFileName + " Not Found. Deleted?");
+	    AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_FileNotFound) + ": " + mFileName);
 	}
 	catch (IOException e)
 	{

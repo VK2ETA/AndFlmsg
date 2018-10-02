@@ -15,7 +15,7 @@ android {
 
         ndk {
             moduleName "AndFlmsg_Modem_Interface"
-            abiFilters 'armeabi', 'x86', 'armeabi-v7a', 'mips'
+            abiFilters 'armeabi-v7a'
             android.buildTypes.debug.jniDebuggable true
         }
     }

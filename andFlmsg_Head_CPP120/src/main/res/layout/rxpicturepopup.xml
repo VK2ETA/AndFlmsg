@@ -21,14 +21,14 @@
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Return to Modem" >
+			        android:text="@string/bt_ReturnToModem" >
 			    </Button>
 			    <Button
 			        android:id="@+id/button_slant_left"
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Slant     Left"
+			        android:text="@string/bt_SlantLeft"
 			        android:enabled="false"  >
 			    </Button>
 			    <Button
@@ -36,7 +36,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Slant Right"
+			        android:text="@string/bt_SlantRight"
 			        android:enabled="false"  >
 			    </Button>
 			    <Button
@@ -44,7 +44,7 @@
 			        android:layout_width="87dp"
 			        android:layout_height="87dp"
 			        android:layout_gravity="fill_vertical"
-			        android:text="Save Again"
+			        android:text="@string/bt_SaveAgain"
 			        android:enabled="false"  >
 			    </Button>
 			</LinearLayout>
