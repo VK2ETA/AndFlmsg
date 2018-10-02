@@ -15,10 +15,8 @@
 package com.AndFlmsg;
 
 /**
- *
  * @author John Douyere <vk2eta@gmail.com>
  */
-
 
 
 import android.app.Activity;
@@ -34,20 +32,17 @@ public class imagePicker extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-	
+
     }
 
     @Override
     protected void onResume() {
-	super.onResume();
+        super.onResume();
 
 
     }
-    
-    
-
 
 
 }

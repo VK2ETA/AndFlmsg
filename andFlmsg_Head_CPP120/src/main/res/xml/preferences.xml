@@ -10,9 +10,7 @@
         android:dependency="USEMODELIST"
         android:key="modelistPS"
         android:title="@string/pref_ModeList">
-        <PreferenceCategory
-            android:key="listofmodestouse">
-        </PreferenceCategory>
+        <PreferenceCategory android:key="listofmodestouse"></PreferenceCategory>
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -87,8 +85,8 @@
                     android:key="8PSKPILOT"
                     android:title="@string/pref_PilotTone" />
                 <EditTextPreference
-                    android:dependency="8PSKPILOT"
                     android:defaultValue="-30"
+                    android:dependency="8PSKPILOT"
                     android:key="8PSKPILOTPOWER"
                     android:summary="From -60 to -20 (dB)"
                     android:title="@string/pref_PilotPowerDb" />
@@ -102,8 +100,8 @@
                     android:key="DOMINOEXFILTER"
                     android:title="@string/pref_FilteringBeforeDecoding" />
                 <EditTextPreference
-                    android:dependency="DOMINOEXFILTER"
                     android:defaultValue="2.0"
+                    android:dependency="DOMINOEXFILTER"
                     android:key="DOMINOEXBW"
                     android:summary="@string/pref_BandwidthRelativeToSignalWidth"
                     android:title="@string/pref_FilterBandwidthFactor" />
@@ -133,8 +131,8 @@
                     android:key="THORFILTER"
                     android:title="@string/pref_FilteringBeforeDecoding" />
                 <EditTextPreference
-                    android:dependency="THORFILTER"
                     android:defaultValue="2.0"
+                    android:dependency="THORFILTER"
                     android:key="THORBW"
                     android:summary="@string/pref_BandwidthRelativeToSignalWidth"
                     android:title="@string/pref_FilterBandwidthFactor" />
@@ -204,13 +202,13 @@
                     android:key="MT63USETONES"
                     android:title="@string/pref_TransmitLowerStartTone" />
                 <CheckBoxPreference
-                    android:dependency="MT63USETONES"
                     android:defaultValue="true"
+                    android:dependency="MT63USETONES"
                     android:key="MT63TWOTONES"
                     android:title="@string/pref_AlsoTransmitUpperStartTone" />
                 <EditTextPreference
-                    android:dependency="MT63USETONES"
                     android:defaultValue="4"
+                    android:dependency="MT63USETONES"
                     android:key="MT63TONEDURATION"
                     android:summary="(1 to 10 seconds)"
                     android:title="@string/pref_ToneDuration" />

@@ -17,7 +17,7 @@
 package com.AndFlmsg;
 
 public class misc {
-    
+
     public static int grayencode(int data)
 //unsigned char graydecode(unsigned char data)
     {
@@ -35,53 +35,53 @@ public class misc {
     }
 
 
-	public static double decayavg(double average, double input, double weight) {
+    public static double decayavg(double average, double input, double weight) {
         if (weight <= 1.0) {
             return input;
         }
         return input * (1.0 / weight) + average * (1.0 - (1.0 / weight));
     }
 
-	
-	//efficient java memset for short[]
-	public static void memset(short[] myarray, short j) {
-		int len = myarray.length;
-		if (len > 0)
-			myarray[0] = j;
-		for (int i = 1; i < len; i += i) {
-			System.arraycopy( myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
-		}
-	}
-	
-	//memset equivalent for int[]
-	public static void memset(int[] myarray, int j) {
-		int len = myarray.length;
-		if (len > 0)
-			myarray[0] = j;
-		for (int i = 1; i < len; i += i) {
-			System.arraycopy( myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
-		}
-	}
-	
-	//memset equivalent for float[]
-	public static void memset(float[] myarray, float j) {
-		int len = myarray.length;
-		if (len > 0)
-			myarray[0] = j;
-		for (int i = 1; i < len; i += i) {
-			System.arraycopy( myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
-		}
-	}
-	
-	//memset equivalent for double[]
-	public static void memset(double[] myarray, double j) {
-		int len = myarray.length;
-		if (len > 0)
-			myarray[0] = j;
-		for (int i = 1; i < len; i += i) {
-			System.arraycopy( myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
-		}
-	}
 
-	
+    //efficient java memset for short[]
+    public static void memset(short[] myarray, short j) {
+        int len = myarray.length;
+        if (len > 0)
+            myarray[0] = j;
+        for (int i = 1; i < len; i += i) {
+            System.arraycopy(myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
+        }
+    }
+
+    //memset equivalent for int[]
+    public static void memset(int[] myarray, int j) {
+        int len = myarray.length;
+        if (len > 0)
+            myarray[0] = j;
+        for (int i = 1; i < len; i += i) {
+            System.arraycopy(myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
+        }
+    }
+
+    //memset equivalent for float[]
+    public static void memset(float[] myarray, float j) {
+        int len = myarray.length;
+        if (len > 0)
+            myarray[0] = j;
+        for (int i = 1; i < len; i += i) {
+            System.arraycopy(myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
+        }
+    }
+
+    //memset equivalent for double[]
+    public static void memset(double[] myarray, double j) {
+        int len = myarray.length;
+        if (len > 0)
+            myarray[0] = j;
+        for (int i = 1; i < len; i += i) {
+            System.arraycopy(myarray, 0, myarray, i, ((len - i) < i) ? (len - i) : i);
+        }
+    }
+
+
 }
