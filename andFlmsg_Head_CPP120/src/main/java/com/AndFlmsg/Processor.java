@@ -224,7 +224,8 @@ public class Processor extends Service {
                 PostToTerminal("\n" + AndFlmsg.myContext.getString(R.string.txt_SavedFile) + ": " + resultFilename);
                 Message.addEntryToLog(AndFlmsg.myContext.getString(R.string.txt_ReceivedMessage) + ": " + resultFilename);
             } else {
-                PostToTerminal("\n " + Message.geterrtext());
+                PostToTerminal("\n " + AndFlmsg.myContext.getString(R.string.txt_BadCrcFileContent) +
+                        "\n" + Message.geterrtext());
                 //Save file anyway into a Blank form file for further usage
                 String resultString = Message.geterrtext();
                 //Remove the WRAP section and try to store as a normal form
@@ -241,7 +242,7 @@ public class Processor extends Service {
                 out = new FileWriter(msgReceivedFile, true);
                 out.write(resultString);
                 out.close();
-                PostToTerminal(AndFlmsg.myContext.getString(R.string.txt_SavedRecoveredData));
+                PostToTerminal("\n\n" + AndFlmsg.myContext.getString(R.string.txt_SavedRecoveredData));
                 Message.addEntryToLog(AndFlmsg.myContext.getString(R.string.txt_SavedRecoveredData));
             }
         } catch (Exception e) {

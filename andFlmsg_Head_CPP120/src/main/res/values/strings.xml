@@ -224,6 +224,7 @@
     <string name="values_Low">Low</string>
     <string name="pref_ForSomeDevices">For Some Devices (typical 16 seconds)</string>
     <string name="txt_ReceivingFile">Receiving File</string>
+    <string name="txt_BadCrcFileContent">Checksum Failed or Missing part. File Content:</string>
 
 
     <!--    <string name="bt_"></string>

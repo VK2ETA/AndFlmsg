@@ -223,4 +223,5 @@
     <string name="values_VeryHigh">Très Haut</string>
     <string name="pref_ForSomeDevices">Pour Certain Appareils (typiquement 16 Secondes)</string>
     <string name="txt_ReceivingFile">Reception en Cour</string>
+    <string name="txt_BadCrcFileContent">Erreure Somme de Control ou Section Manquante. Contenu du fichier:</string>
 </resources>

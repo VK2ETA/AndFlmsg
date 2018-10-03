@@ -571,11 +571,13 @@ bool unwrapfile(string inputBuffer)
 	}
 
 	if (inpsum != testsum) {
-		errtext = "Checksum failed\n";
-		errtext.append(inpsum);
-		errtext.append(" in file\n");
-		errtext.append(testsum);
-		errtext.append(" computed\nFile contents:\n");
+	    //For international version, remove explicit warning here, add in Java code
+		//errtext = "Checksum failed\n";
+		errtext = "";
+		//errtext.append(inpsum);
+		//errtext.append(" in file\n");
+		//errtext.append(testsum);
+		//errtext.append(" computed\nFile content:\n");
 		errtext.append(wtext);
 		//Android temp LOG_INFO("%s", errtext.c_str());
 		return false;
