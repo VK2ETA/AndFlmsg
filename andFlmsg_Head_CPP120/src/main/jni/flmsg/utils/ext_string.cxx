@@ -59,7 +59,7 @@ size_t extstring::ufind(std::string needle, size_t pos)
 	char *hp = (char *)(c_str() + pos);
 //Dup declararion (fldigi/flmsg code
 	//cp = strcasestr(hp, np);
-	cp = strcasestr1(hp, np);
+	cp = strcasestr(hp, np);
 //printf("found %s @ %d\n", needle.c_str(), (int)(pos + cp - hp));
 	if (cp) return pos + (cp - hp);
 	return std::string::npos;

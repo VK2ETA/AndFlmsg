@@ -46,6 +46,7 @@
 #include <FL/Fl_File_Icon.H>
 */
 #include <math.h>
+#include <endian.h>
 
 //Android #include "config.h"
 #include "flmsg_config.h"
@@ -54,7 +55,7 @@
 
 //Android #include "templates.h"
 #include "flmsg_debug.h"
-#include "util.h"
+#include "flmsg_util.h"
 /*Android
 #include "gettext.h"
 #include "flmsg_dialog.h"
@@ -82,7 +83,7 @@
 //Android #include "socket.h"
 
 //Android
-#include "AndFlmsg_Flmsg_interface.h"
+#include "AndFlmsg_Flmsg_Interface.h"
 
 #ifdef WIN32
 #  include "flmsgrc.h"

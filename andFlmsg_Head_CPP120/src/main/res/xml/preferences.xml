@@ -22,6 +22,13 @@
             android:entryValues="@array/themes_values"
             android:key="APPTHEME"
             android:title="@string/pref_AppTheme" />
+        <EditTextPreference
+            android:defaultValue="12"
+            android:inputType="number"
+            android:key="BUTTONTEXTSIZE"
+            android:title="@string/pref_ButtonTextSize">
+        </EditTextPreference>
+
 
 
     </PreferenceScreen>

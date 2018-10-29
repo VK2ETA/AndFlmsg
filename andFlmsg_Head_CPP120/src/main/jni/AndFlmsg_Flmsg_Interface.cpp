@@ -16,7 +16,7 @@
  */
 
 
-#include "AndFlmsg_Flmsg_interface.h"
+#include "AndFlmsg_Flmsg_Interface.h"
 #include <jni.h>
 #include "time_table.h"
 #include <strings.h>

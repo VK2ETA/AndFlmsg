@@ -33,7 +33,11 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.Manifest;
 import android.annotation.TargetApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.TypedValue;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -134,6 +138,10 @@ import android.widget.Toast;
 public class AndFlmsg extends AppCompatActivity {
 
     public static Context myContext;
+
+    public static AndFlmsg myInstance = null;
+
+    private static boolean havePassedAllPermissionsTest = false;
 
     public static Window myWindow = null;
 
@@ -682,7 +690,112 @@ public class AndFlmsg extends AppCompatActivity {
     }
 
 
-    /** Called when the activity is first created. */
+    public static boolean bluetoothPermit = false;
+    public static boolean bluetoothAdminPermit = false;
+    public static boolean readLogsPermit = false;
+    public static boolean fineLocationPermit = false;
+    public static boolean writeExtStoragePermit = false;
+    public static boolean recordAudioPermit = false;
+    public static boolean modifyAudioSettingsPermit = false;
+    public static boolean internetPermit = false;
+    public static boolean broadcastStickyPermit = false;
+    public static boolean readPhoneStatePermit = false;
+    private final int REQUEST_PERMISSIONS = 15556;
+    public final String[] permissionList = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS,
+            Manifest.permission.READ_LOGS,
+            Manifest.permission.BROADCAST_STICKY,
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_PHONE_STATE
+    };
+
+
+    //Request permission from the user
+    private void requestAllCriticalPermissions() {
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
+        myAlertDialog.setMessage(getString(R.string.txt_PermissionsExplained));
+        myAlertDialog.setCancelable(false);
+        myAlertDialog.setPositiveButton(getString(R.string.bt_Continue), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                ActivityCompat.requestPermissions(myInstance, permissionList, REQUEST_PERMISSIONS);
+            }
+        });
+        myAlertDialog.show();
+    }
+
+
+    private boolean allPermissionsOk() {
+        final int granted = PackageManager.PERMISSION_GRANTED;
+
+        fineLocationPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.ACCESS_FINE_LOCATION) == granted;
+        bluetoothPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BLUETOOTH) == granted;
+        bluetoothAdminPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BLUETOOTH_ADMIN) == granted;
+        writeExtStoragePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == granted;
+        recordAudioPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.RECORD_AUDIO) == granted;
+        modifyAudioSettingsPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.MODIFY_AUDIO_SETTINGS) == granted;
+        readLogsPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_LOGS) == granted;
+        broadcastStickyPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BROADCAST_STICKY) == granted;
+        internetPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.INTERNET) == granted;
+        readPhoneStatePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_PHONE_STATE) == granted;
+
+        return fineLocationPermit && bluetoothPermit && bluetoothAdminPermit && writeExtStoragePermit
+                && recordAudioPermit && modifyAudioSettingsPermit //&& readLogsPermit never granted in later versions of Android
+                && broadcastStickyPermit && internetPermit && readPhoneStatePermit;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        int granted = PackageManager.PERMISSION_GRANTED;
+        for (int i = 0; i < grantResults.length; i++) {
+            if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                fineLocationPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.BLUETOOTH)) {
+                bluetoothPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.BLUETOOTH_ADMIN)) {
+                bluetoothAdminPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                writeExtStoragePermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.RECORD_AUDIO)) {
+                recordAudioPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.MODIFY_AUDIO_SETTINGS)) {
+                modifyAudioSettingsPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.READ_LOGS)) {
+                readLogsPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.BROADCAST_STICKY)) {
+                broadcastStickyPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.INTERNET)) {
+                internetPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.READ_PHONE_STATE)) {
+                readPhoneStatePermit = grantResults[i] == granted;
+            } else {
+                //Nothing so far
+            }
+        }
+        //Re-do overall check
+        havePassedAllPermissionsTest = allPermissionsOk();
+        if (havePassedAllPermissionsTest &&
+                requestCode == REQUEST_PERMISSIONS) { //Only if requested at OnCreate time
+            performOnCreate();
+            performOnStart();
+        } else {
+            //Close that activity and return to previous screen
+            finish();
+            //Kill the process
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
+    }
+
+
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -722,6 +835,9 @@ public class AndFlmsg extends AppCompatActivity {
         // Get a static copy of the base Context
         myContext = AndFlmsg.this;
 
+        // Get a static copy of the activity instance
+        this.myInstance = this;
+
         //Set JavaScript injection strings
         jsSendNewFormDataInject = "\n"
                 +
@@ -746,6 +862,32 @@ public class AndFlmsg extends AppCompatActivity {
                 // "		<input type=\"button\" onclick=\"discardInput('Existing')\" value=\"Discard\" />\n"
                 // +
                 "		<script src=\"file:///android_asset/andflmsg.js\" type=\"text/javascript\"></script>\n";
+
+
+        //Request all permissions up-front and be done with it.
+        //If the app can't perform properly with what is requested then
+        // abort rather than have a crippled app running
+        //Dangerous permissions groups that need to ne asked for:
+        //Contacts: for when creating a new mail if we want to get the email address of a contact. Optional.
+        //Location: for GPS to send position and to get accurage time for scanning servers. Essential.
+        //Microphone: to get the audio input for the modems. Essential.
+        //Phone: to disconnect the Bluetooth audio if a phone call comes in. Otherwise we
+        //   send the phone call over the radio. Not allowed in Amateur radio or only with severe restrictions. Essential.
+        //Storage: to read and write to the SD card. Essential, otherwise why use the app. There is Tivar for Rx only applications.
+        //First check if the app already has the permissions
+
+        havePassedAllPermissionsTest = allPermissionsOk();
+        if (havePassedAllPermissionsTest) {
+            performOnCreate();
+        } else {
+            requestAllCriticalPermissions();
+        }
+
+    }
+
+
+    //Could be executed only when all necessary permissions are allowed
+    private void performOnCreate() {
 
         // Init config
         mysp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -830,8 +972,10 @@ public class AndFlmsg extends AppCompatActivity {
         // when not in mobile reception area)
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationManager.addNmeaListener(new GpsStatus.NmeaListener() {
-            public void onNmeaReceived(long timestamp, String nmea) {
+        try
+        {
+            locationManager.addNmeaListener(new GpsStatus.NmeaListener() {
+               public void onNmeaReceived ( long timestamp, String nmea){
                 if (config.getPreferenceB("USEGPSTIME", false)) {
                     String[] NmeaArray = nmea.split(",");
                     if (NmeaArray[0].equals("$GPGGA")) {
@@ -886,6 +1030,9 @@ public class AndFlmsg extends AppCompatActivity {
                 }
             }
         });
+        } catch(SecurityException se) {
+            //Do nothing
+        }
 
         // Get last mode (if not set, returns -1)
         Processor.TxModem = Processor.RxModem = config.getPreferenceI("LASTMODEUSED", -1);
@@ -904,10 +1051,22 @@ public class AndFlmsg extends AppCompatActivity {
         displayTerminal(NORMAL);
     }
 
-    /** Called when the activity is (re)started (to foreground) **/
+    /**
+     * Called when the activity is (re)started (to foreground)
+     **/
     @Override
     public void onStart() {
         super.onStart();
+
+        //Conditional to having passed the permission tests
+        if (havePassedAllPermissionsTest) {
+            performOnStart();
+        }
+    }
+
+    //Only when all permissions are agreed on
+    void performOnStart() {
+
         // Store preference reference for later (config.java)
         mysp = PreferenceManager.getDefaultSharedPreferences(this);
         // Refresh defaults since we could be coming back
@@ -1083,7 +1242,7 @@ public class AndFlmsg extends AppCompatActivity {
      * other file-based ContentProviders.
      *
      * @param context The context.
-     * @param uri The Uri to query.
+     * @param uri     The Uri to query.
      * @author paulburke
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -1153,9 +1312,9 @@ public class AndFlmsg extends AppCompatActivity {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
@@ -1473,7 +1632,7 @@ public class AndFlmsg extends AppCompatActivity {
     }
 
     /* Not used. Keep for auto-forwarding to email.
-	if (requestCode == CONTACT_PICKER_RESULT) {
+    if (requestCode == CONTACT_PICKER_RESULT) {
 		    if (resultCode == RESULT_OK && data != null) {
 			Cursor cursor = null;
 			String email = "";
@@ -1769,6 +1928,16 @@ public class AndFlmsg extends AppCompatActivity {
         }
     }
 
+
+    //Set the button text size based on user's preferences
+    private void setTextSize(Button thisButton) {
+        int textSize = config.getPreferenceI("BUTTONTEXTSIZE", 12);
+        if (textSize < 7) textSize = 7;
+        if (textSize > 20) textSize = 20;
+        thisButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+    }
+
+
     // Display the Terminal layout and associate it's buttons
     private void displayTerminal(int screenMovement) {
 
@@ -1778,10 +1947,14 @@ public class AndFlmsg extends AppCompatActivity {
         if (config.getPreferenceB("USEGPSTIME", false)) {
             locationManager = (LocationManager) this
                     .getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 60000, // milisecs
-                    0, // meters
-                    locationListener);
+            try {
+                locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, 60000, // milisecs
+                        0, // meters
+                        locationListener);
+            } catch (SecurityException se) {
+                //Do nothing
+            }
         }
         // Change layout and remember which one we are on
         currentview = TERMVIEW;
@@ -1825,6 +1998,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the Send Text button (commands in connected mode)
         myButton = (Button) findViewById(R.id.button_sendtext);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 // Send a message using content of the edit text widget
@@ -2036,7 +2210,9 @@ public class AndFlmsg extends AppCompatActivity {
     public class JavascriptAccess {
         Context mContext;
 
-        /** Instantiate the interface and set the context */
+        /**
+         * Instantiate the interface and set the context
+         */
         JavascriptAccess(Context c) {
             mContext = c;
         }
@@ -2884,6 +3060,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                             // View as HTML delivery button
                             myButton = (Button) findViewById(R.id.button_viewashtmldelivery);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     // Format for display and sharing
@@ -2899,6 +3076,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // View as HTML File Copy button
                             myButton = (Button) findViewById(R.id.button_viewashtmlfilecopy);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     // Format for display and sharing
@@ -2914,6 +3092,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // View as Plain text button
                             myButton = (Button) findViewById(R.id.button_viewasplaintext);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     // Format for display and sharing
@@ -2929,6 +3108,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Share/Send button
                             myButton = (Button) findViewById(R.id.button_shareforward);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     //Prompt for sharing format
@@ -2971,6 +3151,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Copy to Drafts button
                             myButton = (Button) findViewById(R.id.button_cpdrafts);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     String newFileName = "Copy_of_" + mFileName;
@@ -2982,6 +3163,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Copy to Outbox button
                             myButton = (Button) findViewById(R.id.button_cpoutbox);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     if (Message.copyAnyFile(Processor.DirInbox, mFileName, Processor.DirOutbox, mFileName)) {
@@ -2992,6 +3174,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Delete button
                             myButton = (Button) findViewById(R.id.button_delete);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
@@ -3013,6 +3196,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Return button
                             myButton = (Button) findViewById(R.id.button_return);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     returnFromFormView();
@@ -3064,6 +3248,7 @@ public class AndFlmsg extends AppCompatActivity {
                             setContentView(R.layout.formsmenupopup);
                             // Initialize the return button
                             myButton = (Button) findViewById(R.id.button_return);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     returnFromFormView();
@@ -3071,6 +3256,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Initialize the transfer over the radio button
                             myButton = (Button) findViewById(R.id.button_transferoverradio);
+                            setTextSize(myButton);
                             //myButton.setEnabled(false);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
@@ -3133,6 +3319,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Initialize the Share over the Internet button
                             myButton = (Button) findViewById(R.id.button_shareoverinternet);
+                            setTextSize(myButton);
                             myButton.setEnabled(false);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
@@ -3140,6 +3327,7 @@ public class AndFlmsg extends AppCompatActivity {
                                 }
                             });
                             mWebView = (WebView) findViewById(R.id.htmlwebview1);
+                            setTextSize(myButton);
                             // JD check if warranted or not
                             // Prevent thread exception
                             Activity activityBaseContext = AndFlmsg.this;
@@ -3202,6 +3390,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                             // Delete button
                             myButton = (Button) findViewById(R.id.button_delete);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(
@@ -3224,6 +3413,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Return button
                             myButton = (Button) findViewById(R.id.button_return);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     returnFromFormView();
@@ -3276,6 +3466,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                             // Delete button
                             myButton = (Button) findViewById(R.id.button_delete);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
@@ -3299,6 +3490,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Return button
                             myButton = (Button) findViewById(R.id.button_return);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     returnFromFormView();
@@ -3353,6 +3545,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                                     // Initialize the return button
                                     myButton = (Button) findViewById(R.id.button_return);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             returnFromFormView();
@@ -3360,6 +3553,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     // Initialize the transfer over the radio button
                                     myButton = (Button) findViewById(R.id.button_sendoverradio);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
@@ -3377,6 +3571,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     // Initialize the Share over the Internet button
                                     myButton = (Button) findViewById(R.id.button_shareoverinternet);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         //Added options in wrap and raw format
                                         public void onClick(View v) {
@@ -3420,6 +3615,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     // Delete button
                                     myButton = (Button) findViewById(R.id.button_delete);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
@@ -3444,6 +3640,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                                     // JD Initialize the MODE UP button
                                     myButton = (Button) findViewById(R.id.button_nextmode);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             try {
@@ -3471,6 +3668,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                                     // JD Initialize the MODE DOWN button
                                     myButton = (Button) findViewById(R.id.button_prevmode);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             try {
@@ -3497,6 +3695,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                                     // JD Initialize the IMAGE MODE button
                                     myButton = (Button) findViewById(R.id.button_imagemode);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             try {
@@ -3562,6 +3761,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                                     // JD Initialize the SPEED/COLOUR button
                                     myButton = (Button) findViewById(R.id.button_speedcolour);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             try {
@@ -3711,6 +3911,7 @@ public class AndFlmsg extends AppCompatActivity {
 
                                     // Initialize the return button
                                     myButton = (Button) findViewById(R.id.button_return);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             returnFromFormView();
@@ -3718,6 +3919,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     // Initialize the "Copy back to Outbox" button
                                     myButton = (Button) findViewById(R.id.button_backtooutbox);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             Message.copyAnyFile(Processor.DirSent, mFileName, Processor.DirOutbox, true);
@@ -3727,6 +3929,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     // Initialize the Share over the Internet button
                                     myButton = (Button) findViewById(R.id.button_shareoverinternet);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         /*public void onClick(View v) {
 				// Already done on entry: mDisplayForm =
@@ -3780,6 +3983,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     // Delete button
                                     myButton = (Button) findViewById(R.id.button_delete);
+                                    setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
                                             AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.this);
@@ -3869,6 +4073,7 @@ public class AndFlmsg extends AppCompatActivity {
                             logTextView.setText(mLogText);
                             // Delete button
                             myButton = (Button) findViewById(R.id.button_delete);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(
@@ -3893,6 +4098,7 @@ public class AndFlmsg extends AppCompatActivity {
                             });
                             // Initialize the return button
                             myButton = (Button) findViewById(R.id.button_return);
+                            setTextSize(myButton);
                             myButton.setOnClickListener(new OnClickListener() {
                                 public void onClick(View v) {
                                     returnFromFormView();
@@ -3915,6 +4121,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Inbox view button
         myButton = (Button) findViewById(R.id.button_inbox);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, INBOXVIEW);
@@ -3923,6 +4130,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Forms view button
         myButton = (Button) findViewById(R.id.button_forms);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, FORMSVIEW);
@@ -3931,6 +4139,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Template view button
         myButton = (Button) findViewById(R.id.button_templates);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, TEMPLATESVIEW);
@@ -3939,6 +4148,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Drafts view button
         myButton = (Button) findViewById(R.id.button_drafts);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, DRAFTSVIEW);
@@ -3947,6 +4157,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Outbox view button
         myButton = (Button) findViewById(R.id.button_outbox);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, OUTBOXVIEW);
@@ -3955,6 +4166,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Forms view button
         myButton = (Button) findViewById(R.id.button_sentitems);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, SENTITEMSVIEW);
@@ -3963,6 +4175,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the Template view button
         myButton = (Button) findViewById(R.id.button_logs);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayMessages(BOTTOM, LOGSVIEW);
@@ -3971,6 +4184,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Initialize the send all messages button
         myButton = (Button) findViewById(R.id.button_sendall);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
@@ -4222,6 +4436,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the MODEM RX ON/OFF button
         myButton = (Button) findViewById(R.id.button_modemONOFF);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4274,6 +4489,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the MODE UP button
         myButton = (Button) findViewById(R.id.button_modeUP);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4296,6 +4512,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the MODE DOWN button
         myButton = (Button) findViewById(R.id.button_modeDOWN);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4318,6 +4535,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the Squelch UP button
         myButton = (Button) findViewById(R.id.button_squelchUP);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4332,6 +4550,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the Squelch DOWN button
         myButton = (Button) findViewById(R.id.button_squelchDOWN);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4346,6 +4565,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the TUNE button
         myButton = (Button) findViewById(R.id.button_tune);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4364,6 +4584,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the WATERFALL ON/OFF button
         myButton = (Button) findViewById(R.id.button_waterfallONOFF);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4382,6 +4603,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the STOP TX button
         myButton = (Button) findViewById(R.id.button_stopTX);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -4409,6 +4631,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // JD Initialize the return to terminal button
         myButton = (Button) findViewById(R.id.button_returntoterminal);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 displayTerminal(BOTTOM);
@@ -4440,6 +4663,7 @@ public class AndFlmsg extends AppCompatActivity {
         //mWebView = (WebView) layout.findViewById(R.id.imageView1);
         // Return button init
         myButton = (Button) pwLayout.findViewById(R.id.button_close);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 pw.dismiss();
@@ -4447,6 +4671,7 @@ public class AndFlmsg extends AppCompatActivity {
         });
         // Slant Left button init
         myButton = (Button) pwLayout.findViewById(R.id.button_slant_left);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Modem.deSlant(+2);
@@ -4454,6 +4679,7 @@ public class AndFlmsg extends AppCompatActivity {
         });
         // Slant Right button init
         myButton = (Button) pwLayout.findViewById(R.id.button_slant_right);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Modem.deSlant(-2);
@@ -4461,6 +4687,7 @@ public class AndFlmsg extends AppCompatActivity {
         });
         // Save Again button init
         myButton = (Button) pwLayout.findViewById(R.id.button_save_again);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Modem.saveAnalogPicture(false); //Not a new picture
@@ -4494,6 +4721,7 @@ public class AndFlmsg extends AppCompatActivity {
         //mWebView = (WebView) layout.findViewById(R.id.imageView1);
         // Return button init
         myButton = (Button) pwLayout.findViewById(R.id.button_close);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 pw.dismiss();
@@ -4501,6 +4729,7 @@ public class AndFlmsg extends AppCompatActivity {
         });
         // Return button init
         myButton = (Button) pwLayout.findViewById(R.id.button_close);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 pw.dismiss();
@@ -4508,6 +4737,7 @@ public class AndFlmsg extends AppCompatActivity {
         });
         // Return button init
         myButton = (Button) pwLayout.findViewById(R.id.button_close);
+        setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 pw.dismiss();

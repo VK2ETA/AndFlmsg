@@ -14,7 +14,7 @@
  *
  *
  */
-#include "AndFlmsg_Fldigi_interface.h"
+#include "AndFlmsg_Fldigi_Interface.h"
 //#include "modem.h"
 #include "psk.h"
 #include "mt63.h"

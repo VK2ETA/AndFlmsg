@@ -46,12 +46,12 @@
 #include "flmsg_config.h"
 #include <cctype>
 #include "fltk_extracts.h"
-#include "AndFlmsg_Flmsg_interface.h"
+#include "AndFlmsg_Flmsg_Interface.h"
 #include "flmsg.h"
 
 #include "templates.h"
 //Android #include "debug.h"
-#include "util.h"
+#include "flmsg_util.h"
 //#include "gettext.h"
 //#include "flmsg_dialog.h"
 //#include "flinput2.h"

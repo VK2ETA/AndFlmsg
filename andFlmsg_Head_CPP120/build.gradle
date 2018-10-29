@@ -1,24 +1,21 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 27
     buildToolsVersion "25.0.0"
 
     defaultConfig {
         applicationId "com.AndFlmsg"
-        minSdkVersion 9
-        targetSdkVersion 22
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_5
-            targetCompatibility JavaVersion.VERSION_1_5
+        minSdkVersion 14
+        targetSdkVersion 27
+        externalNativeBuild {
+            ndkBuild {
+                abiFilters 'armeabi-v7a', 'x86'
+                android.buildTypes.debug.jniDebuggable true
+                cFlags "-DHAVE_STRCASESTR"
+            }
         }
-
-        ndk {
-            moduleName "AndFlmsg_Modem_Interface"
-            abiFilters 'armeabi-v7a'
-            android.buildTypes.debug.jniDebuggable true
-        }
-    }
+   }
 
     buildTypes {
         release {
@@ -44,7 +41,7 @@ android {
 
 dependencies {
     compile project(':aFileDialogoriginal')
-    compile 'com.android.support:support-v4:22.2.1'
-    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:support-v4:27.1.0'
+    compile 'com.android.support:appcompat-v7:27.1.0'
     compile files('libs/acra-4.5.0.jar')
 }

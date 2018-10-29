@@ -178,8 +178,8 @@ public class Message {
                 int serNbr = config.getPreferenceI("SERNBR", 1);
                 config.setPreferenceS("SERNBR", Integer.toString(++serNbr));
             }
-            AndFlmsg.topToastText("\nSaved file: " + fileName + "\n");
-            addEntryToLog(Message.dateTimeStamp() + ": Saved Message file " + fileName);
+            AndFlmsg.topToastText(AndFlmsg.myContext.getString(R.string.txt_SavedFile) + ": " + fileName);
+            addEntryToLog(Message.dateTimeStamp() + " - " + AndFlmsg.myContext.getString(R.string.txt_SavedFile) + ": " + fileName);
         } catch (IOException e) {
             loggingclass.writelog("Error creating file", e, true);
             return false;
@@ -395,7 +395,7 @@ public class Message {
             File fi = new File(Processor.HomePath + Processor.Dirprefix
                     + mDir + Processor.Separator + mFileName);
             if (!fi.isFile()) {
-                AndFlmsg.middleToastText("Data file " + mFileName + " Not Found. Deleted/Moved?\n");
+                AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_FileNotFound) + ": " + mFileName);
                 return "";
             }
             FileInputStream fileISi = new FileInputStream(fi);
@@ -612,7 +612,7 @@ public class Message {
                 }
             }
         } catch (FileNotFoundException e) {
-            AndFlmsg.middleToastText(formName + AndFlmsg.myContext.getString(R.string.txt_NotAnExistingForm));
+            AndFlmsg.middleToastText(formName + " " + AndFlmsg.myContext.getString(R.string.txt_NotAnExistingForm));
             //Convert the HTML reserved characters "&", "<" and ">" to their entity name
             mDisplayForm = fullDataString.replaceAll("&", "&amp;");  //Do this first of course
             //Minimize memory usage, allow GC of String

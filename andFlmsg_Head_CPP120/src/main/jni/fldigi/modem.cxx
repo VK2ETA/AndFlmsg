@@ -41,7 +41,7 @@
 //Android #include "status.h"
 //Android #include "debug.h"
 //Android
-#include "AndFlmsg_Fldigi_interface.h"
+#include "AndFlmsg_Fldigi_Interface.h"
 
 using namespace std;
 

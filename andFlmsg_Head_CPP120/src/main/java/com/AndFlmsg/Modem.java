@@ -164,7 +164,8 @@ public class Modem {
 
     static {
         //Load the C++ modems library
-        System.loadLibrary("stlport_shared");
+        //System.loadLibrary("stlport_shared");
+        System.loadLibrary("c++_shared");
         System.loadLibrary("AndFlmsg_Modem_Interface");
     }
 
@@ -301,7 +302,8 @@ public class Modem {
                 FileOutputStream out = new FileOutputStream(imgFile);
                 File fi = new File(inboxFolderPath + Processor.lastReceivedMessageFname);
                 if (!fi.isFile()) {
-                    AndFlmsg.middleToastText("Data file " + Processor.lastReceivedMessageFname + " Not Found. Deleted/Moved?\n");
+                    AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_FileNotFound) + ": " +
+                            Processor.lastReceivedMessageFname);
                     return;
                 }
                 FileInputStream fileISi = new FileInputStream(fi);
@@ -347,7 +349,8 @@ public class Modem {
                         fileOutputStrm.write(readString0.getBytes(), 0, readString0.length());
                     }
                 } catch (IOException e) {
-                    Processor.PostToTerminal("Error copying: " + fileName + " " + e + "\n");
+                    //Processor.PostToTerminal("Error copying: " + fileName + " " + e + "\n");
+                    loggingclass.writelog("Error copying: " + fileName, e, true);
                 } finally {
                     try {
                         if (fileISi != null) {
@@ -360,7 +363,8 @@ public class Modem {
                             out.close();
                         }
                     } catch (IOException e) {
-                        Processor.PostToTerminal("File close error: " + e + "\n");
+                        //Processor.PostToTerminal("File close error: " + e + "\n");
+                        loggingclass.writelog("File close error: ", e, true);
                     }
                 }
                 //Delete original file in Inbox folder
@@ -368,13 +372,11 @@ public class Modem {
                 //Copy new temp file in place of original
                 Message.copyAnyFile(Processor.DirTemp, Processor.lastReceivedMessageFname, Processor.DirInbox, false);
                 //Display a message
-                AndFlmsg.topToastText("Image inserted in message: " + Processor.lastReceivedMessageFname);
+                AndFlmsg.topToastText(AndFlmsg.myContext.getString(R.string.txt_ImageInsertedInMessage) + ": " + Processor.lastReceivedMessageFname);
             } else { //Arrived too late, don't attach automatically
                 if (newPicture && (Processor.lastMessageNoExpectedImages > 0) && !Processor.pictureRxInTime) {
                     //Display a message, but save the image as an independant picture
-                    AndFlmsg.topToastText("Image received too late after message (> 20 sec)." +
-                            "\nReceived image will NOT be attached to the message as expected." +
-                            "\nCopy the message to Draft, then edit and add the received image manually.");
+                    AndFlmsg.topToastText(AndFlmsg.myContext.getString(R.string.txt_ImageReceivedTooLate));
                 }
             }
 
@@ -404,7 +406,8 @@ public class Modem {
             } else {
                 values.put(Images.Media.DESCRIPTION, "Fldigi Image");
                 //Display a message
-                AndFlmsg.topToastText("Saved Image: " + fileName + "\n\nUse Gallery to view and share.");
+                AndFlmsg.topToastText(AndFlmsg.myContext.getString(R.string.txt_SavedImage) + ": " + fileName +
+                        "\n\n" + AndFlmsg.myContext.getString(R.string.txt_UseGalleryToView));
             }
             ContentResolver cr = AndFlmsg.myContext.getContentResolver();
             cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);

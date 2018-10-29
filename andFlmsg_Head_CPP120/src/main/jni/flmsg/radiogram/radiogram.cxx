@@ -53,7 +53,7 @@
 #include "flmsg.h"
 #include "templates.h"
 //Android #include "debug.h"
-#include "util.h"
+#include "flmsg_util.h"
 /*Android
 #include "gettext.h"
 #include "flmsg_dialog.h"

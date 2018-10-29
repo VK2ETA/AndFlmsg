@@ -170,7 +170,7 @@ void MilliSleep(long msecs);
 #if !defined(NDEBUG) && defined(deprecated__) && defined(__GNUC__) && !defined(__WIN32__)
 #include <stdio.h>
 #include <string.h>
-deprecated__ typeof(sprintf) sprintf;
+//deprecated__ typeof(sprintf) sprintf;
 /* there are far too many of these in the qrz code
 deprecated__ typeof(strcpy) strcpy;
 deprecated__ typeof(strcat) strcat;
