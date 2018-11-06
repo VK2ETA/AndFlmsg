@@ -1745,6 +1745,15 @@ public class AndFlmsg extends AppCompatActivity {
                         myPreferences.class);
                 startActivity(OptionsActivity);
                 break;
+            case R.id.savePreferences:
+                config.saveSharedPreferencesToFile("SettingsBackup.bin");
+                break;
+            case R.id.restorePreferences:
+                config.loadSharedPreferencesFromFile("SettingsBackup.bin");
+                break;
+            case R.id.defaultPreferences:
+                config.restoreSettingsToDefault();
+                break;
             case R.id.BTon:
                 // mBluetoothHeadset.startVoiceRecognition();
                 if (mBluetoothAdapter != null) {

@@ -346,8 +346,8 @@
         <CheckBoxPreference
             android:key="USEGPSTIME"
             android:summary="For accurate time display"
-            android:title="@string/pref_UseGPSTime" />
-
+            android:title="@string/pref_UseGPSTime"
+            android:defaultValue="false"/>
         <EditTextPreference
             android:defaultValue="0"
             android:key="LEAPSECONDS"

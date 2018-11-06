@@ -184,7 +184,7 @@
     <string name="txt_PleaseUseMenuExit">Wciśnij Menu, później Wyjście by zamknąć program</string>
     <string name="txt_PleaseWaitTxing">Czekaj...Ciągle Wysyłam Wiadmomość(s)</string>
     <string name="txt_Preferences">Preferencje</string>
-    <string name="txt_PressBackTwice">Press the Back Button twice in a row to return to the list</string>
+    <string name="txt_PressBackTwice">Wciśnij przycisk POWRÓT by wrócić do listy</string>
     <string name="txt_RawFlmsg">RAW-Flmsg</string>
     <string name="txt_ReceivedMessage">Odebrana Wiadomość</string>
     <string name="txt_ReceivingFile">Odbierany Plik</string>
@@ -206,7 +206,7 @@
     <string name="txt_SentMessagefile">Wysłana Wiadomość </string>
     <string name="txt_Shared">Udostępnione</string>
     <string name="txt_SharingPurpose">Z jakiego powodu udostępniasz tą wiadomość:</string>
-    <string name="txt_SorryHardCodedForm">Sorry, but this is a pre-defined form (Hard Coded in Flmsg) and it cannot be transfered this way. Only Custom Forms can be transfered using this method.</string>
+    <string name="txt_SorryHardCodedForm">Formularz predefiniowany (zakodowany w programie) nie może być wykorzystany w ten sposób. Tylko Szablony mogą być wysyłane w ten sposób.</string>
     <string name="txt_TemplatesView">Szablony \n\nWciśnij Długo na szablon by utworzyć nową wiadomość</string>
     <string name="txt_TerminalScreen">Terminal </string>
     <string name="txt_ToDraftsFolderAs">to Drafts Folder as</string>
@@ -231,10 +231,21 @@
         \nCzytaj Powszechną Licencję Publiczną GNU, aby uzyskać więcej informacji. \ n \ n \ nProgram zawiera bibliotekę FileDialog (Copyright 2013 Jose F. Maldonado), na podstawie następującej licencji:
         \nTa biblioteka jest wolnym oprogramowaniem; można go redystrybuować i / lub modyfikować zgodnie z warunkami GNU Lesser General Public License opublikowaną przez Free Software Foundation; albo wersję 3 Licencji, albo (według Państwa wyboru) dowolną późniejszą wersję.        \n Niniejsza biblioteka jest rozpowszechniana z nadzieją, że będzie przydatna, ale BEZ JAKIEJKOLWIEK GWARANCJI; nawet domyślnej gwarancji PRZYDATNOŚCI HANDLOWEJ lub PRZYDATNOŚCI DO OKREŚLONYCH CELÓW. Aby uzyskać więcej informacji, zobacz GNU Lesser General Public Licence.       \n Powinieneś otrzymać kopię GNU Lesser General Public Licence wraz z tą biblioteką; Jeśli nie, zobacz http://www.gnu.org/licenses/.    </string>
 
-    <string name="values_High">High</string>
-    <string name="values_Low">Low</string>
-    <string name="values_Medium">Medium</string>
-    <string name="values_VeryHigh">Very High</string>
-    <string name="pref_ButtonTextSize">Button Text Size (default 12)</string>
+    <string name="values_High">Wysoki</string>
+    <string name="values_Low">Niski</string>
+    <string name="values_Medium">Średni</string>
+    <string name="values_VeryHigh">Bardzo Wysoki</string>
+
+    <string name="pref_ButtonTextSize">Rozmiar czcionki (domyślnie 12)</string>
+    <string name="txt_BluetoothAudio">Bluetooth Audio</string>
+    <string name="txt_RestoreSettingsFromFile">Przywróć Ustawienia z Pliku</string>
+    <string name="txt_RestoreSettingsToDefault">Przywróć Ustawienia Domyślne</string>
+    <string name="txt_SaveRestoreSettings">Zapisz/Przywróć Ustawienia</string>
+    <string name="txt_SaveSettingsToFile">Zapisz Ustawienia do Pliku</string>
+    <string name="txt_Settings">Ustawienia</string>
+    <string name="txt_NoBackupFileFound">Nie znaleziono pliku \n\n Użyj Opcji \"Zapisz Ustawienia\" najpierw.</string>
+    <string name="txt_YouWantToOverwriteSettings">Czy jesteś pewien że chcesz nadpisać obecne ustawienia ?</string>
+    <string name="txt_YouWantToRestoreSettingsToDefault">Czy jesteś pewien że chcesz przywrócić ustawienia domyślne? \n\n Dane Osobiste i dane nie związane z komunikacją zostaną zachowane.</string>
+
 
 </resources>

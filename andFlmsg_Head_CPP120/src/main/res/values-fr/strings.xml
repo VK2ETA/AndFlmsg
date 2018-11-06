@@ -245,5 +245,14 @@
     <string name="values_Medium">Moyen</string>
     <string name="values_VeryHigh">Très Haut</string>
     <string name="pref_ButtonTextSize">Taille du Texte des Boutons (12 par défaut)</string>
+    <string name="txt_BluetoothAudio">Audio Via Bluetooth</string>
+    <string name="txt_RestoreSettingsFromFile">Restituer les paramètres depuis le fichier</string>
+    <string name="txt_RestoreSettingsToDefault">Rétablir les paramètres par défaut</string>
+    <string name="txt_SaveRestoreSettings">Sauver/Rétablir les Paramètres</string>
+    <string name="txt_SaveSettingsToFile">Sauvegarder les paramètres par Fichier</string>
+    <string name="txt_Settings">Paramètres</string>
+    <string name="txt_YouWantToRestoreSettingsToDefault">Confirmez la Restauration des Paramètres aux Valeures par Défaut? \n\n Les Données Personnelles et Non-critiques aux Communications Resteront Inchangées.</string>
+    <string name="txt_NoBackupFileFound">Fichier de Sauvegarde des Parametres n\'éxiste pas. Utilisez \"Sauver les Paramètres\" au préalable.</string>
+    <string name="txt_YouWantToOverwriteSettings">Confirmez la Restauration des Paramètres Courants par le Fichier de Sauvegarde?</string>
 
 </resources>

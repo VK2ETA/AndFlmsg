@@ -206,7 +206,7 @@
     <string name="txt_SentMessagefile">Sent Message file</string>
     <string name="txt_Shared">Shared</string>
     <string name="txt_SharingPurpose">Choose what purpose are you sharing this message for:</string>
-    <string name="txt_SorryHardCodedForm">Sorry, but this is a pre-defined form (Hard Coded in Flmsg) and it cannot be transfered this way. Only Custom Forms can be transfered using this method.</string>
+    <string name="txt_SorryHardCodedForm">Sorry, but this is a pre-defined form (Hard Coded in Flmsg) and it cannot be transferred this way. Only Custom Forms can be transferred using this method.</string>
     <string name="txt_TemplatesView">Templates View Screen \n\nLong Press on a Template to Create a New Message based on that Template</string>
     <string name="txt_TerminalScreen">Terminal Screen</string>
     <string name="txt_ToDraftsFolderAs">to Drafts Folder as</string>
@@ -247,5 +247,14 @@
     <string name="txt_app_name" translatable="false">AndFlmsg</string>
     <string name="txt_0000" translatable="false">0000</string>
     <string name="pref_ButtonTextSize">Button Text Size (default 12)</string>
+    <string name="txt_BluetoothAudio">Bluetooth Audio</string>
+    <string name="txt_Settings">Settings</string>
+    <string name="txt_SaveRestoreSettings">Save/Restore Settings</string>
+    <string name="txt_SaveSettingsToFile">Save Settings to File</string>
+    <string name="txt_RestoreSettingsFromFile">Restore Settings from File</string>
+    <string name="txt_RestoreSettingsToDefault">Restore Settings to Default</string>
+    <string name="txt_YouWantToOverwriteSettings">Are you sure you want to overwrite the current preferences with the ones in the backup?</string>
+    <string name="txt_YouWantToRestoreSettingsToDefault">Are you sure you want to Restore the KEY settings to default? \n\n Personal Data and non-communication critical data will be preserved.</string>
+    <string name="txt_NoBackupFileFound">No Backup File Found\n\n Use \"Save Preferences\" option first.</string>
 
 </resources>
