@@ -1,15 +1,15 @@
 /*
- * AndFlmsg.java  
- *   
- * Copyright (C) 2014 John Douyere (VK2ETA)  
- *   
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of  
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
- * GNU General Public License for more details.  
- *   
- * You should have received a copy of the GNU General Public License  
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ * AndFlmsg.java
+ *
+ * Copyright (C) 2014 John Douyere (VK2ETA)
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.AndFlmsg;
@@ -974,65 +974,64 @@ public class AndFlmsg extends AppCompatActivity {
         // when not in mobile reception area)
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        try
-        {
+        try {
             locationManager.addNmeaListener(new GpsStatus.NmeaListener() {
-               public void onNmeaReceived ( long timestamp, String nmea){
-                if (config.getPreferenceB("USEGPSTIME", false)) {
-                    String[] NmeaArray = nmea.split(",");
-                    if (NmeaArray[0].equals("$GPGGA")) {
-                        // debug
-                        // Processor.Terminalwindow += "\n NMEA is :"+nmea;
-                        // AndFlmsg.mHandler.post(AndFlmsg.addtoTerminal);
-                        if (NmeaArray[1].indexOf(".") > 4) {
-                            String GpsTime = NmeaArray[1].substring(0, NmeaArray[1].indexOf("."));
-                            GPSTimeAcquired = true; // Mark that we have
-                            // acquired time (for the
-                            // clock colour display and
-                            // autobeacon time)
-                            GpsTime = "000000" + GpsTime;
-                            // Processor.APRSwindow += " GpsTime:" + GpsTime +
-                            // "\n";
-                            GpsTime = GpsTime.substring(GpsTime.length() - 4, GpsTime.length());
-                            int GpsMin = Integer.parseInt(GpsTime.substring(0, 2));
-                            int GpsSec = Integer.parseInt(GpsTime.substring(2, 4));
-                            // Apply leap seconds correction: GPS is 16 seconds
-                            // faster than UTC as of June 2013.
-                            // Some devices do not apply this automatically
-                            // (depends on the internal GPS engine)
-                            int leapseconds = Integer.parseInt(config.getPreferenceS("LEAPSECONDS", "0"));
-                            GpsSec -= leapseconds;
-                            if (GpsSec < 0) {
-                                GpsSec += 60;
-                                GpsMin--;
-                                if (GpsMin < 0) {
-                                    GpsMin += 60;
+                public void onNmeaReceived(long timestamp, String nmea) {
+                    if (config.getPreferenceB("USEGPSTIME", false)) {
+                        String[] NmeaArray = nmea.split(",");
+                        if (NmeaArray[0].equals("$GPGGA")) {
+                            // debug
+                            // Processor.Terminalwindow += "\n NMEA is :"+nmea;
+                            // AndFlmsg.mHandler.post(AndFlmsg.addtoTerminal);
+                            if (NmeaArray[1].indexOf(".") > 4) {
+                                String GpsTime = NmeaArray[1].substring(0, NmeaArray[1].indexOf("."));
+                                GPSTimeAcquired = true; // Mark that we have
+                                // acquired time (for the
+                                // clock colour display and
+                                // autobeacon time)
+                                GpsTime = "000000" + GpsTime;
+                                // Processor.APRSwindow += " GpsTime:" + GpsTime +
+                                // "\n";
+                                GpsTime = GpsTime.substring(GpsTime.length() - 4, GpsTime.length());
+                                int GpsMin = Integer.parseInt(GpsTime.substring(0, 2));
+                                int GpsSec = Integer.parseInt(GpsTime.substring(2, 4));
+                                // Apply leap seconds correction: GPS is 16 seconds
+                                // faster than UTC as of June 2013.
+                                // Some devices do not apply this automatically
+                                // (depends on the internal GPS engine)
+                                int leapseconds = Integer.parseInt(config.getPreferenceS("LEAPSECONDS", "0"));
+                                GpsSec -= leapseconds;
+                                if (GpsSec < 0) {
+                                    GpsSec += 60;
+                                    GpsMin--;
+                                    if (GpsMin < 0) {
+                                        GpsMin += 60;
+                                    }
                                 }
-                            }
-                            // In case of (unexpected) negative leap seconds
-                            // values
-                            if (GpsSec > 60) {
-                                GpsSec -= 60;
-                                GpsMin++;
-                                if (GpsMin > 60) {
-                                    GpsMin -= 60;
+                                // In case of (unexpected) negative leap seconds
+                                // values
+                                if (GpsSec > 60) {
+                                    GpsSec -= 60;
+                                    GpsMin++;
+                                    if (GpsMin > 60) {
+                                        GpsMin -= 60;
+                                    }
                                 }
+                                // Compare to current device time and date and
+                                // calculate the offset to be applied at display
+                                long nowInMilli = System.currentTimeMillis();
+                                long timeTarget = nowInMilli;
+                                Time mytime = new Time();
+                                mytime.set(timeTarget); // initialized to now
+                                int DeviceTime = mytime.second + (mytime.minute * 60);
+                                DeviceToGPSTimeCorrection = (GpsSec + (GpsMin * 60)) - DeviceTime;
                             }
-                            // Compare to current device time and date and
-                            // calculate the offset to be applied at display
-                            long nowInMilli = System.currentTimeMillis();
-                            long timeTarget = nowInMilli;
-                            Time mytime = new Time();
-                            mytime.set(timeTarget); // initialized to now
-                            int DeviceTime = mytime.second + (mytime.minute * 60);
-                            DeviceToGPSTimeCorrection = (GpsSec + (GpsMin * 60)) - DeviceTime;
                         }
+                        // loggingclass.writelog("Timestamp is :" +timestamp+"   nmea is :"+nmea, null, true);
                     }
-                    // loggingclass.writelog("Timestamp is :" +timestamp+"   nmea is :"+nmea, null, true);
                 }
-            }
-        });
-        } catch(SecurityException se) {
+            });
+        } catch (SecurityException se) {
             //Do nothing
         }
 
@@ -1119,21 +1118,13 @@ public class AndFlmsg extends AppCompatActivity {
             }
         } else { // start if not ON yet AND we haven't paused the modem manually
             if (!ProcessorON && !modemPaused) {
-                String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
-                String channelName = "My Background Service";
+                String NOTIFICATION_CHANNEL_ID = "com.AndFlmsg";
+                String channelName = "Background Modem";
                 NotificationChannel chan = null;
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-                Notification notification = notificationBuilder.setOngoing(true)
-                        .setSmallIcon(R.drawable.notificationicon)
-                        .setContentTitle(getString(R.string.txt_ModemON))
-                        .setContentText(getString(R.string.txt_FldigiModemOn))
-                        .setPriority(NotificationManager.IMPORTANCE_MIN)
-                        .setCategory(Notification.CATEGORY_SERVICE)
-                        .setOngoing(true)
-                        .build();
                 NotificationCompat.Builder mBuilder;
                 String chanId = "";
-                //New New code for support of Android version 8+
+                //New code for support of Android version 8+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
                     chan.setLightColor(Color.BLUE);
@@ -1148,17 +1139,10 @@ public class AndFlmsg extends AppCompatActivity {
                         .setContentTitle(getString(R.string.txt_ModemON))
                         .setContentText(getString(R.string.txt_FldigiModemOn))
                         .setOngoing(true);
-                //Prior to API 26
-                //mBuilder = new NotificationCompat.Builder(this)
-                //                .setSmallIcon(R.drawable.notificationicon)
-                //                .setContentTitle(getString(R.string.txt_ModemON))
-                //               .setContentText(getString(R.string.txt_FldigiModemOn))
-                //               .setOngoing(true);
                 // Creates an explicit intent for an Activity in your app
                 Intent notificationIntent = new Intent(this, AndFlmsg.class);
                 notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                         | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
                 //Google: The stack builder object will contain an artificial back stack for the started Activity.
                 // This ensures that navigating backward from the Activity leads out of your application to the Home screen.
                 TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -1166,8 +1150,6 @@ public class AndFlmsg extends AppCompatActivity {
                 stackBuilder.addParentStack(AndFlmsg.class);
                 // Adds the Intent that starts the Activity to the top of the stack
                 stackBuilder.addNextIntent(notificationIntent);
-
-                //Old code: PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
                 PendingIntent pIntent =
                         stackBuilder.getPendingIntent(
                                 0,
@@ -1175,8 +1157,6 @@ public class AndFlmsg extends AppCompatActivity {
                         );
                 mBuilder.setContentIntent(pIntent);
                 myNotification = mBuilder.build();
-                //VK2ETA notification is done in Processor service now
-
                 // Force garbage collection to prevent Out Of Memory errors on
                 // small RAM devices
                 System.gc();
@@ -4688,7 +4668,7 @@ public class AndFlmsg extends AppCompatActivity {
         pwLayout = inflater.inflate(R.layout.rxpicturepopup,
                 (ViewGroup) findViewById(R.id.html_popup));
         Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-	/* Now we can retrieve all display-related infos */
+        /* Now we can retrieve all display-related infos */
         int winWidth = display.getWidth();
         int winHeight = display.getHeight();
         // int orientation = display.getOrientation();
@@ -4746,7 +4726,7 @@ public class AndFlmsg extends AppCompatActivity {
         pwLayout = inflater.inflate(R.layout.txpicturepopup,
                 (ViewGroup) findViewById(R.id.html_popup));
         Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-	/* Now we can retrieve all display-related infos */
+        /* Now we can retrieve all display-related infos */
         int winWidth = display.getWidth();
         int winHeight = display.getHeight();
         // int orientation = display.getOrientation();
