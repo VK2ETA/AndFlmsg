@@ -2,7 +2,7 @@
 <manifest package="com.AndFlmsg"
     xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="1"
-    android:versionName="1.3.5" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:versionName="1.3.6" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="21"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY"></uses-permission>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <application
         tools:replace="android:icon,android:name,android:label"
         android:name="AndFlmsgDebug"

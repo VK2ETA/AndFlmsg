@@ -21,11 +21,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
 
-public class waterfallView extends ImageView {
+
+public class waterfallView extends AppCompatImageView {
     private int xDim = 0;
     private int yDim = 100;
     private int[] Buffer;

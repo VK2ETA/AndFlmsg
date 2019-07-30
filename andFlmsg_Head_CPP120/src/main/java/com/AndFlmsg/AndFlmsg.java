@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
@@ -1065,6 +1067,7 @@ public class AndFlmsg extends AppCompatActivity {
     }
 
     //Only when all permissions are agreed on
+    @TargetApi(Build.VERSION_CODES.O)
     void performOnStart() {
 
         // Store preference reference for later (config.java)
@@ -1116,14 +1119,41 @@ public class AndFlmsg extends AppCompatActivity {
             }
         } else { // start if not ON yet AND we haven't paused the modem manually
             if (!ProcessorON && !modemPaused) {
-                //New code using the Support Library
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.drawable.notificationicon)
-                                .setContentTitle(getString(R.string.txt_ModemON))
-                                .setContentText(getString(R.string.txt_FldigiModemOn))
-                                .setOngoing(true);
-
+                String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
+                String channelName = "My Background Service";
+                NotificationChannel chan = null;
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+                Notification notification = notificationBuilder.setOngoing(true)
+                        .setSmallIcon(R.drawable.notificationicon)
+                        .setContentTitle(getString(R.string.txt_ModemON))
+                        .setContentText(getString(R.string.txt_FldigiModemOn))
+                        .setPriority(NotificationManager.IMPORTANCE_MIN)
+                        .setCategory(Notification.CATEGORY_SERVICE)
+                        .setOngoing(true)
+                        .build();
+                NotificationCompat.Builder mBuilder;
+                String chanId = "";
+                //New New code for support of Android version 8+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+                    chan.setLightColor(Color.BLUE);
+                    chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+                    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    assert manager != null;
+                    manager.createNotificationChannel(chan);
+                    chanId = chan.getId();
+                }
+                mBuilder = new NotificationCompat.Builder(this, chanId)
+                        .setSmallIcon(R.drawable.notificationicon)
+                        .setContentTitle(getString(R.string.txt_ModemON))
+                        .setContentText(getString(R.string.txt_FldigiModemOn))
+                        .setOngoing(true);
+                //Prior to API 26
+                //mBuilder = new NotificationCompat.Builder(this)
+                //                .setSmallIcon(R.drawable.notificationicon)
+                //                .setContentTitle(getString(R.string.txt_ModemON))
+                //               .setContentText(getString(R.string.txt_FldigiModemOn))
+                //               .setOngoing(true);
                 // Creates an explicit intent for an Activity in your app
                 Intent notificationIntent = new Intent(this, AndFlmsg.class);
                 notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
