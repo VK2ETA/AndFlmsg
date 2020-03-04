@@ -205,11 +205,11 @@ Java_com_AndFlmsg_Message_saveEnv( JNIEnv* env, jobject thishere)
 
 
 //Processes raw received wrap file (From [wrap:begin] to [wrap:end])
-extern "C" JNIEXPORT bool
+extern "C" JNIEXPORT jboolean
 Java_com_AndFlmsg_Message_ProcessWrapBuffer( JNIEnv* env,
 		jobject thishere, jstring myJBuffer)
 {
-	bool decodeResult;
+	jboolean decodeResult;
 	//Convert to C++ type
 	const char *cBuffer = NULL;
 	//string cBuffer;
@@ -221,7 +221,7 @@ Java_com_AndFlmsg_Message_ProcessWrapBuffer( JNIEnv* env,
 
 
 
-//Get the text contaioned within the wrap sequence ("the unwrapped text")
+//Get the text contained within the wrap sequence ("the unwrapped text")
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_getUnwrapText( JNIEnv* env,
 		jobject thishere)

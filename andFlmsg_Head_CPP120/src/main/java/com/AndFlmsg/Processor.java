@@ -17,12 +17,9 @@ package com.AndFlmsg;
 
 import java.util.Calendar;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.*;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Service;
@@ -31,8 +28,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.IBinder;
-import android.widget.Toast;
-
 import ar.com.daidalos.afiledialog.FileChooserDialog;
 
 
@@ -41,8 +36,8 @@ import ar.com.daidalos.afiledialog.FileChooserDialog;
  */
 public class Processor extends Service {
 
-    static String application = "AndFlmsg 1.3.6"; // Used to preset an empty status
-    static String version = "Version 1.3.6, 2019-07-30";
+    static String application = "AndFlmsg 1.3.9"; // Used to preset an empty status
+    static String version = "Version 1.3.9, 2020-02-27";
 
     static boolean onWindows = true;
     static String ModemPreamble = "";  // String to send before any Tx Buffer
@@ -276,7 +271,6 @@ public class Processor extends Service {
         //Choose the location of the base directory if not defined yet (first run or after de-install)
         HomePath = config.getPreferenceS("BASEPATH", "");
         if (HomePath.length() == 0) {
-            //if (HomePath.length() != 100) {   //debug test
             AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.myContext);
             myAlertDialog.setMessage(AndFlmsg.myContext.getString(R.string.txt_ChooseLocForNbemsFiles));
             myAlertDialog.setCancelable(false);

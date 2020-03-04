@@ -3,6 +3,7 @@
 	<color name="complete_black">#FF000000</color>
 	<color name="complete_white">#FFFFFFFF</color>
 	<color name="some_green">#14a805</color>
+    <color name="icon_yellow">#FFf6ff33</color>
 
 
 	<!-- Alias for Theme.AppCompat -->

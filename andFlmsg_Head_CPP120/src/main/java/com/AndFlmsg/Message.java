@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.v4.content.FileProvider;
 import android.util.Base64;
 
 
@@ -331,7 +332,7 @@ public class Message {
     }
 
 
-    //Creates a temtorary file in Temp folder and a share intent (ready for a start Activity statement)
+    //Creates a temporary file in Temp folder and a share intent (ready for a start Activity statement)
     //Returns the Intent. Used for sharing the form over the internet (Cloud, email, instant messaging, etc...)
     public static Intent shareInfoIntent(String mDisplayForm, String mFileName, String extension, int sharingAction) {
 
@@ -363,7 +364,10 @@ public class Message {
             share.putExtra(Intent.EXTRA_TEXT, "Form attached\n");
             //share.putExtra(Intent.EXTRA_HTML_TEXT, myDisplayForm);
             //share.putExtra(Intent.EXTRA_TEXT, mDisplayForm);
-            share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(tempFileName)));
+            //API 24+ does not allow revealing file location
+            // share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(tempFileName)));
+            share.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(AndFlmsg.myContext, AndFlmsg.myContext.getApplicationContext().getPackageName() + ".provider", new File(tempFileName)));
+            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             //startActivity(Intent.createChooser(share, "Share Form"));
             //Intent emailIntent = new Intent(Intent.ACTION_SENDTO,
             //								Uri.fromParts("mailto", mailId, null));
@@ -372,10 +376,12 @@ public class Message {
             // emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,"Body text here");
             // or get fancy with HTML like this
             // share.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(myDisplayForm));
-
         } else { //Make sure there is a default: if (sharingAction == AndFlmsg.FORPRINTING) {
             share = new Intent(Intent.ACTION_VIEW);
-            share.setDataAndType(Uri.fromFile(new File(tempFileName)), "text/html");
+            //API 24+ does not allow revealing file location
+            //share.setDataAndType(Uri.fromFile(new File(tempFileName)), "text/html");
+            share.setDataAndType(FileProvider.getUriForFile(AndFlmsg.myContext, AndFlmsg.myContext.getApplicationContext().getPackageName() + ".provider", new File(tempFileName)), "text/html");
+            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
         return share;
     }
