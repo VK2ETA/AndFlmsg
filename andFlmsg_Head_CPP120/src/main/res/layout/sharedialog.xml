@@ -23,13 +23,21 @@
             android:onClick="onRadioButtonClicked"
             android:text="@string/txt_ViewPrint"
             android:checked= "true" />
-        
+
         <RadioButton
-            android:id="@+id/forSending"
+            android:id="@+id/forSendingAsAttachment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onRadioButtonClicked"
-            android:text="@string/txt_SendOverNetwork"
+            android:text="@string/txt_SendOverNetworkAsAttachment"
+            android:checked= "false" />"
+
+        <RadioButton
+            android:id="@+id/forSendingAsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/txt_SendOverNetworkAsText"
             android:checked= "false" />"
 
     </RadioGroup>
