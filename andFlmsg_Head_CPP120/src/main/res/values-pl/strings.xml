@@ -44,7 +44,7 @@
     <string name="bt_Tune">Strojenie</string>
     <string name="bt_TxOverRadio">Nadaj przez Radio</string>
     <string name="bt_TxRsID">Nadaj RsID</string>
-    <string name="bt_W.FallOnOff">Wodospad Włącz/Wyłącz</string>
+    <string name="bt_WFallOnOff">Wodospad Włącz/Wyłącz</string>
 
     <string name="pref_2To256">2,4,8,16,32,64,128 lub 256</string>
     <string name="pref_8BitExtendedCharSet">8-bit znaki rozszerzone (UTF-8)</string>
@@ -144,6 +144,7 @@
     <string name="txt_CopiedFile">Skopiowany Plik</string>
     <string name="txt_Digital">Cyfrowy</string>
     <string name="txt_DocumentDeleted">Dokument Skasowany</string>
+    <string name="txt_DoYouWantToMoveMsgToSentFolder">"Czy chcesz przenieść tę wiadomość do pliku Wysłane?"</string>
     <string name="txt_DraftViewLongPress">Widok Szablonów \n\nWciśnij Długo Wybraną Wiadomość By Edytować</string>
     <string name="txt_EnterFileName">Podaj Nazwę Pliku</string>
     <string name="txt_Exit">WYJŚCIE</string>
@@ -201,7 +202,8 @@
     <string name="txt_SelectAnARLmessage">Wybierz Wiadomość ARL </string>
     <string name="txt_SelectSource">Wybierz Źródło</string>
     <string name="txt_SendForm">Wyślij Formularz...</string>
-    <string name="txt_SendOverNetwork">do wysłania przez sieć</string>
+    <string name="txt_SendOverNetworkAsAttachment">wysłać jako załącznik (e-mail ...)</string>
+    <string name="txt_SendOverNetworkAsText">wysłać jako tekst (SMS ...)</string>
     <string name="txt_SentItemsView">Wysłane\n\nWciśnij Długo na Wiadomości by otworzyć </string>
     <string name="txt_SentMessagefile">Wysłana Wiadomość </string>
     <string name="txt_Shared">Udostępnione</string>

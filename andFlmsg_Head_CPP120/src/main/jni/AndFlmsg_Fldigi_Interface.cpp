@@ -811,7 +811,7 @@ Java_com_AndFlmsg_Modem_getTxProgressPercent( JNIEnv* env, jobject thishere)
 //Returns the percent progress of TXing the buffer in characters (not time)
 extern "C" JNIEXPORT void
 Java_com_AndFlmsg_Modem_setSlowCpuFlag( JNIEnv* env, jobject thishere,
-		bool mSlowCpu)
+		jboolean mSlowCpu)
 {
 	progdefaults.slowcpu = mSlowCpu;
 	return;

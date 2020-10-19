@@ -44,16 +44,13 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -83,7 +80,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
@@ -123,7 +119,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -217,8 +212,9 @@ public class AndFlmsg extends AppCompatActivity {
     private static String arlMsg = "";
     private static AlertDialog myAlertDialog = null;
     private static int sharingAction = 0;
-    public final static int FORSENDING = 1;
-    public final static int FORPRINTING = 2;
+    public final static int FORSENDINGASATTACHMENT = 1;
+    public final static int FORSENDINGASTEXT = 2;
+    public final static int FORPRINTING = 3;
     private static String formattedMsg = "";
     private static String msgFieldToUpdate = "";
     private static String checkField;
@@ -272,6 +268,9 @@ public class AndFlmsg extends AppCompatActivity {
     //Not used private static final int CONTACT_PICKER_RESULT = 10101;
     // Share form action
     private static final int SHARE_MESSAGE_RESULT = 10202;
+    // Share form action from outbox (so we can move the message to Sent folder)
+    private static final int SHARE_OUTBOX_MESSAGE_RESULT = 10203;
+    public static String lastSharedFileName = "";
     // Share form action
     private static final int EDIT_CSV_RESULT = 10303;
     // Camera/Gallery picture request
@@ -941,12 +940,14 @@ public class AndFlmsg extends AppCompatActivity {
                 if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
                     //now file transmitting is starting, flag it!
                     // - make sure this disconnection not initiated for any other reason.
-                    topToastText(getString(R.string.txt_BTConnected));
+                    //On some devices will show that message even is not connected to the desired device, remove
+                    //topToastText(getString(R.string.txt_BTConnected));
                 } else if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
                     //now file transmitting has finished, can do something to the file
                     //if you know the file name, better to check if the file is actually there
                     // - make sure this disconnection not initiated for any other reason.
-                    topToastText(getString(R.string.txt_BTDisconnected));
+                    //Same as above
+                    //topToastText(getString(R.string.txt_BTDisconnected));
                 } else {
                     //debug
                     //topToastText("Other Action");
@@ -1375,6 +1376,21 @@ public class AndFlmsg extends AppCompatActivity {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
+    //Used below to move a message from Outbox to Sent Folder
+    private static void moveToSentFolder() {
+        Message.copyAnyFile(Processor.DirOutbox, lastSharedFileName, Processor.DirSent, false);
+        //debugging only
+        //Message.addEntryToLog(Message.dateTimeStamp() + "Done 'copyAnyFile'");
+        Message.deleteFile(Processor.DirOutbox, lastSharedFileName, false);//Don't advise deletion
+        //debugging only
+        //Message.addEntryToLog(Message.dateTimeStamp() + "Done 'deleteFile'");
+        //Ensure we are using the right env variable for this TX thread
+        Message.addEntryToLog(Message.dateTimeStamp() + " - " + AndFlmsg.myContext.getString(R.string.txt_SentMessagefile)
+                + ": " + lastSharedFileName);
+        lastSharedFileName = ""; //Reset file name
+        Thread displayMessagesThread = new Thread(AndFlmsg.displayMessagesRunnable);
+        displayMessagesThread.start();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -1407,12 +1423,39 @@ public class AndFlmsg extends AppCompatActivity {
             }
         }
 
-        //Share message action
-        if (requestCode == SHARE_MESSAGE_RESULT) {
+        //Share message action when done from the Outbox (we move the message to Sent box)
+        if (requestCode == SHARE_OUTBOX_MESSAGE_RESULT) {
+            // Contrary to ALL OTHER apps, Gmail does not return RESULT_OK if the
+            //    user presses the Send action in the email....Grrrrrr
+            // So we can't use this callback to automate the transfer to the sent folder!!!!
+            // Solution: we ask the user if the code is not explicitly RESULT_OK
             if (resultCode == RESULT_OK) {
-                // Contrary to ALL OTHER apps, Gmail does not return RESULT_OK if the
-                //    user presses the Send action in the email....Grrrrrr
-                // So we can't use this callback to automate the transfer to the sent folder!!!!
+                if (lastSharedFileName.length() > 0) {
+                    moveToSentFolder();
+                }
+            } else {
+                //Ask first
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                alertDialogBuilder.setMessage(myContext.getString(R.string.txt_DoYouWantToMoveMsgToSentFolder));
+                        alertDialogBuilder.setPositiveButton(myContext.getString(R.string.txt_Yes),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                        moveToSentFolder();
+                                        //Need to clear the message display as well as it is not in the Outbox anymore!!!
+                                        returnFromFormView();
+                                    }
+                                });
+
+                alertDialogBuilder.setNegativeButton(myContext.getString(R.string.txt_No),new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
         }
 
@@ -3603,7 +3646,9 @@ public class AndFlmsg extends AppCompatActivity {
                                                 public void onClick(DialogInterface dialog, int id) {
                                                     mDisplayForm = Message.formatForDisplay(Processor.DirOutbox, mFileName, ".html");
                                                     Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".html", sharingAction);
-                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+                                                    //Save file name in global variable in case we need it in onActivityResult
+                                                    AndFlmsg.lastSharedFileName = mFileName;
+                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_OUTBOX_MESSAGE_RESULT);
                                                     Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
                                                 }
                                             });
@@ -3617,7 +3662,9 @@ public class AndFlmsg extends AppCompatActivity {
                                                         extension = mFileName.substring(mFileName.lastIndexOf("."));
                                                     }
                                                     Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, extension, sharingAction);
-                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+                                                    //Save file name in global variable in case we need it in onActivityResult
+                                                    AndFlmsg.lastSharedFileName = mFileName;
+                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_OUTBOX_MESSAGE_RESULT);
                                                     Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
                                                 }
                                             });
@@ -3625,7 +3672,9 @@ public class AndFlmsg extends AppCompatActivity {
                                                 public void onClick(DialogInterface dialog, int id) {
                                                     mDisplayForm = Message.formatForTx(Processor.DirOutbox, mFileName, true);//Images in digital form
                                                     Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
-                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
+                                                    //Save file name in global variable in case we need it in onActivityResult
+                                                    AndFlmsg.lastSharedFileName = mFileName;
+                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_OUTBOX_MESSAGE_RESULT);
                                                     Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
                                                 }
                                             });
@@ -3985,7 +4034,7 @@ public class AndFlmsg extends AppCompatActivity {
                                                         extension = mFileName.substring(mFileName.lastIndexOf("."));
                                                     }
                                                     Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, extension, sharingAction);
-                                                    startActivityForResult(Intent.createChooser(shareIntent, "Send Form..."), SHARE_MESSAGE_RESULT);
+                                                    startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
                                                     Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
                                                 }
                                             });
@@ -4227,9 +4276,13 @@ public class AndFlmsg extends AppCompatActivity {
                 if (checked)
                     sharingAction = FORPRINTING;
                 break;
-            case R.id.forSending:
+            case R.id.forSendingAsAttachment:
                 if (checked)
-                    sharingAction = FORSENDING;
+                    sharingAction = FORSENDINGASATTACHMENT;
+                break;
+            case R.id.forSendingAsText:
+                if (checked)
+                    sharingAction = FORSENDINGASTEXT;
                 break;
         }
     }

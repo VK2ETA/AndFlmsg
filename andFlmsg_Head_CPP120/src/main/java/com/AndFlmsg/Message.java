@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 
@@ -358,7 +357,7 @@ public class Message {
             loggingclass.writelog("Error creating temporary file in Temp folder", e, true);
         }
         Intent share = null;
-        if (sharingAction == AndFlmsg.FORSENDING) {
+        if (sharingAction == AndFlmsg.FORSENDINGASATTACHMENT) {
             share = new Intent(Intent.ACTION_SEND);
             share.setType("text/plain");
             share.putExtra(Intent.EXTRA_TEXT, "Form attached\n");
@@ -372,6 +371,27 @@ public class Message {
             //Intent emailIntent = new Intent(Intent.ACTION_SENDTO,
             //								Uri.fromParts("mailto", mailId, null));
             share.putExtra(Intent.EXTRA_SUBJECT, "Message " + mFileName);
+            // you can use simple text like this
+            // emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,"Body text here");
+            // or get fancy with HTML like this
+            // share.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(myDisplayForm));
+        } else if (sharingAction == AndFlmsg.FORSENDINGASTEXT) {
+            share = new Intent(Intent.ACTION_SEND);
+            share.setType("text/plain");
+            //share.putExtra(Intent.EXTRA_TEXT, "Form attached\n");
+            //share.putExtra(Intent.EXTRA_HTML_TEXT, myDisplayForm);
+            share.putExtra(Intent.EXTRA_TEXT, mDisplayForm);
+            //API 24+ does not allow revealing file location
+            // share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(tempFileName)));
+            //share.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(AndFlmsg.myContext, AndFlmsg.myContext.getApplicationContext().getPackageName() + ".provider", new File(tempFileName)));
+            //share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            //startActivity(Intent.createChooser(share, "Share Form"));
+            //Intent emailIntent = new Intent(Intent.ACTION_SENDTO,
+            //								Uri.fromParts("mailto", mailId, null));
+            //Add file name information if the format is not a wrap format
+            if (!mDisplayForm.startsWith("[WRAP:beg]")) {
+                share.putExtra(Intent.EXTRA_SUBJECT, "Message " + mFileName + "\n");
+            }
             // you can use simple text like this
             // emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,"Body text here");
             // or get fancy with HTML like this

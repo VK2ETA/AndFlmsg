@@ -194,7 +194,7 @@
 			android:layout_weight="0.25">
 		</Button>
 		<Button android:id="@+id/button_waterfallONOFF"
-			android:text="@string/bt_W.FallOnOff"
+			android:text="@string/bt_WFallOnOff"
 			android:layout_width="0dp"
 			android:layout_weight="0.25"
 			android:layout_height="fill_parent">

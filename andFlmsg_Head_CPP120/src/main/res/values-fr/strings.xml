@@ -44,7 +44,7 @@
     <string name="bt_Tune">Régler</string>
     <string name="bt_TxOverRadio">Envoi par Radio</string>
     <string name="bt_TxRsID">Tx RsID</string>
-    <string name="bt_W.FallOnOff">W.Fall On/Off</string>
+    <string name="bt_WFallOnOff">W.Fall On/Off</string>
 
     <string name="pref_2To256">2,4,8,16,32,64,128 or 256</string>
     <string name="pref_8BitExtendedCharSet">Jeu de Charactères Etendu 8-Bit (UTF-8)</string>
@@ -144,6 +144,7 @@
     <string name="txt_CopiedFile">Copié Fichier</string>
     <string name="txt_Digital">Digital</string>
     <string name="txt_DocumentDeleted">Document Effacé</string>
+    <string name="txt_DoYouWantToMoveMsgToSentFolder">"Voulez-vous transférer ce message dans le fichier \'Envoyés\'?"</string>
     <string name="txt_DraftViewLongPress">Ecran Brouillons Message\n\nPression Longue sur Message por Continuer l\'Edition</string>
     <string name="txt_EnterFileName">Entrez le Nom du Fichier</string>
     <string name="txt_Exit">Quitter</string>
@@ -201,7 +202,8 @@
     <string name="txt_SelectAnARLmessage">Sélectioner un Message ARL</string>
     <string name="txt_SelectSource">Sélectioner une Source</string>
     <string name="txt_SendForm">Envoi Formulaire</string>
-    <string name="txt_SendOverNetwork">pour Envoyer par un Réseau</string>
+    <string name="txt_SendOverNetworkAsAttachment">pour Envoyer Comme Attachement (eMail, etc..)</string>
+    <string name="txt_SendOverNetworkAsText">pour Envoyer Comme Texte (SMS, etc..)</string>
     <string name="txt_SentItemsView">Ecran Messages Envoyés\n\nPression Longue sur un Message pour l\'ouvrir</string>
     <string name="txt_SentMessagefile">Envoyé Fichier de Message</string>
     <string name="txt_Shared">Partagé</string>

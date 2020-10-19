@@ -294,17 +294,17 @@ const int cRsId::rsid_ids_size1 = sizeof(rsid_ids_1)/sizeof(*rsid_ids_1) - 1;
         ELEM2_(1076, 8PSK500, MODE_8PSK500)             \
 /*        ELEM2_(1047, 8PSK1000, MODE_8PSK1000)           \
                                                         \
-        ELEM2_(1037, 8PSK125F, MODE_8PSK125F)           \
+*/        ELEM2_(1037, 8PSK125F, MODE_8PSK125F)           \
         ELEM2_(1038, 8PSK250F, MODE_8PSK250F)           \
 													    \
 		ELEM2_(1043, 8PSK500F, MODE_8PSK500F)           \
-        ELEM2_(1078, 8PSK1000F, MODE_8PSK1000F)         \
+/*        ELEM2_(1078, 8PSK1000F, MODE_8PSK1000F)         \
         											    \
         ELEM2_(1079, 8PSK500FX2, MODE_8PSK500FX2)       \
         											    \
         ELEM2_(1058, PSK8P1200F, MODE_8PSK1200F)        \
-*/                                                      \
-        ELEM2_(0, NONE2, NUM_MODES)
+                                                      \
+*/        ELEM2_(0, NONE2, NUM_MODES)
 
 #define ELEM2_(code_, tag_, mode_) RSID_ ## tag_ = code_,
 enum { RSID_LIST2 };

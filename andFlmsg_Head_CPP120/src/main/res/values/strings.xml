@@ -44,7 +44,7 @@
     <string name="bt_Tune">Tune</string>
     <string name="bt_TxOverRadio">Tx over Radio</string>
     <string name="bt_TxRsID">Tx RsID</string>
-    <string name="bt_W.FallOnOff">W.Fall On/Off</string>
+    <string name="bt_WFallOnOff">W.Fall On/Off</string>
 
     <string name="pref_2To256">2,4,8,16,32,64,128 or 256</string>
     <string name="pref_8BitExtendedCharSet">8-bit extended characters (UTF-8)</string>
@@ -144,6 +144,7 @@
     <string name="txt_CopiedFile">Copied File</string>
     <string name="txt_Digital">Digital</string>
     <string name="txt_DocumentDeleted">Document Deleted</string>
+    <string name="txt_DoYouWantToMoveMsgToSentFolder">"Do you want to Move this Message to the SENT folder?"</string>
     <string name="txt_DraftViewLongPress">Drafts View Screen \n\nLong Press on a Message to Continue Editing</string>
     <string name="txt_EnterFileName">Enter File Name</string>
     <string name="txt_Exit">EXIT</string>
@@ -201,7 +202,8 @@
     <string name="txt_SelectAnARLmessage">Select an ARL Message</string>
     <string name="txt_SelectSource">Select Source</string>
     <string name="txt_SendForm">Send Form...</string>
-    <string name="txt_SendOverNetwork">for Sending over a network</string>
+    <string name="txt_SendOverNetworkAsAttachment">for Sending As Attachment (Mail...)</string>
+    <string name="txt_SendOverNetworkAsText">for Sending As Plain text (SMS...)</string>
     <string name="txt_SentItemsView">Sent Items View\n\nLong Press on a Message to View it</string>
     <string name="txt_SentMessagefile">Sent Message file</string>
     <string name="txt_Shared">Shared</string>
