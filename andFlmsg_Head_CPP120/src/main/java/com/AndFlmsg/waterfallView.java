@@ -76,14 +76,15 @@ public class waterfallView extends AppCompatImageView {
     public void onDraw(Canvas canvas) {
         int leftPos = 0;
         int topPos = 0;
+        int xDimFinal = xDim;
+        int yPosText;
+        boolean doubleWidth = false;
         super.onDraw(canvas);
 
         //Future speed optimization and memory improvements (less GC)
         //Replace pixels in the bitmap with the colors in the array.
         //wfBitmap.setPixels(int[] pixels, int offset, int stride, int x, int y, int width, int height)
 
-        //Flicker issue. Always draw, even if same data
-        wfBitmap = Bitmap.createBitmap(Buffer, xDim, yDim, Bitmap.Config.ARGB_8888);
         //Calculate scaling factor for wider screen (orientation)
         wfCwidth = canvas.getWidth(); //returns the width of the screen NOT the waterfall object on the screen
         //wfCheight = 130; //fixed height
@@ -91,31 +92,48 @@ public class waterfallView extends AppCompatImageView {
         //topPos = (topPos < 0 ? 0: topPos);
         //fixed
         topPos = 10;
-        leftPos = (wfCwidth - xDim) / 2 - 70; //Centered and we need at least 55 dp for the buttons on the right
+        if (wfCwidth - xDim - 70 > xDim) {
+            //We can double the waterfall width
+            doubleWidth = true;
+            xDimFinal = xDim * 2;
+            myTextPaint.setTextSize(30);
+            yPosText = 45;
+        } else {
+            doubleWidth = false;
+            xDimFinal = xDim;
+            myTextPaint.setTextSize(20);
+            yPosText = 40;
+        }
+        leftPos = (wfCwidth - xDimFinal) / 2 - 70; //Centered and we need at least 55 dp for the buttons on the right
         leftPos = (leftPos < 1 ? 1 : leftPos);
+        //Flicker issue. Always draw, even if same data
+        wfBitmap = Bitmap.createBitmap(Buffer, xDim, yDim, Bitmap.Config.ARGB_8888);
+        if (doubleWidth) {
+            wfBitmap = Bitmap.createScaledBitmap (wfBitmap, xDim * 2, yDim, true);
+        }
         //Moved to object creation section myBmPaint = new Paint();
         //Draw rectangle around waterfall
-        canvas.drawRect((float) leftPos, (float) topPos, (float) leftPos + xDim, (float) topPos + yDim, myBmPaint);
+        canvas.drawRect((float) leftPos, (float) topPos, (float) leftPos + xDimFinal, (float) topPos + yDim, myBmPaint);
         //Draw the "500Hz" tick mark and text
         canvas.drawLine((float) leftPos, (float) topPos + yDim, (float) leftPos, (float) topPos + yDim + 10, myBmPaint);
-        canvas.drawText("500", leftPos, 140, myTextPaint);
+        canvas.drawText("500", leftPos, yDim + yPosText, myTextPaint);
         //Draw the "1000Hz" tick mark and text
-        canvas.drawLine((float) leftPos + xDim / 5, (float) topPos + yDim, (float) leftPos + xDim / 5, (float) topPos + yDim + 10, myBmPaint);
-        canvas.drawText("1000", leftPos + xDim / 5 - 20, yDim + 40, myTextPaint);
+        canvas.drawLine((float) leftPos + xDimFinal / 5, (float) topPos + yDim, (float) leftPos + xDimFinal / 5, (float) topPos + yDim + 10, myBmPaint);
+        canvas.drawText("1000", leftPos + xDimFinal / 5 - 20, yDim + yPosText, myTextPaint);
         //Draw the "1500Hz" tick mark and text
-        canvas.drawLine((float) leftPos + xDim * 2 / 5, (float) topPos + yDim, (float) leftPos + xDim * 2 / 5, (float) topPos + yDim + 10, myBmPaint);
-        canvas.drawText("1500", leftPos + xDim * 2 / 5 - 20, yDim + 40, myTextPaint);
+        canvas.drawLine((float) leftPos + xDimFinal * 2 / 5, (float) topPos + yDim, (float) leftPos + xDimFinal * 2 / 5, (float) topPos + yDim + 10, myBmPaint);
+        canvas.drawText("1500", leftPos + xDimFinal * 2 / 5 - 20, yDim + yPosText, myTextPaint);
         //Draw the "2000Hz" tick mark and text
-        canvas.drawLine((float) leftPos + xDim * 3 / 5, (float) topPos + yDim, (float) leftPos + xDim * 3 / 5, (float) topPos + yDim + 10, myBmPaint);
-        canvas.drawText("2000", leftPos + xDim * 3 / 5 - 20, yDim + 40, myTextPaint);
+        canvas.drawLine((float) leftPos + xDimFinal * 3 / 5, (float) topPos + yDim, (float) leftPos + xDimFinal * 3 / 5, (float) topPos + yDim + 10, myBmPaint);
+        canvas.drawText("2000", leftPos + xDimFinal * 3 / 5 - 20, yDim + yPosText, myTextPaint);
         //Draw the "2500Hz" tick mark and text
-        canvas.drawLine((float) leftPos + xDim * 4 / 5, (float) topPos + yDim, (float) leftPos + xDim * 4 / 5, (float) topPos + yDim + 10, myBmPaint);
-        canvas.drawText("2500", leftPos + xDim * 4 / 5 - 20, yDim + 40, myTextPaint);
+        canvas.drawLine((float) leftPos + xDimFinal * 4 / 5, (float) topPos + yDim, (float) leftPos + xDimFinal * 4 / 5, (float) topPos + yDim + 10, myBmPaint);
+        canvas.drawText("2500", leftPos + xDimFinal * 4 / 5 - 20, yDim + yPosText, myTextPaint);
         //Draw the "3000Hz" tick mark and text
-        canvas.drawLine((float) leftPos + xDim, (float) topPos + yDim, (float) leftPos + xDim, (float) topPos + yDim + 10, myBmPaint);
-        canvas.drawText("3000", leftPos + xDim - 40, yDim + 40, myTextPaint);
+        canvas.drawLine((float) leftPos + xDimFinal, (float) topPos + yDim, (float) leftPos + xDimFinal, (float) topPos + yDim + 10, myBmPaint);
+        canvas.drawText("3000", leftPos + xDimFinal - 40, yDim + yPosText, myTextPaint);
         //Draw the Signal centre listening frequency tick mark
-        canvas.drawLine((float) (leftPos + xDim * (Modem.frequency - 500.0) / 2500.0), 0.0f, (float) (leftPos + xDim * (Modem.frequency - 500.0) / 2500.0), (float) topPos, myTextPaint);
+        canvas.drawLine((float) (leftPos + xDimFinal * (Modem.frequency - 500.0) / 2500.0), 0.0f, (float) (leftPos + xDimFinal * (Modem.frequency - 500.0) / 2500.0), (float) topPos, myTextPaint);
         //Draw the updated waterfall bitmap
         canvas.drawBitmap(wfBitmap, (float) leftPos, (float) topPos, null);
         //}
