@@ -540,7 +540,7 @@ Java_com_AndFlmsg_Modem_getModemCapListInt(JNIEnv* env, jobject thishere)
 		}
 	}
 
-	//Finalise the array with a negtive value
+	//Finalise the array with a negative value
 	temp[j] = -1;
 
 	//Copy to Java structure
