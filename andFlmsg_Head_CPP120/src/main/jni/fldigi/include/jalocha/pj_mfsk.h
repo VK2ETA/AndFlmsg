@@ -1140,9 +1140,11 @@ class MFSK_Encoder
 			if (Char == ' ')
 				Char = 59;
 			else if (Char == '\r')
-				Char = 60;
+                //Android Char = 60;
+                Char = 0;
 			else if (Char == '\n')
-				Char = 0;
+				//Android Char = 0;
+				Char = 60;
 			else if (Char >= 33 && Char <= 90)
 				Char -= 32;
 			else if (Char == 8)
@@ -1370,7 +1372,8 @@ public:
 			if (Char == 59)
 				Char = ' ';
 			else if (Char == 60)
-				Char = '\r';
+				//Android Char = '\r';
+				Char = '\n';
 			else if (Char == 61)
 				Char = 8; // backspace
 			else

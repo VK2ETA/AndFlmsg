@@ -145,7 +145,7 @@ public class Modem {
 
     private native static String[] getModemCapListString();
 
-    private native static void txInit(double frequency);
+    private native static String txInit(double frequency);
 
     private native static boolean txCProcess(byte[] buffer, int length);
 

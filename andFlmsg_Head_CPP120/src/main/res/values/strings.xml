@@ -244,6 +244,7 @@
     <string name="pref_DOMINOEX" translatable="false">DOMINOEX</string>
     <string name="pref_MT63" translatable="false">MT63</string>
     <string name="pref_OLIVIA" translatable="false">OLIVIA</string>
+    <string name="pref_CONTESTIA" translatable="false">CONTESTIA</string>
     <string name="pref_PSK" translatable="false">PSK</string>
     <string name="pref_THOR" translatable="false">THOR</string>
     <string name="txt_app_name" translatable="false">AndFlmsg</string>
@@ -258,5 +259,6 @@
     <string name="txt_YouWantToOverwriteSettings">Are you sure you want to overwrite the current preferences with the ones in the backup?</string>
     <string name="txt_YouWantToRestoreSettingsToDefault">Are you sure you want to Restore the KEY settings to default? \n\n Personal Data and non-communication critical data will be preserved.</string>
     <string name="txt_NoBackupFileFound">No Backup File Found\n\n Use \"Save Preferences\" option first.</string>
+    <string name="txt_PleaseChangeMode">Cannot send messages in current mode. Please change mode.</string>
 
 </resources>

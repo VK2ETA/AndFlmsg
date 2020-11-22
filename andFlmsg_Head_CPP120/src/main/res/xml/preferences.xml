@@ -160,19 +160,6 @@
             <PreferenceScreen
                 android:key="oliviaPS"
                 android:title="@string/pref_OLIVIA">
-                <ListPreference
-                    android:defaultValue="2"
-                    android:entries="@array/olivia_tones_list"
-                    android:entryValues="@array/olivia_tones_values"
-                    android:key="OLIVIATONES"
-                    android:summary="@string/pref_2To256"
-                    android:title="@string/pref_NumberOfTones" />
-                <ListPreference
-                    android:defaultValue="2"
-                    android:entries="@array/olivia_bw_list"
-                    android:entryValues="@array/olivia_bw_values"
-                    android:key="OLIVIABW"
-                    android:title="@string/pref_BandwidthHz" />
                 <EditTextPreference
                     android:defaultValue="8"
                     android:key="OLIVIASMARGIN"
@@ -192,6 +179,25 @@
                     android:defaultValue="true"
                     android:key="OLIVIA8BIT"
                     android:title="@string/pref_8BitExtendedCharSet" />
+            </PreferenceScreen>
+            <PreferenceScreen
+                android:key="contestiaPS"
+                android:title="@string/pref_CONTESTIA">
+               <EditTextPreference
+                    android:defaultValue="8"
+                    android:key="CONTESTIASMARGIN"
+                    android:summary="@string/pref_ToneFrequencySpacing"
+                    android:title="@string/pref_TuneMargin" />
+                <EditTextPreference
+                    android:defaultValue="4"
+                    android:key="CONTESTIASINTEG"
+                    android:summary="@string/pref_NumberOfFecBlocks"
+                    android:title="@string/pref_IntegrationPeriod" />
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="CONTESTIARESETFEC"
+                    android:summary="@string/pref_WhenNewBWOrTonesSelected"
+                    android:title="@string/pref_ForceIntegrationReset" />
             </PreferenceScreen>
             <PreferenceScreen
                 android:key="mt63PS"
@@ -340,20 +346,5 @@
             android:summary="@string/pref_OnHTMLDisplayForms"
             android:title="@string/pref_ShowARLDescription" />
     </PreferenceScreen>
-    <PreferenceScreen
-        android:key="GPSTimePS"
-        android:title="@string/pref_GPSTIME">
-        <CheckBoxPreference
-            android:key="USEGPSTIME"
-            android:summary="For accurate time display"
-            android:title="@string/pref_UseGPSTime"
-            android:defaultValue="false"/>
-        <EditTextPreference
-            android:defaultValue="0"
-            android:key="LEAPSECONDS"
-            android:summary="@string/pref_ForSomeDevices"
-            android:title="@string/pref_LeapSecondsCorrection" />
-    </PreferenceScreen>
-
 
 </PreferenceScreen>

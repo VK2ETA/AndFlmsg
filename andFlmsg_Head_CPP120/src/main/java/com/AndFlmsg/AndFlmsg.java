@@ -39,6 +39,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.annotation.SuppressLint;
@@ -202,6 +204,8 @@ public class AndFlmsg extends AppCompatActivity {
     private static waterfallView myWFView;
 
     public static View pwLayout;
+
+    private static String savedTextMessage = "";
 
     private ListView msgListView;
     private static WebView mWebView;
@@ -493,6 +497,7 @@ public class AndFlmsg extends AppCompatActivity {
     public void DisplayTime() {
         runOnUiThread(new Runnable() {
             public void run() {
+                /*
                 //Update time in Terminal only
                 if (currentview == TERMVIEW) {
                     try {
@@ -520,6 +525,7 @@ public class AndFlmsg extends AppCompatActivity {
                     } catch (Exception e) {
                     }
                 }
+                */
                 //Now update progress info in Title if we are TXing
                 if (Processor.TXActive && !Modem.modemIsTuning) {
                     int percent = Modem.getTxProgressPercent();
@@ -971,6 +977,7 @@ public class AndFlmsg extends AppCompatActivity {
         Thread displayTimeThread = new Thread(displayTimeRunnable);
         displayTimeThread.start();
 
+        /*
         // init NMEA listener for GPS time (to negate the device clock drift
         // when not in mobile reception area)
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -1035,6 +1042,7 @@ public class AndFlmsg extends AppCompatActivity {
         } catch (SecurityException se) {
             //Do nothing
         }
+        */
 
         // Get last mode (if not set, returns -1)
         Processor.TxModem = Processor.RxModem = config.getPreferenceI("LASTMODEUSED", -1);
@@ -1861,9 +1869,9 @@ public class AndFlmsg extends AppCompatActivity {
                                     ProcessorON = false;
                                 }
                                 // Stop the GPS if running
-                                if (locationManager != null) {
-                                    locationManager.removeUpdates(locationListener);
-                                }
+                                //if (locationManager != null) {
+                                //    locationManager.removeUpdates(locationListener);
+                                //}
                                 // Close that activity and return to previous screen
                                 finish();
                                 // Kill the process
@@ -2005,6 +2013,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         //Ensure we reset the swipe action
         AndFlmsg.inFormDisplay = false;
+        /*
         // If we elected to use GPS time, start GPS listening now
         if (config.getPreferenceB("USEGPSTIME", false)) {
             locationManager = (LocationManager) this
@@ -2018,6 +2027,7 @@ public class AndFlmsg extends AppCompatActivity {
                 //Do nothing
             }
         }
+        */
         // Change layout and remember which one we are on
         currentview = TERMVIEW;
         setContentView(R.layout.terminal);
@@ -2058,6 +2068,27 @@ public class AndFlmsg extends AppCompatActivity {
         // Advise which screen we are in
         middleToastText(getString(R.string.txt_TerminalScreen));
 
+        //Restore the data entry field at the bottom
+        EditText myView = (EditText) findViewById(R.id.edit_text_out);
+        myView.setText(savedTextMessage);
+        myView.setSelection(myView.getText().length());
+        //Add a textwatcher to save the text as it is being typed
+        myView.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable arg0) {
+            }
+
+            public void beforeTextChanged(CharSequence arg0, int arg1,
+                                          int arg2, int arg3) {
+            }
+
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                                      int arg3) {
+                savedTextMessage = arg0.toString();
+            }
+
+        });
+
         // JD Initialize the Send Text button (commands in connected mode)
         myButton = (Button) findViewById(R.id.button_sendtext);
         setTextSize(myButton);
@@ -2066,7 +2097,9 @@ public class AndFlmsg extends AppCompatActivity {
                 // Send a message using content of the edit text widget
                 TextView view = (TextView) findViewById(R.id.edit_text_out);
                 String intext = view.getText().toString();
-
+                //Clear the text field
+                view.setText("");
+                savedTextMessage = "";
                 //No exceptions thrown here???
                 //		try {
                 if (!Processor.ReceivingForm) {
@@ -3202,7 +3235,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     });
                                     myAlertDialog.setNeutralButton(getString(R.string.txt_WRAP), new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            mDisplayForm = Message.formatForTx(Processor.DirInbox, mFileName, true);//Pictures in digital form
+                                            mDisplayForm = Message.formatForTx(Processor.DirInbox, mFileName, true, false);//Pictures in digital form, NO compression
                                             Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
                                             startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
                                             Message.addEntryToLog(Message.dateTimeStamp() + ": Shared " + mFileName);
@@ -3618,16 +3651,23 @@ public class AndFlmsg extends AppCompatActivity {
                                     setTextSize(myButton);
                                     myButton.setOnClickListener(new OnClickListener() {
                                         public void onClick(View v) {
-                                            if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
-                                                returnFromFormView();
-                                                // prepare a runnable for updating the GUI list
-                                                displayMessagesRunnable = new DisplayMessagesRunner();
-                                                //MFSK picture Tx addition
-                                                Modem.txData(Processor.DirOutbox, mFileName, "\n\n\n... start\n"
-                                                                + bufferToTx + "... end\n\n\n", (digitalImages ? 0 : Message.attachedPictureCount),
-                                                        Message.attachedPictureTxSPP, Message.attachedPictureColour, Modem.modemCapListString[Processor.imageTxModemIndex]);
+                                            //Check that we can use the current mode to send messages
+                                            int mIndex = Modem.getModeIndexFullList(Processor.RxModem);
+                                            String modemStr = Modem.modemCapListString[mIndex];
+                                            if (modemStr.startsWith("CONTESTIA")) {
+                                                middleToastText(getString(R.string.txt_PleaseChangeMode));
                                             } else {
-                                                topToastText(getString(R.string.txt_PleaseWaitTxing));
+                                                if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
+                                                    returnFromFormView();
+                                                    // prepare a runnable for updating the GUI list
+                                                    displayMessagesRunnable = new DisplayMessagesRunner();
+                                                    //MFSK picture Tx addition
+                                                    Modem.txData(Processor.DirOutbox, mFileName, "\n\n\n... start\n"
+                                                                    + bufferToTx + "... end\n\n\n", (digitalImages ? 0 : Message.attachedPictureCount),
+                                                            Message.attachedPictureTxSPP, Message.attachedPictureColour, Modem.modemCapListString[Processor.imageTxModemIndex]);
+                                                } else {
+                                                    topToastText(getString(R.string.txt_PleaseWaitTxing));
+                                                }
                                             }
                                         }
                                     });
@@ -3670,7 +3710,7 @@ public class AndFlmsg extends AppCompatActivity {
                                             });
                                             myAlertDialog.setNeutralButton(getString(R.string.txt_WRAP), new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
-                                                    mDisplayForm = Message.formatForTx(Processor.DirOutbox, mFileName, true);//Images in digital form
+                                                    mDisplayForm = Message.formatForTx(Processor.DirOutbox, mFileName, true, false);//Images in digital form, NO compression
                                                     Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
                                                     //Save file name in global variable in case we need it in onActivityResult
                                                     AndFlmsg.lastSharedFileName = mFileName;
@@ -3783,7 +3823,7 @@ public class AndFlmsg extends AppCompatActivity {
                                                         itemToChange = findViewById(R.id.totalestimatetext);
                                                         itemToChange.setVisibility(View.INVISIBLE);
                                                         //Re-build the bufferToTx to include the images in text mode (digital mode)
-                                                        bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages);
+                                                        bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages, true); //Allow compression
                                                         imageMode = getString(R.string.txt_Digital);
                                                         totalEstimateView.setText("");
                                                         myImageModeView.setText(imageMode);
@@ -3796,7 +3836,7 @@ public class AndFlmsg extends AppCompatActivity {
                                                         itemToChange.setVisibility(View.VISIBLE);
                                                         //If we just changed from Digital to Analog mode, rebuild buffer
                                                         if (Processor.imageTxModemIndex == Modem.minImageModeIndex) {
-                                                            bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages);
+                                                            bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages, true); //Allow compression
                                                         }
                                                         imageMode = Modem.modemCapListString[Processor.imageTxModemIndex];
                                                         //Calculate the time required to Tx the images
@@ -3901,7 +3941,7 @@ public class AndFlmsg extends AppCompatActivity {
                                     // Format for display and sharing
                                     new backgroundFormatForDisplay(Processor.DirOutbox).execute();
                                     // Update mode and Tx time information
-                                    bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages);
+                                    bufferToTx = Message.formatForTx(Processor.DirOutbox, mFileName, digitalImages, true); //Allow compression
                                     //Show/Hide the image options buttons
                                     View showHide = findViewById(R.id.imageOptionsLayout);
                                     if (Message.attachedPictureCount > 0) {
@@ -4040,7 +4080,7 @@ public class AndFlmsg extends AppCompatActivity {
                                             });
                                             myAlertDialog.setNeutralButton("WRAP", new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
-                                                    mDisplayForm = Message.formatForTx(Processor.DirSent, mFileName, true);//Images in digital form
+                                                    mDisplayForm = Message.formatForTx(Processor.DirSent, mFileName, true, false);//Images in digital form, NO compression
                                                     Intent shareIntent = Message.shareInfoIntent(mDisplayForm, mFileName, ".wrap", sharingAction);
                                                     startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.txt_SendForm)), SHARE_MESSAGE_RESULT);
                                                     Message.addEntryToLog(Message.dateTimeStamp() + ": " + getString(R.string.txt_Shared) + " " + mFileName);
@@ -4255,10 +4295,17 @@ public class AndFlmsg extends AppCompatActivity {
         setTextSize(myButton);
         myButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
-                    new backgroundSendAllMessages().execute();
+                //Check that we can use the current mode to send messages
+                int mIndex = Modem.getModeIndexFullList(Processor.RxModem);
+                String modemStr = Modem.modemCapListString[mIndex];
+                if (modemStr.startsWith("CONTESTIA")) {
+                    middleToastText(getString(R.string.txt_PleaseChangeMode));
                 } else {
-                    topToastText(getString(R.string.txt_PleaseWaitTxing));
+                    if (!Processor.TXActive && !AndFlmsg.SendingAllMessages) {
+                        new backgroundSendAllMessages().execute();
+                    } else {
+                        topToastText(getString(R.string.txt_PleaseWaitTxing));
+                    }
                 }
             }
         });
@@ -4315,7 +4362,7 @@ public class AndFlmsg extends AppCompatActivity {
                             digitalImages = false;
                             imgModeForAllMsg = Modem.modemCapListString[Processor.imageTxModemIndex];
                         }
-                        String bufferToTx = Message.formatForTx(Processor.DirOutbox, msgToSend[i], digitalImages);
+                        String bufferToTx = Message.formatForTx(Processor.DirOutbox, msgToSend[i], digitalImages, true); //Allow compression
                         displayMessagesRunnable = new DisplayMessagesRunner();
                         //Attached Images addition
                         Modem.txData(Processor.DirOutbox, msgToSend[i], "\n\n\n... start\n"

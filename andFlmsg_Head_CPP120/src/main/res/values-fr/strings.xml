@@ -256,5 +256,6 @@
     <string name="txt_YouWantToRestoreSettingsToDefault">Confirmez la Restauration des Paramètres aux Valeures par Défaut? \n\n Les Données Personnelles et Non-critiques aux Communications Resteront Inchangées.</string>
     <string name="txt_NoBackupFileFound">Fichier de Sauvegarde des Parametres n\'éxiste pas. Utilisez \"Sauver les Paramètres\" au préalable.</string>
     <string name="txt_YouWantToOverwriteSettings">Confirmez la Restauration des Paramètres Courants par le Fichier de Sauvegarde?</string>
+    <string name="txt_PleaseChangeMode">Impossible d\'envoyer les messages dans ce mode. Changer de Mode SVP.</string>
 
 </resources>

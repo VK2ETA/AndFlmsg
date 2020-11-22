@@ -44,7 +44,7 @@
 
 //Android C++ code provides capability list of modems and corresponding codes for Java side
 // (to provide single point of maintenance)
-#define MAXMODES 300  //Maximum number of modes
+#define MAXMODES 500  //Maximum number of modes
 
 //Android quick fix. Copied from fldigi.h as we do not have that header file here.
 #define GET_TX_CHAR_NODATA -1	// no data available

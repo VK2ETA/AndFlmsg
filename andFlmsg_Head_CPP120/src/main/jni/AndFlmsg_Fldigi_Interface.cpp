@@ -21,6 +21,7 @@
 #include "thor.h"
 #include "mfsk.h"
 #include "olivia.h"
+#include "contestia.h"
 #include "dominoex.h"
 #include "rsid.h"
 #include <jni.h>
@@ -420,6 +421,8 @@ extern void change_CModem(int modemCode, double newFrequency) {
 		active_modem = new mt63(modemCode);
 	} else if (modemCode >= MODE_OLIVIA_FIRST && modemCode <= MODE_OLIVIA_LAST) {
 		active_modem = new olivia(modemCode);
+	} else if (modemCode >= MODE_CONTESTIA_FIRST && modemCode <= MODE_CONTESTIA_LAST) {
+		active_modem = new contestia(modemCode);
 	}
 	//Do the initializations
 	if (active_modem != NULL) {
@@ -576,6 +579,8 @@ Java_com_AndFlmsg_Modem_createCModem( JNIEnv* env, jobject thishere,
 		active_modem = new mt63(modemCode);
 	} else if (modemCode >= MODE_OLIVIA_FIRST && modemCode <= MODE_OLIVIA_LAST) {
 		active_modem = new olivia(modemCode);
+	} else if (modemCode >= MODE_CONTESTIA_FIRST && modemCode <= MODE_CONTESTIA_LAST) {
+		active_modem = new contestia(modemCode);
 	} else {
 		return (env)->NewStringUTF("ERROR: Modem NOT created");
 	}

@@ -421,8 +421,8 @@ void olivia::init()
 olivia::olivia(int omode)
 {
 	//Android Added access to progdefaults(preferences) in the Java side
-	progdefaults.oliviatones 		= getPreferenceI("OLIVIATONES", 2);
-	progdefaults.oliviabw	 		= getPreferenceI("OLIVIABW", 2);
+	//progdefaults.oliviatones 		= getPreferenceI("OLIVIATONES", 2);
+	//progdefaults.oliviabw	 		= getPreferenceI("OLIVIABW", 2);
 	progdefaults.oliviasmargin 		= getPreferenceI("OLIVIASMARGIN", 8);
 	progdefaults.oliviasinteg 		= getPreferenceI("OLIVIASINTEG", 4);
 	progdefaults.olivia_reset_fec  	= getPreferenceB("OLIVIARESETFEC", false);
@@ -508,9 +508,11 @@ olivia::olivia(int omode)
 			break;
 		case MODE_OLIVIA:
 		default: //OLIVIA_8_500
-			tones = progdefaults.oliviatones;
-			bw    = progdefaults.oliviabw;
-//Android			REQ(set_olivia_tab_widgets);
+			//Android tones = progdefaults.oliviatones;
+			//Android bw    = progdefaults.oliviabw;
+			//Android			REQ(set_olivia_tab_widgets);
+			tones = 2;
+			bw = 1;
 			break;
 	}
 

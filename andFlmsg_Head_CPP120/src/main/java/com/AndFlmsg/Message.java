@@ -847,7 +847,7 @@ public class Message {
 
     //Takes a directory for the data file, a data file name
     //Returns a wrapped and possibly compressed file ready for Txing via Radio Modems
-    public static String formatForTx(String mDir, String mFileName, boolean imagesInDigitalForm) {
+    public static String formatForTx(String mDir, String mFileName, boolean imagesInDigitalForm, boolean allowCompression) {
         String dataString = new String();
         String txBuffer = new String();
         String readString0 = new String();
@@ -905,7 +905,7 @@ public class Message {
             //Update header
             headerString = Message.updateHeader(headerString, AndFlmsg.header_reason_FROM, headerForm);
             //Process message body
-            dataString = Message.compressMaybe(dataString);
+            if (allowCompression) dataString = Message.compressMaybe(dataString);
             txBuffer = "[WRAP:fn " + mFileName + "]" +
                     headerString + dataString;
             chksumString = CheckSum.Crc16(txBuffer);

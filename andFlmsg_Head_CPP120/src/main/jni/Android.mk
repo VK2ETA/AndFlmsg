@@ -8,11 +8,12 @@ LOCAL_SRC_FILES := AndFlmsg_Fldigi_Interface.cpp fldigi/modem.cxx \
 			fldigi/mfsk/interleave.cxx fldigi/mfsk/mfskvaricode.cxx fldigi/mfsk/mfsk.cxx \
 			fldigi/misc/misc.cxx fldigi/misc/util.cxx fldigi/misc/configuration.cxx \
 			fldigi/mt63/dsp.cxx fldigi/mt63/mt63base.cxx fldigi/mt63/mt63.cxx \
-			fldigi/rsid/rsid.cxx \
+		    fldigi/rsid/rsid.cxx \
 			fldigi/fft/fft.cxx \
 			fldigi/dominoex/dominoex.cxx fldigi/dominoex/dominovar.cxx \
 			fldigi/thor/thor.cxx fldigi/thor/thorvaricode.cxx \
-			fldigi/olivia/olivia.cxx
+			fldigi/olivia/olivia.cxx \
+			fldigi/contestia/contestia.cxx
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/fldigi/include
 include $(BUILD_SHARED_LIBRARY)
 

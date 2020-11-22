@@ -248,6 +248,6 @@
     <string name="txt_NoBackupFileFound">Nie znaleziono pliku \n\n Użyj Opcji \"Zapisz Ustawienia\" najpierw.</string>
     <string name="txt_YouWantToOverwriteSettings">Czy jesteś pewien że chcesz nadpisać obecne ustawienia ?</string>
     <string name="txt_YouWantToRestoreSettingsToDefault">Czy jesteś pewien że chcesz przywrócić ustawienia domyślne? \n\n Dane Osobiste i dane nie związane z komunikacją zostaną zachowane.</string>
-
+    <string name="txt_PleaseChangeMode">Nie można wysyłać wiadomości w bieżącym trybie. Zmień tryb.</string>
 
 </resources>

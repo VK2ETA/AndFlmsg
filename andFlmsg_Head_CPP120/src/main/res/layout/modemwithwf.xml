@@ -84,7 +84,7 @@
             <view
                 android:id="@+id/WFbox"
                 android:layout_width="fill_parent"
-                android:layout_height="140px"
+                android:layout_height="150px"
                 android:layout_gravity="fill_horizontal"
                 class="com.AndFlmsg.waterfallView" />
         </LinearLayout>

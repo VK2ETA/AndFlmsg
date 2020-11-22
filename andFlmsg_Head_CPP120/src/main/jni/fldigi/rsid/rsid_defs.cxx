@@ -102,31 +102,32 @@
         ELEM_(46, THROBX_1, MODE_THROBX1)               \
         ELEM_(47, THROBX_2, MODE_THROBX2)               \
         ELEM_(146, THROBX_4, MODE_THROBX4)              \
+*/                                                        \
+        ELEM_(204, CONTESTIA_4_125, MODE_CONTESTIA_4_125)   \
+        ELEM_(55,  CONTESTIA_4_250, MODE_CONTESTIA_4_250)   \
+        ELEM_(54,  CONTESTIA_4_500, MODE_CONTESTIA_4_500)   \
+        ELEM_(255, CONTESTIA_4_1000, MODE_CONTESTIA_4_1000) \
+        ELEM_(254, CONTESTIA_4_2000, MODE_CONTESTIA_4_2000) \
+                                                            \
+        ELEM_(169, CONTESTIA_8_125, MODE_CONTESTIA_8_125)   \
+        ELEM_(49,  CONTESTIA_8_250, MODE_CONTESTIA_8_250)   \
+        ELEM_(52,  CONTESTIA_8_500, MODE_CONTESTIA_8_500)   \
+        ELEM_(117, CONTESTIA_8_1000, MODE_CONTESTIA_8_1000) \
+        ELEM_(247, CONTESTIA_8_2000, MODE_CONTESTIA_8_2000) \
+                                                            \
+        ELEM_(275, CONTESTIA_16_250, MODE_CONTESTIA_16_250)   \
+        ELEM_(50,  CONTESTIA_16_500, MODE_CONTESTIA_16_500)   \
+        ELEM_(53,  CONTESTIA_16_1000, MODE_CONTESTIA_16_1000) \
+        ELEM_(259, CONTESTIA_16_2000, MODE_CONTESTIA_16_2000) \
                                                         \
-        ELEM_(204, CONTESTIA_4_125, MODE_CONTESTIA)     \
-        ELEM_(55,  CONTESTIA_4_250, MODE_CONTESTIA)     \
-        ELEM_(54,  CONTESTIA_4_500, MODE_CONTESTIA)     \
-        ELEM_(255, CONTESTIA_4_1000, MODE_CONTESTIA)    \
-        ELEM_(254, CONTESTIA_4_2000, MODE_CONTESTIA)    \
+        ELEM_(51,  CONTESTIA_32_1000, MODE_CONTESTIA_32_1000) \
+        ELEM_(201, CONTESTIA_32_2000, MODE_CONTESTIA_32_2000) \
+                                                            \
+        ELEM_(194, CONTESTIA_64_500, MODE_CONTESTIA_64_500)   \
+        ELEM_(193, CONTESTIA_64_1000, MODE_CONTESTIA_64_1000) \
+        ELEM_(191, CONTESTIA_64_2000, MODE_CONTESTIA_64_2000) \
                                                         \
-        ELEM_(169, CONTESTIA_8_125, MODE_CONTESTIA)     \
-        ELEM_(49,  CONTESTIA_8_250, MODE_CONTESTIA)     \
-        ELEM_(52,  CONTESTIA_8_500, MODE_CONTESTIA)     \
-        ELEM_(117, CONTESTIA_8_1000, MODE_CONTESTIA)    \
-        ELEM_(247, CONTESTIA_8_2000, MODE_CONTESTIA)    \
-                                                        \
-        ELEM_(50,  CONTESTIA_16_500, MODE_CONTESTIA)    \
-        ELEM_(53,  CONTESTIA_16_1000, MODE_CONTESTIA)   \
-        ELEM_(259, CONTESTIA_16_2000, MODE_CONTESTIA)   \
-                                                        \
-        ELEM_(51,  CONTESTIA_32_1000, MODE_CONTESTIA)   \
-        ELEM_(201, CONTESTIA_32_2000, MODE_CONTESTIA)   \
-                                                        \
-        ELEM_(194, CONTESTIA_64_500, MODE_CONTESTIA)    \
-        ELEM_(193, CONTESTIA_64_1000, MODE_CONTESTIA)   \
-        ELEM_(191, CONTESTIA_64_2000, MODE_CONTESTIA)   \
-                                                        \
-        ELEM_(56, VOICE, NUM_MODES)                     \
+/*        ELEM_(56, VOICE, NUM_MODES)                     \
                                                         \
         ELEM_(60, MFSK8, MODE_MFSK8)                    \
 */        ELEM_(57, MFSK16, MODE_MFSK16)                  \
@@ -180,12 +181,12 @@
         ELEM_(79, FAX, NUM_MODES)                       \
         ELEM_(81, SSTV, NUM_MODES)                      \
                                                         \
-        ELEM_(84, DOMINOEX_4, MODE_DOMINOEX4)           \
-        ELEM_(85, DOMINOEX_5, MODE_DOMINOEX5)           \
-        ELEM_(86, DOMINOEX_8, MODE_DOMINOEX8)           \
-        ELEM_(87, DOMINOEX_11, MODE_DOMINOEX11)         \
-        ELEM_(88, DOMINOEX_16, MODE_DOMINOEX16)         \
-*/      ELEM_(90, DOMINOEX_22, MODE_DOMINOEX22)         \
+*/      ELEM_(84, DOMINOEX4, MODE_DOMINOEX4)           \
+        ELEM_(85, DOMINOEX5, MODE_DOMINOEX5)           \
+        ELEM_(86, DOMINOEX8, MODE_DOMINOEX8)           \
+        ELEM_(87, DOMINOEX11, MODE_DOMINOEX11)         \
+        ELEM_(88, DOMINOEX16, MODE_DOMINOEX16)         \
+        ELEM_(90, DOMINOEX22, MODE_DOMINOEX22)         \
 /*        ELEM_(92, DOMINOEX_4_FEC, MODE_DOMINOEX4)       \
         ELEM_(93, DOMINOEX_5_FEC, MODE_DOMINOEX5)       \
         ELEM_(97, DOMINOEX_8_FEC, MODE_DOMINOEX8)       \
@@ -208,10 +209,10 @@
         ELEM_(134, JT65_B, NUM_MODES)                   \
         ELEM_(135, JT65_C, NUM_MODES)                   \
                                                         \
-        ELEM_(136, THOR4, MODE_THOR4)                  \
-        ELEM_(137, THOR8, MODE_THOR8)                  \
-*/      ELEM_(138, THOR16, MODE_THOR16)                \
-/*        ELEM_(139, THOR_5, MODE_THOR5)        */          \
+*/      ELEM_(136, THOR4,  MODE_THOR4)                 \
+        ELEM_(137, THOR8,  MODE_THOR8)                 \
+        ELEM_(138, THOR16, MODE_THOR16)                \
+        ELEM_(139, THOR5,  MODE_THOR5)                 \
         ELEM_(143, THOR11, MODE_THOR11)                \
         ELEM_(145, THOR22, MODE_THOR22)                \
 /*                                                        \
@@ -281,13 +282,16 @@ const int cRsId::rsid_ids_size1 = sizeof(rsid_ids_1)/sizeof(*rsid_ids_1) - 1;
         ELEM2_(653, THOR50x2, MODE_THOR50x2)            \
         ELEM2_(658, THOR100, MODE_THOR100)              \
                                                         \
-        ELEM2_(662, DOMINOEX_44, MODE_DOMINOEX44)       \
-        ELEM2_(681, DOMINOEX_88, MODE_DOMINOEX88)       \
+        ELEM2_(662, DOMINOEX44, MODE_DOMINOEX44)       \
+        ELEM2_(681, DOMINOEX88, MODE_DOMINOEX88)       \
+                                                        \
+        ELEM2_(691, DOMINOEX_MICRO, MODE_DOMINOEXMICRO) \
+        ELEM2_(693, THOR_MICRO, MODE_THORMICRO)         \
+                                                        \
 /*                                                      \
         ELEM2_(687, MFSK31, MODE_MFSK31)                \
         												\
-*/        ELEM2_(1026, MFSK64L, MODE_MFSK64L)           \
-        												\
+*/      ELEM2_(1026, MFSK64L, MODE_MFSK64L)             \
         ELEM2_(1029, MFSK128L, MODE_MFSK128L)           \
         ELEM2_(1066, 8PSK125, MODE_8PSK125)             \
         ELEM2_(1071, 8PSK250, MODE_8PSK250)             \
