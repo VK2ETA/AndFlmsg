@@ -1122,7 +1122,10 @@ public class Modem {
                                     //Always send RSID
                                     //Bug found by Stan KG5CKK. Thanks Stan.
                                     // String modemName = Modem.modemCapListString[getModeIndex(modemCode)];
-                                    String modemName = Modem.customModeListString[getModeIndex(modemCode)];
+                                    //String modemName = Modem.customModeListString[getModeIndex(modemCode)];
+                                    //Bug found by Liu Xinnan (BH5HDE), thank you:
+                                    // RSID not sent when image mfsk mode not selected in list of custom modes
+                                    String modemName = Modem.modemCapListString[getModeIndexFullList(modemCode)];
                                     PictureTxRSID.send(modemName);
                                     //debugging only
                                     //Message.addEntryToLog(Message.dateTimeStamp() + "Done 'txRSID' ");

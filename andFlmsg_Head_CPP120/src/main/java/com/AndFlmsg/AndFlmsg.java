@@ -39,6 +39,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -131,6 +132,9 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
 
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -281,7 +285,7 @@ public class AndFlmsg extends AppCompatActivity {
     private static final int PICTURE_REQUEST_CODE = 10404;
 
     //Temp picture attachment
-    private static final String tempAttachPictureFname = "_imgCameraAttachment.pic";
+    private static final String tempAttachPictureFname = "_imgCameraAttachment";
 
     // Bluetooth handfree / headset
     public static boolean scoChannelOn = false;
@@ -701,6 +705,7 @@ public class AndFlmsg extends AppCompatActivity {
     public static boolean bluetoothAdminPermit = false;
     public static boolean readLogsPermit = false;
     public static boolean fineLocationPermit = false;
+    public static boolean readExtStoragePermit = false;
     public static boolean writeExtStoragePermit = false;
     public static boolean recordAudioPermit = false;
     public static boolean modifyAudioSettingsPermit = false;
@@ -712,6 +717,7 @@ public class AndFlmsg extends AppCompatActivity {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.MODIFY_AUDIO_SETTINGS,
@@ -742,6 +748,7 @@ public class AndFlmsg extends AppCompatActivity {
         fineLocationPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.ACCESS_FINE_LOCATION) == granted;
         bluetoothPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BLUETOOTH) == granted;
         bluetoothAdminPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BLUETOOTH_ADMIN) == granted;
+        readExtStoragePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_EXTERNAL_STORAGE) == granted;
         writeExtStoragePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == granted;
         recordAudioPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.RECORD_AUDIO) == granted;
         modifyAudioSettingsPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.MODIFY_AUDIO_SETTINGS) == granted;
@@ -750,7 +757,7 @@ public class AndFlmsg extends AppCompatActivity {
         internetPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.INTERNET) == granted;
         readPhoneStatePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_PHONE_STATE) == granted;
 
-        return fineLocationPermit && bluetoothPermit && bluetoothAdminPermit && writeExtStoragePermit
+        return fineLocationPermit && bluetoothPermit && bluetoothAdminPermit && readExtStoragePermit && writeExtStoragePermit
                 && recordAudioPermit && modifyAudioSettingsPermit //&& readLogsPermit never granted in later versions of Android
                 && broadcastStickyPermit && internetPermit && readPhoneStatePermit;
     }
@@ -767,6 +774,8 @@ public class AndFlmsg extends AppCompatActivity {
                 bluetoothPermit = grantResults[i] == granted;
             } else if (permissions[i].equals(Manifest.permission.BLUETOOTH_ADMIN)) {
                 bluetoothAdminPermit = grantResults[i] == granted;
+            } else if (permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                readExtStoragePermit = grantResults[i] == granted;
             } else if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 writeExtStoragePermit = grantResults[i] == granted;
             } else if (permissions[i].equals(Manifest.permission.RECORD_AUDIO)) {
@@ -1470,30 +1479,36 @@ public class AndFlmsg extends AppCompatActivity {
         //Camera/Gallery/File picture request
         if (requestCode == PICTURE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                final boolean isCamera;
+                //final boolean isCamera;
+                boolean isCamera; //data.getData().getPath()
                 if (data == null) {
                     isCamera = true;
+                } else if (data.getData() == null) {
+                    isCamera = true;
+                } else if (data.getAction() == null || data.getData().getPath() != null) {
+                    //if (action == null) {
+                    //    isCamera = false;
+                    //} else {
+                    isCamera = false;
                 } else {
                     final String action = data.getAction();
-                    if (action == null) {
-                        isCamera = false;
-                    } else {
-                        isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    }
+                    isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 }
-                Uri selectedImageUri;
-                if (isCamera) {
-                    selectedImageUri = outputFileUri;
-                } else {
-                    selectedImageUri = data == null ? null : data.getData();
-                }
+                //Uri selectedImageUri;
+                String imageFullFilePath;
 
                 //To replace the Android Webview unconsistent HTML5 readAsDataURL(file)
                 jsEncodedImageLine = "";
                 try {
-
+                    if (isCamera) {
+                        //selectedImageUri = outputFileUri;
+                        imageFullFilePath = outputFilePath;
+                    } else {
+                        //selectedImageUri = data == null ? null : data.getData();
+                        imageFullFilePath = getPath(AndFlmsg.myContext, data.getData()); //.getPath(); //getPath(AndFlmsg.myContext, selectedImageUri);
+                    }
                     //Scale down image if likely to be too large (max megapixel size in User preference)
-                    String imageFullFilePath = AndFlmsg.getPath(AndFlmsg.myContext, selectedImageUri);
+                    //String imageFullFilePath = getPath(AndFlmsg.myContext, selectedImageUri);
                     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                     //Just get the size without the picture data
                     bmOptions.inJustDecodeBounds = true;
@@ -1669,7 +1684,7 @@ public class AndFlmsg extends AppCompatActivity {
                 }
                 jsEncodedImageLine = Message.escape(jsEncodedImageLine);
                 //Update the fields in the UI thread
-                final String myImageFile = "file://" + AndFlmsg.getPath(AndFlmsg.myContext, selectedImageUri);
+                //final String myImageFile = "file://" + AndFlmsg.getPath(AndFlmsg.myContext, selectedImageUri);
                 //getRealPathFromURI(selectedImageUri); ///.getLastPathSegment(); ///.getPath(); ////.toString();
                 ((Activity) AndFlmsg.myContext).runOnUiThread(new Runnable() {
                     public void run() {
@@ -1735,23 +1750,66 @@ public class AndFlmsg extends AppCompatActivity {
     //Use external apps to select an image file (Camera, file system or Gallery)
     //Based on code from www.stackoverflow.com (thank you David Manpearl and Austyn Mahoney)
     private Uri outputFileUri;
+    private String outputFilePath = "";
 
     private void openImageIntent() {
 
         // Determine Uri of camera image to save.
-        final File root = new File(Processor.HomePath + Processor.Dirprefix
-                + Processor.DirTemp + Processor.Separator);
-        final File sdImageMainDirectory = new File(root, tempAttachPictureFname);
-        outputFileUri = Uri.fromFile(sdImageMainDirectory);
+        //Android 11 tightening os file access means we have to use a shared directory for the camera to write to
+        //final File root = new File(Processor.HomePath + Processor.Dirprefix
+        //        + Processor.DirTemp + Processor.Separator);
+        //final File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), Processor.HomePath);
+        //String rootPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + "picFolder/";
+        String rootPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/";
+        File root = new File(rootPath);
+        //File root = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        //final File root = new File(Environment.getExternalStorageDirectory(), "pictures/");
+        if (!root.exists()) {
+            root.mkdir();
+        }
+
+        /*
+
+        File f = new File(rootPath + "mttext.txt");
+        if (f.exists()) {
+            f.delete();
+        }
+        f.createNewFile();
+         */
+        //final File sdImageFile = new File(root, tempAttachPictureFname);
+        final File sdImageFile;
+        try {
+            //sdImageFile = File.createTempFile(tempAttachPictureFname, ".jpg", root);
+            sdImageFile = new File(rootPath + tempAttachPictureFname + ".jpg");
+            if (sdImageFile.exists()) {
+                sdImageFile.delete();
+            }
+            sdImageFile.createNewFile();
+            //File image = File.createTempFile(
+            //        imageFileName,  /* prefix */
+            //        ".jpg",         /* suffix */
+            //        storageDir      /* directory */ );
+            //sdImageFile = File.createTempFile(tempAttachPictureFname, ".jpg");
+            //outputFileUri = Uri.fromFile(sdImageFile);
+            //Context context = getActivity().getBaseContext();
+            //outputFileUri = FileProvider.getUriForFile(myContext, myContext.getApplicationContext().getPackageName() + ".myFileProvider", sdImageFile);
+            outputFileUri = FileProvider.getUriForFile(myContext, myContext.getApplicationContext().getPackageName() + ".provider", sdImageFile);
+            outputFilePath = sdImageFile.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //Camera
         final List<Intent> cameraIntents = new ArrayList<Intent>();
         final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        captureIntent.setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION);
         final PackageManager packageManager = getPackageManager();
         final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
         for (ResolveInfo res : listCam) {
             final String packageName = res.activityInfo.packageName;
+            myContext.grantUriPermission(packageName, outputFileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
             final Intent intent = new Intent(captureIntent);
+            intent.setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION);
             intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
             intent.setPackage(packageName);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
@@ -1760,6 +1818,7 @@ public class AndFlmsg extends AppCompatActivity {
 
         // Filesystem.
         final Intent galleryIntent = new Intent();
+        galleryIntent.setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION);
         galleryIntent.setType("image/*");
         galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
@@ -3848,8 +3907,10 @@ public class AndFlmsg extends AppCompatActivity {
                                                                     (Message.attachedPictureColour ? 3 : 1) + 3 + 1;
                                                         }
                                                         int[] SPPtoSpeed = {0, 8, 4, 0, 2, 0, 0, 0, 1}; //map from SPP to Xy speed display
-                                                        analogSpeedColour = (Message.attachedPictureColour ?
-                                                                getString(R.string.txt_Color) : getString(R.string.txt_Grey) + ",X" +
+                                                        //Bug found by Liu Xinnan (BH5HDE), thanks:
+                                                        //  "X1...X4" not displayed when clicking on the "Image mode" button and sending method is Color
+                                                        analogSpeedColour = ((Message.attachedPictureColour ?
+                                                                getString(R.string.txt_Color) : getString(R.string.txt_Grey)) + ",X" +
                                                                 Integer.toString(SPPtoSpeed[Message.attachedPictureTxSPP]));
                                                         totalEstimateView.setText(Integer.toString(timeToTxImages) + getString(R.string.txt_Secs));
                                                         myImageModeView.setText(imageMode + "," + analogSpeedColour);

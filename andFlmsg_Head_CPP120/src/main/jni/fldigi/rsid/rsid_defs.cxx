@@ -129,8 +129,8 @@
                                                         \
 /*        ELEM_(56, VOICE, NUM_MODES)                     \
                                                         \
-        ELEM_(60, MFSK8, MODE_MFSK8)                    \
-*/        ELEM_(57, MFSK16, MODE_MFSK16)                  \
+*/        ELEM_(60, MFSK8, MODE_MFSK8)                    \
+        ELEM_(57, MFSK16, MODE_MFSK16)                  \
         ELEM_(147, MFSK32, MODE_MFSK32)                 \
 /*                                                        \
         ELEM_(148, MFSK11, MODE_MFSK11)                 \
