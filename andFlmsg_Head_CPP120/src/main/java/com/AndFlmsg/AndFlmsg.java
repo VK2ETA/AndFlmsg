@@ -344,18 +344,23 @@ public class AndFlmsg extends AppCompatActivity {
                     if (Processor.TXActive) {
                         //		    myWindow.setTitleColor(Color.YELLOW);
                         ((AppCompatActivity) myContext).getSupportActionBar().setTitle((Html.fromHtml("<font color=\"#FFFF00\">"
-                                + "AndFlmsg- " + Modem.modemCapListString[mIndex] + " - " + Processor.Status + AndFlmsg.txMessageCount
+                                //Remove app name to make space for more information
+                                // + "AndFlmsg- " + Modem.modemCapListString[mIndex] + " - " + Processor.Status + AndFlmsg.txMessageCount
+                                + Modem.modemCapListString[mIndex] + " - " + Processor.Status + AndFlmsg.txMessageCount
                                 + AndFlmsg.txProgressCount
                                 + "</font>")));
                     } else {
                         //		    myWindow.setTitleColor(Color.CYAN);
                         ((AppCompatActivity) myContext).getSupportActionBar().setTitle((Html.fromHtml("<font color=\"#33D6FF\">" +
-                                "AndFlmsg-" + Modem.modemCapListString[mIndex] + " - " + Processor.Status + "</font>")));
+                                //Remove app name to make space for more information
+                                //"AndFlmsg-" + Modem.modemCapListString[mIndex] + " - " + Processor.Status + "</font>")));
+                                Modem.modemCapListString[mIndex] + " - " + Processor.Status + "</font>")));
                         txProgressCount = ""; //Reset percent complete of file TX
                     }
                 } else {
-                    ((AppCompatActivity) myContext).getSupportActionBar().setTitle((Html.fromHtml("<font color=\"#FFFFFF\">"
-                            + "AndFlmsg - Modem OFF" + "</font>")));
+                    ((AppCompatActivity) myContext).getSupportActionBar().setTitle((Html.fromHtml("<font color=\"#FFFFFF\">" +
+                            //+ "AndFlmsg - Modem OFF" + "</font>")));
+                            "Modem OFF" + "</font>")));
                 }
             } catch (Throwable x) {
                 loggingclass.writelog("\nDebug Information: Samsung/Wiko appcompat compatibility issue workaround activated!", null, true);
@@ -1679,10 +1684,16 @@ public class AndFlmsg extends AppCompatActivity {
                     //Encode in Base64 to make it text compatible
                     jsEncodedImageLine = "data:image/png;base64," +
                             Base64.encodeToString(rawPictureBuffer, Base64.NO_WRAP);
+                    fileIs.close();
+                    rawPictureBuffer = null;
+                    System.gc();
                 } catch (Exception e) {
                     loggingclass.writelog("Failed to read and encode picture file" + e.getMessage(), null, true);
                 }
-                jsEncodedImageLine = Message.escape(jsEncodedImageLine);
+
+                //Removed as not necessary as there are never ever any "\" or "\n" or "\r" in the base64 string
+                //jsEncodedImageLine = Message.escape(jsEncodedImageLine);
+
                 //Update the fields in the UI thread
                 //final String myImageFile = "file://" + AndFlmsg.getPath(AndFlmsg.myContext, selectedImageUri);
                 //getRealPathFromURI(selectedImageUri); ///.getLastPathSegment(); ///.getPath(); ////.toString();
@@ -1695,12 +1706,16 @@ public class AndFlmsg extends AppCompatActivity {
                         String jsAction = "javascript:setImgSource('"
                                 + _imgFieldToUpdate + "','" + jsEncodedImageLine + "')";
                         mWebView.loadUrl(jsAction);
+                        jsAction = null;
+                        System.gc();
                         //Update the Textarea containing the base64 encoded image
                         jsAction = "javascript:setImgTextarea('"
                                 + _imgFieldToUpdate + "','" + jsEncodedImageLine + "')";
                         mWebView.loadUrl(jsAction);
-                        //"Free" the large string variable (changed from final to static)
+                        //"Free" the large string variables (changed from final to static)
+                        jsAction = null;
                         jsEncodedImageLine = null;
+                        System.gc();
                     }
                 });
             }

@@ -153,7 +153,7 @@ public class config {
     }
 
 
-    /**
+    /*
      * Sets the passes value into the assed preference Key, if its not there do nothing
      *
      * @param key

@@ -443,7 +443,7 @@ extern void change_CModem(int modemCode, double newFrequency) {
 
 //Save Tx thread environment
 extern "C" JNIEXPORT void
-Java_com_AndFlmsg_Modem_saveEnv( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_saveEnv( JNIEnv* env, jclass thishere)
 {
 	gEnv = env;
 }
@@ -451,7 +451,7 @@ Java_com_AndFlmsg_Modem_saveEnv( JNIEnv* env, jobject thishere)
 
 //Fast modem change (for Txing image for example) change_CModem
 extern "C" JNIEXPORT void
-Java_com_AndFlmsg_Modem_changeCModem( JNIEnv* env, jobject thishere, jint modemCode, jdouble newFrequency)
+Java_com_AndFlmsg_Modem_changeCModem( JNIEnv* env, jclass thishere, jint modemCode, jdouble newFrequency)
 {
 	gEnv = env;
 
@@ -462,7 +462,7 @@ Java_com_AndFlmsg_Modem_changeCModem( JNIEnv* env, jobject thishere, jint modemC
 
 //Creates the RSID receive Modem
 extern "C" JNIEXPORT jstring
-Java_com_AndFlmsg_Modem_createRsidModem(JNIEnv* env, jobject thishere) {
+Java_com_AndFlmsg_Modem_createRsidModem(JNIEnv* env, jclass thishere) {
 	//Save environment if we need to call the preference methods in Java
 	gEnv = env;
 	gJobject = thishere;
@@ -483,7 +483,7 @@ Java_com_AndFlmsg_Modem_createRsidModem(JNIEnv* env, jobject thishere) {
 
 //Returns an array of modem names (uses the RSID list in rsid_def.cxx)
 extern "C" JNIEXPORT jobjectArray
-Java_com_AndFlmsg_Modem_getModemCapListString(JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getModemCapListString(JNIEnv* env, jclass thishere)
 {
 	char *modeCapListString[MAXMODES];
 	jobjectArray returnedArray;
@@ -517,7 +517,7 @@ Java_com_AndFlmsg_Modem_getModemCapListString(JNIEnv* env, jobject thishere)
 
 //Returns an array of modem codes (uses the RSID list in rsid_def.cxx)
 extern "C" JNIEXPORT jintArray
-Java_com_AndFlmsg_Modem_getModemCapListInt(JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getModemCapListInt(JNIEnv* env, jclass thishere)
 {
 
 	jintArray returnedArray;
@@ -553,7 +553,7 @@ Java_com_AndFlmsg_Modem_getModemCapListInt(JNIEnv* env, jobject thishere)
 
 //Creates the requested modem in C++
 extern "C" JNIEXPORT jstring
-Java_com_AndFlmsg_Modem_createCModem( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_createCModem( JNIEnv* env, jclass thishere,
 		jint modemCode)
 {
 	//Save environment if we need to call the preference methods in Java
@@ -590,7 +590,7 @@ Java_com_AndFlmsg_Modem_createCModem( JNIEnv* env, jobject thishere,
 
 //Initializes the RX section of the requested modem in C++
 extern "C" JNIEXPORT jstring
-Java_com_AndFlmsg_Modem_initCModem( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_initCModem( JNIEnv* env, jclass thishere,
 		jdouble frequency)
 {
 	//Save environment if we need to call the preference methods in Java
@@ -618,7 +618,7 @@ Java_com_AndFlmsg_Modem_initCModem( JNIEnv* env, jobject thishere,
 
 //Processes the audio buffer through the current modem in C++
 extern "C" JNIEXPORT jstring
-Java_com_AndFlmsg_Modem_rxCProcess( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_rxCProcess( JNIEnv* env, jclass thishere,
 		jshortArray myjbuffer, jint length)
 {
 	//Save environment if we need to call any methods in Java
@@ -649,7 +649,7 @@ Java_com_AndFlmsg_Modem_rxCProcess( JNIEnv* env, jobject thishere,
 
 //Updates the modem with the latest GUI squelch level
 extern "C" JNIEXPORT jint
-Java_com_AndFlmsg_Modem_setSquelchLevel( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_setSquelchLevel( JNIEnv* env, jclass thishere,
 		jdouble squelchLevel)
 {
 	if ( active_modem != NULL) {
@@ -661,7 +661,7 @@ Java_com_AndFlmsg_Modem_setSquelchLevel( JNIEnv* env, jobject thishere,
 
 //Returns the latest signal metric from the current modem in C++
 extern "C" JNIEXPORT jdouble
-Java_com_AndFlmsg_Modem_getMetric( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getMetric( JNIEnv* env, jclass thishere)
 {
 	double metric = 0.0;
 	if ( active_modem != NULL) {
@@ -672,7 +672,7 @@ Java_com_AndFlmsg_Modem_getMetric( JNIEnv* env, jobject thishere)
 
 //Processes the audio buffer through the RSID modem
 extern "C" JNIEXPORT jstring
-Java_com_AndFlmsg_Modem_RsidCModemReceive( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_RsidCModemReceive( JNIEnv* env, jclass thishere,
 		jfloatArray myfbuffer, jint length, jboolean doSearch)
 {
 	//Save environment if we need to call any methods in Java
@@ -697,14 +697,14 @@ Java_com_AndFlmsg_Modem_RsidCModemReceive( JNIEnv* env, jobject thishere,
 
 //Returns the current modem frequency (for waterfall tracking after RSID)
 extern "C" JNIEXPORT jdouble
-Java_com_AndFlmsg_Modem_getCurrentFrequency( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getCurrentFrequency( JNIEnv* env, jclass thishere)
 {
 	return active_modem->get_freq();
 }
 
 //Returns the current mode (for updating the Java side)
 extern "C" JNIEXPORT jint
-Java_com_AndFlmsg_Modem_getCurrentMode( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getCurrentMode( JNIEnv* env, jclass thishere)
 {
 	return active_modem->get_mode();
 }
@@ -712,7 +712,7 @@ Java_com_AndFlmsg_Modem_getCurrentMode( JNIEnv* env, jobject thishere)
 //not used - check code before use
 //Returns the decoded characters resulting from the flushing of the rx pipe on RSID rx of new modem
 extern "C" JNIEXPORT jint
-Java_com_AndFlmsg_Modem_getFlushedRxCharacters( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getFlushedRxCharacters( JNIEnv* env, jclass thishere)
 {
 	return active_modem->get_mode();
 }
@@ -726,7 +726,7 @@ Java_com_AndFlmsg_Modem_getFlushedRxCharacters( JNIEnv* env, jobject thishere)
 
 //Send RSID of current mode
 extern "C" JNIEXPORT void
-Java_com_AndFlmsg_Modem_txRSID(JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_txRSID(JNIEnv* env, jclass thishere)
 {
 	//Save environment if we need to call any methods in Java
 	gEnv = env;
@@ -740,7 +740,7 @@ Java_com_AndFlmsg_Modem_txRSID(JNIEnv* env, jobject thishere)
 
 //Initializes the TX section of the requested modem in C++
 extern "C" JNIEXPORT jstring
-Java_com_AndFlmsg_Modem_txInit( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_txInit( JNIEnv* env, jclass thishere,
 		jdouble frequency)
 {
 	//Save environment if we need to call any methods in Java
@@ -765,7 +765,7 @@ Java_com_AndFlmsg_Modem_txInit( JNIEnv* env, jobject thishere,
 
 //Processes the data buffer for TX through the current modem in C++
 extern "C" JNIEXPORT jboolean
-Java_com_AndFlmsg_Modem_txCProcess( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_txCProcess( JNIEnv* env, jclass thishere,
 		jbyteArray myjbuffer, jint length)
 {
 	//Save environment if we need to call any methods in Java
@@ -804,7 +804,7 @@ Java_com_AndFlmsg_Modem_txCProcess( JNIEnv* env, jobject thishere,
 
 //Returns the percent progress of TXing the buffer in characters (not time)
 extern "C" JNIEXPORT jint
-Java_com_AndFlmsg_Modem_getTxProgressPercent( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Modem_getTxProgressPercent( JNIEnv* env, jclass thishere)
 {
 	int progressRatio = 0;
 	if (txDataBufferLength > 0)
@@ -815,7 +815,7 @@ Java_com_AndFlmsg_Modem_getTxProgressPercent( JNIEnv* env, jobject thishere)
 
 //Returns the percent progress of TXing the buffer in characters (not time)
 extern "C" JNIEXPORT void
-Java_com_AndFlmsg_Modem_setSlowCpuFlag( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_setSlowCpuFlag( JNIEnv* env, jclass thishere,
 		jboolean mSlowCpu)
 {
 	progdefaults.slowcpu = mSlowCpu;
@@ -825,7 +825,7 @@ Java_com_AndFlmsg_Modem_setSlowCpuFlag( JNIEnv* env, jobject thishere,
 
 //Processes the picture data buffer for TX through the current MFSK modem in C++
 extern "C" JNIEXPORT void
-Java_com_AndFlmsg_Modem_txPicture( JNIEnv* env, jobject thishere,
+Java_com_AndFlmsg_Modem_txPicture( JNIEnv* env, jclass thishere,
 		jbyteArray txPictureBuffer, jint txPictureWidth, jint txPictureHeight,
 		jint txPictureTxSpeed, jint txPictureColour)
 {

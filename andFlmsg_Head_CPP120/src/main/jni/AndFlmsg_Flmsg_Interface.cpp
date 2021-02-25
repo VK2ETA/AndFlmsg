@@ -159,10 +159,10 @@ extern int getPreferenceI2(string preferenceString, int defaultValue) {
 
 
 //Access to Java config class methods for updating a preference (e.g. for serial number update)
-extern string setPreferenceS2(string preferenceString, string newValue) {
-	jobject returnedObject;
+extern bool setPreferenceS2(string preferenceString, string newValue) {
 	jstring jprefStr;
 	jstring jnewVal;
+	jboolean returnedValue;
 
 	//Check that we have valid data
 	if (gEnv2 ==NULL) return NULL;
@@ -172,22 +172,23 @@ extern string setPreferenceS2(string preferenceString, string newValue) {
 	jclass cls = gEnv2->FindClass("com/AndFlmsg/config");
 
 	//Find the static Java method (see signature)
+	//public static Boolean setPreferenceS(String key, String newValue)
 	jmethodID mid = gEnv2->GetStaticMethodID(cls, "setPreferenceS", "(Ljava/lang/String;Ljava/lang/String;)Z");
 
 	//Convert strings to jstrings
 	jprefStr = gEnv2->NewStringUTF(preferenceString.c_str());
 	jnewVal = gEnv2->NewStringUTF(newValue.c_str());
 	//Call the method
-	returnedObject = gEnv2->CallStaticObjectMethod(cls, mid, jprefStr, jnewVal);
+	returnedValue = gEnv2->CallStaticBooleanMethod(cls, mid, jprefStr, jnewVal);
 	//Convert the returned jstring to C string
-	const char* str = gEnv2->GetStringUTFChars((jstring) returnedObject, NULL);
+	//const char* str = gEnv2->GetStringUTFChars((jstring) returnedObject, NULL);
 
 	//Release the intermediate variable
 	//gEnv2->DeleteLocalRef(returnedObject);
 	//gEnv2->DeleteLocalRef(jprefStr);
 	//gEnv2->DeleteLocalRef(jnewVal);
 
-	return str;
+	return returnedValue;
 }
 
 
@@ -197,7 +198,7 @@ extern string setPreferenceS2(string preferenceString, string newValue) {
 
 //Save environment if we need to call the preference methods in Java
 extern "C" JNIEXPORT void
-Java_com_AndFlmsg_Message_saveEnv( JNIEnv* env, jobject thishere)
+Java_com_AndFlmsg_Message_saveEnv( JNIEnv* env, jclass thishere)
 {
 	gEnv2 = env;
 	gJobject2 = thishere;
@@ -207,7 +208,7 @@ Java_com_AndFlmsg_Message_saveEnv( JNIEnv* env, jobject thishere)
 //Processes raw received wrap file (From [wrap:begin] to [wrap:end])
 extern "C" JNIEXPORT jboolean
 Java_com_AndFlmsg_Message_ProcessWrapBuffer( JNIEnv* env,
-		jobject thishere, jstring myJBuffer)
+		jclass thishere, jstring myJBuffer)
 {
 	jboolean decodeResult;
 	//Convert to C++ type
@@ -224,7 +225,7 @@ Java_com_AndFlmsg_Message_ProcessWrapBuffer( JNIEnv* env,
 //Get the text contained within the wrap sequence ("the unwrapped text")
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_getUnwrapText( JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 
 	return env->NewStringUTF(unwrapText.c_str());
@@ -235,7 +236,7 @@ Java_com_AndFlmsg_Message_getUnwrapText( JNIEnv* env,
 //Get the text contained within the wrap sequence ("the unwrapped text")
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_getUnwrapFilename( JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 
 	return env->NewStringUTF(unwrapFilename.c_str());
@@ -246,7 +247,7 @@ Java_com_AndFlmsg_Message_getUnwrapFilename( JNIEnv* env,
 //Get the text contained within the wrap sequence ("the unwrapped text")
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_geterrtext( JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 
 	return env->NewStringUTF(errtext.c_str());
@@ -258,7 +259,7 @@ Java_com_AndFlmsg_Message_geterrtext( JNIEnv* env,
 //With Read-Only attribute and values set in the VALUE attribute in the form (can be safely sent via email)
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_customHtmlDisplayFormat( JNIEnv* env,
-		jobject thishere, jstring myHtmlForm, jstring myCustomField)
+		jclass thishere, jstring myHtmlForm, jstring myCustomField)
 {
 	//bool decodeResult;
 	//Convert to C++ type
@@ -285,7 +286,7 @@ Java_com_AndFlmsg_Message_customHtmlDisplayFormat( JNIEnv* env,
 //values set in the VALUE attribute in the form ready for editing in web browser
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_customHtmlEditingFormat( JNIEnv* env,
-		jobject thishere, jstring myHtmlForm, jstring myCustomField)
+		jclass jclass, jstring myHtmlForm, jstring myCustomField)
 {
 	//bool decodeResult;
 	//Convert to C++ type
@@ -313,7 +314,7 @@ Java_com_AndFlmsg_Message_customHtmlEditingFormat( JNIEnv* env,
 //Processes HTML form and custom content, returns formatted Html display string
 extern "C" JNIEXPORT
 jstring Java_com_AndFlmsg_Message_customHtmlEditFormat( JNIEnv* env,
-		jobject thishere, jstring myHtmlForm, jstring myCustomField)
+		jclass thishere, jstring myHtmlForm, jstring myCustomField)
 {
 	//Convert to C++ type
 	const char *cHtmlForm = NULL;
@@ -333,7 +334,7 @@ jstring Java_com_AndFlmsg_Message_customHtmlEditFormat( JNIEnv* env,
 //Creates the customBuffer for storing as data file based on value of myCustomField and the Header Reason
 extern "C" JNIEXPORT
 jstring Java_com_AndFlmsg_Message_createCustomBuffer( JNIEnv* env,
-		jobject thishere, jstring myHeader, jint reason, jstring myCustomField)
+		jclass thishere, jstring myHeader, jint reason, jstring myCustomField)
 {
 	//Convert to C++ type
 	const char *cCustomField = NULL;
@@ -350,7 +351,7 @@ jstring Java_com_AndFlmsg_Message_createCustomBuffer( JNIEnv* env,
 //Creates the hard-coded form header (up to first field) for storing as data file based on value of myCustomField and the Header Reason
 extern "C" JNIEXPORT
 jstring Java_com_AndFlmsg_Message_createHardCodedHeader( JNIEnv* env,
-		jobject thishere, jstring myHeader, jint reason, jstring myFormName)
+		jclass thishere, jstring myHeader, jint reason, jstring myFormName)
 {
 	string myNewHeader2;
 
@@ -376,7 +377,7 @@ jstring Java_com_AndFlmsg_Message_createHardCodedHeader( JNIEnv* env,
 //Updates the header for TXing (mainly)
 extern "C" JNIEXPORT
 jstring Java_com_AndFlmsg_Message_updateHeader( JNIEnv* env,
-		jobject thishere, jstring myCurrentHeader, jint reason, jstring headerForm)
+		jclass thishere, jstring myCurrentHeader, jint reason, jstring headerForm)
 {
 	//Convert to C++ type
 	string cMyCurrentHeader;
@@ -395,7 +396,7 @@ jstring Java_com_AndFlmsg_Message_updateHeader( JNIEnv* env,
 
 //Creates the flmsg data file name based on options/preferences
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_namedFile( JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 	char *cNamedFile = NULL;
 	cNamedFile = named_file();
@@ -407,7 +408,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_namedFile( JNIEnv* env,
 
 //Creates the flmsg data file name based on options/preferences
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_compressMaybe(JNIEnv* env,
-		jobject thishere, jstring jBuffer)
+		jclass thishere, jstring jBuffer)
 {
 	//Convert to C++ type
 //	const char *cBuffer = NULL;
@@ -420,7 +421,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_compressMaybe(JNIEnv* env
 
 
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_estimate(JNIEnv* env,
-		jobject thishere, jstring jModeName, jstring jBufferString) {
+		jclass thishere, jstring jModeName, jstring jBufferString) {
 	static char sz_xfr_size[30];
 	float xfr_time = 0, overhead;
 
@@ -455,7 +456,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_estimate(JNIEnv* env,
 
 
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_dateStamp(JNIEnv* env,
-		jobject thishere) {
+		jclass thishere) {
 
 	//Save the environment for preference access
 	gEnv2 = env;
@@ -472,7 +473,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_dateStamp(JNIEnv* env,
 
 
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_timeStamp(JNIEnv* env,
-		jobject thishere) {
+		jclass thishere) {
 
 	//Save the environment for preference access
 	gEnv2 = env;
@@ -489,7 +490,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_timeStamp(JNIEnv* env,
 
 
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_dateTimeStamp(JNIEnv* env,
-		jobject thishere) {
+		jclass thishere) {
 
 	//Save the environment for preference access
 	gEnv2 = env;
@@ -526,7 +527,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_dateTimeStamp(JNIEnv* env
 //Returns an array of ARL Messages Numbers (in words) (uses the arl_list in arl_msgs.cxx)
 extern "C" JNIEXPORT jobjectArray
 Java_com_AndFlmsg_Message_getArlMsgTextList(JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 	char *modeCapListString[MAXARLMSGS];
 	jobjectArray returnedArray;
@@ -555,7 +556,7 @@ Java_com_AndFlmsg_Message_getArlMsgTextList(JNIEnv* env,
 //Returns an array of ARL delivery (HX) codes and text  (uses the hx_list in hx_msgs.cxx)
 extern "C" JNIEXPORT jobjectArray
 Java_com_AndFlmsg_Message_getArlHxTextList(JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 	char *hxCodesString[MAXHXMSGS];
 	jobjectArray returnedArray;
@@ -583,7 +584,7 @@ Java_com_AndFlmsg_Message_getArlHxTextList(JNIEnv* env,
 
 
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_cbrgcheck(JNIEnv* env,
-		jobject thishere, jstring msgFieldContent, jboolean stdFormat) {
+		jclass thishere, jstring msgFieldContent, jboolean stdFormat) {
 
 	//Convert to C++ format
 	string cMsgString = env->GetStringUTFChars(msgFieldContent, NULL);
@@ -602,7 +603,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_cbrgcheck(JNIEnv* env,
 //Get the text of the reformatted ARL msg field
 extern "C" JNIEXPORT jstring
 Java_com_AndFlmsg_Message_gettxtrgmsg( JNIEnv* env,
-		jobject thishere)
+		jclass thishere)
 {
 
 	return env->NewStringUTF(txt_rg_msg.c_str());
@@ -612,7 +613,7 @@ Java_com_AndFlmsg_Message_gettxtrgmsg( JNIEnv* env,
 
 //Call the escape routine (from data format to HTML format)
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_escape(JNIEnv* env,
-		jobject thishere, jstring myString) {
+		jclass thishere, jstring myString) {
 
 	//Convert to C++ format
 	string mycString = env->GetStringUTFChars(myString, NULL);
@@ -625,7 +626,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_escape(JNIEnv* env,
 
 //Call the unescape routine (from HTML format to data format)
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_unescape(JNIEnv* env,
-		jobject thishere, jstring myString) {
+		jclass thishere, jstring myString) {
 
 	//Convert to C++ format
 	string mycString = env->GetStringUTFChars(myString, NULL);
@@ -638,7 +639,7 @@ extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_unescape(JNIEnv* env,
 
 //Expands the ARL messages for form display
 extern "C" JNIEXPORT jstring Java_com_AndFlmsg_Message_expandarl(JNIEnv* env,
-		jobject thishere, jstring myArlMsg) {
+		jclass thishere, jstring myArlMsg) {
 
 	//Convert to C++ format
 	string mycArlMsg = env->GetStringUTFChars(myArlMsg, NULL);
