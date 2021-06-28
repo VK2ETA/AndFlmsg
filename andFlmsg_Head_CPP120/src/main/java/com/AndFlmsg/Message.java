@@ -896,6 +896,9 @@ public class Message {
                     found_flmsg = true;
                 }
             }
+            //Avoid leaving files and streams open - memory leaks
+            buf0.close();
+            fileISi.close();
             //Include error handling if form not valid or does not include form name
             if (!found_flmsg) {
                 AndFlmsg.middleToastText(AndFlmsg.myContext.getString(R.string.txt_NoFlmsgStatement));

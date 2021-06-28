@@ -249,5 +249,8 @@
     <string name="txt_YouWantToOverwriteSettings">Czy jesteś pewien że chcesz nadpisać obecne ustawienia ?</string>
     <string name="txt_YouWantToRestoreSettingsToDefault">Czy jesteś pewien że chcesz przywrócić ustawienia domyślne? \n\n Dane Osobiste i dane nie związane z komunikacją zostaną zachowane.</string>
     <string name="txt_PleaseChangeMode">Nie można wysyłać wiadomości w bieżącym trybie. Zmień tryb.</string>
+    <string name="pref_AllowSelectOnBackScroll">Dotyczy tylko ekranu modemu (eksperymentalne)</string>
+    <string name="pref_AllowSelectOnBackScrollSummary">Zezwalaj na zaznaczanie tekstu przy przewijaniu wstecz</string>
+    <string name="pref_KeepScreenOn">" Pozostaw ekran włączony"</string>
 
 </resources>

@@ -37,6 +37,9 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.res.Resources;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -67,7 +70,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -89,7 +91,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
-import android.text.format.Time;
 import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -239,7 +240,9 @@ public class AndFlmsg extends AppCompatActivity {
     public static int DeviceToGPSTimeCorrection = 0;
 
     public static String TerminalBuffer = "";
-    public static String ModemBuffer = "";
+    //public static String ModemBuffer = "";
+    public static StringBuffer ModemBuffer = new StringBuffer(11000); //1000 char more than max kept, but expandable anyway
+
 
     // Member object for processing of Rx and Tx
     // Can be stopped (i.e no RX) to save battery and allow Android to reclaim
@@ -413,8 +416,9 @@ public class AndFlmsg extends AppCompatActivity {
         }
     };
 
+    /*
     // Create runnable for posting to modem window
-    public static final Runnable addtomodem = new Runnable() {
+    public static final Runnable updateModemScreen = new Runnable() {
         public void run() {
             // myTV.setText(Processor.TermWindow);
             if (myModemTV != null) {
@@ -436,6 +440,141 @@ public class AndFlmsg extends AppCompatActivity {
                             // myModemSC.smoothScrollBy(20,0);
                         }
                     });
+                }
+            }
+        }
+    };
+    */
+
+    static Rect scrollViewOnScreen;
+    static int scX;
+    static int scY;
+    static Rect actualPosition = new Rect();
+
+    static Point size = new Point();
+
+    static int screenWidth = size.x;
+    static int screenHeight = size.y;
+    static Display display;
+
+    public static final Object lockObject = new Object();
+
+
+    //Check if a view is visible. Used here to detect when the user scrolls back in the
+    //  Modem screen. In which case we do not autoscroll to the bottom and we allow
+    //  selection and copy of the text in the modem screen
+    public static boolean isVisibleInView(View parentView, final View view, boolean bottom) {
+        if (view == null) {
+            return false;
+        }
+        if (!view.isShown()) {
+            return false;
+        }
+        //final Rect actualPosition = new Rect();
+        actualPosition = new Rect();
+        view.getGlobalVisibleRect(actualPosition);
+        int[] location = new int[2];
+        parentView.getLocationOnScreen(location);
+        //int scX = parentView.getWidth();
+        //int scY = parentView.getHeight();
+        scX = parentView.getWidth();
+        scY = parentView.getHeight();
+        scX += location[0];
+        scY += location[1];
+        //
+        display = myInstance.getWindowManager().getDefaultDisplay();
+        display.getSize(size);
+        screenWidth = size.x;
+        screenHeight = size.y;
+        //
+        //final Rect screen = new Rect(0, 0, getScreenWidth(), getScreenHeight());
+        //final Rect scrollViewOnScreen = new Rect(location[0], location[1], scX, scY);
+        scrollViewOnScreen = new Rect(location[0], location[1], scX, scY);
+        //return actualPosition.intersect(scrollViewOnScreen);
+        if (bottom) {
+            int visiblePart = scY - actualPosition.bottom;
+            return visiblePart > -3;
+        } else {
+            int visiblePart = location[1] - actualPosition.bottom;
+            return visiblePart < 3;
+        }
+    }
+
+    public static int getScreenWidth() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public static int getScreenHeight() {
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
+
+    static boolean mustScrollDown = true;
+    static long lastUpdateTime = 0L;
+    //Create runnable for posting to modem window
+    public static final Runnable updateModemScreen = new Runnable() {
+        public void run() {
+            if (Modem.lastCharacterTime - lastUpdateTime > 100) {
+                lastUpdateTime = System.currentTimeMillis();
+                // myTV.setText(RMsgProcessor.TermWindow);
+                if (myModemTV != null) {
+                    Boolean allowSelectOnBackScroll = config.getPreferenceB("ALLOWSELECTONBACKSCROLL", false);
+                    synchronized(lockObject) {
+                        // Then scroll to the bottom ONLY IF we have not scrolled backwards
+                        ScrollView myModemSC = myInstance.findViewById(R.id.modemscrollview);
+                        if (myModemSC != null) {
+                            if (allowSelectOnBackScroll) {
+                                TextView topOfScrollView = myInstance.findViewById(R.id.topofscrollview);
+                                TextView endOfScrollView = myInstance.findViewById(R.id.endofscrollview);
+                                int selectionSize = myModemTV.getSelectionEnd() - myModemTV.getSelectionStart();
+                                //if (isVisibleInView(myModemSC, endOfScrollView) && myModemTV.getSelectionStart() != -1) {
+                                if ((isVisibleInView(myModemSC, endOfScrollView, true)
+                                        //    && isVisibleInView(myModemSC, topOfScrollView, false)
+                                        && selectionSize == 0)
+                                        || mustScrollDown) {
+                                    //Reset flag
+                                    mustScrollDown = false;
+                                    //Make un-selectable to avoid flickering unless we are still filling up the screen (not scrolling yet)
+                                    if (isVisibleInView(myModemSC, topOfScrollView, false)) {
+                                        if (myModemTV != null && !myModemTV.isTextSelectable()) {
+                                            try {
+                                                myModemTV.setTextIsSelectable(true);
+                                            } catch (ClassCastException e) {
+                                                //Nothing
+                                            }
+                                        }
+                                    } else {
+                                        if (myModemTV != null && myModemTV.isTextSelectable()) {
+                                            myModemTV.setTextIsSelectable(false);
+                                        }
+                                    }
+                                    //myModemTV.setText(ModemBuffer);
+                                    myModemTV.setText(ModemBuffer, TextView.BufferType.SPANNABLE);
+                                    myModemSC.fullScroll(View.FOCUS_DOWN);
+                                    //Trim down buffer if overgrown
+                                    if (ModemBuffer.length() > 8000) {
+                                        ModemBuffer = ModemBuffer.delete(0, 2000);
+                                    }
+                                } else {
+                                    //Make selectable as we are not scrolling
+                                    if (myModemTV != null && !myModemTV.isTextSelectable()) {
+                                        try {
+                                            myModemTV.setTextIsSelectable(true);
+                                        } catch (ClassCastException e) {
+                                            //Nothing
+                                        }
+                                    }
+                                }
+                            } else {
+                                //Old method, always update
+                                myModemTV.setText(ModemBuffer, TextView.BufferType.SPANNABLE);
+                                myModemSC.fullScroll(View.FOCUS_DOWN);
+                                //Trim down buffer if overgrown
+                                if (ModemBuffer.length() > 8000) {
+                                    ModemBuffer = ModemBuffer.delete(0, 2000);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -710,7 +849,7 @@ public class AndFlmsg extends AppCompatActivity {
     public static boolean bluetoothAdminPermit = false;
     public static boolean readLogsPermit = false;
     public static boolean fineLocationPermit = false;
-    public static boolean readExtStoragePermit = false;
+    //Redundant: public static boolean readExtStoragePermit = false;
     public static boolean writeExtStoragePermit = false;
     public static boolean recordAudioPermit = false;
     public static boolean modifyAudioSettingsPermit = false;
@@ -722,7 +861,7 @@ public class AndFlmsg extends AppCompatActivity {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
+            //Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.MODIFY_AUDIO_SETTINGS,
@@ -753,7 +892,7 @@ public class AndFlmsg extends AppCompatActivity {
         fineLocationPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.ACCESS_FINE_LOCATION) == granted;
         bluetoothPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BLUETOOTH) == granted;
         bluetoothAdminPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.BLUETOOTH_ADMIN) == granted;
-        readExtStoragePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_EXTERNAL_STORAGE) == granted;
+        //readExtStoragePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_EXTERNAL_STORAGE) == granted;
         writeExtStoragePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == granted;
         recordAudioPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.RECORD_AUDIO) == granted;
         modifyAudioSettingsPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.MODIFY_AUDIO_SETTINGS) == granted;
@@ -762,7 +901,9 @@ public class AndFlmsg extends AppCompatActivity {
         internetPermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.INTERNET) == granted;
         readPhoneStatePermit = ContextCompat.checkSelfPermission(myContext, Manifest.permission.READ_PHONE_STATE) == granted;
 
-        return fineLocationPermit && bluetoothPermit && bluetoothAdminPermit && readExtStoragePermit && writeExtStoragePermit
+        //Redundant read permission
+        // return fineLocationPermit && bluetoothPermit && bluetoothAdminPermit && readExtStoragePermit && writeExtStoragePermit
+        return fineLocationPermit && bluetoothPermit && bluetoothAdminPermit && writeExtStoragePermit
                 && recordAudioPermit && modifyAudioSettingsPermit //&& readLogsPermit never granted in later versions of Android
                 && broadcastStickyPermit && internetPermit && readPhoneStatePermit;
     }
@@ -779,8 +920,9 @@ public class AndFlmsg extends AppCompatActivity {
                 bluetoothPermit = grantResults[i] == granted;
             } else if (permissions[i].equals(Manifest.permission.BLUETOOTH_ADMIN)) {
                 bluetoothAdminPermit = grantResults[i] == granted;
-            } else if (permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                readExtStoragePermit = grantResults[i] == granted;
+            //Redundant as we have write permission below
+            // } else if (permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            //    readExtStoragePermit = grantResults[i] == granted;
             } else if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 writeExtStoragePermit = grantResults[i] == granted;
             } else if (permissions[i].equals(Manifest.permission.RECORD_AUDIO)) {
@@ -903,7 +1045,6 @@ public class AndFlmsg extends AppCompatActivity {
         } else {
             requestAllCriticalPermissions();
         }
-
     }
 
 
@@ -2111,6 +2252,10 @@ public class AndFlmsg extends AppCompatActivity {
         myTermTV.setHorizontallyScrolling(false);
         myTermTV.setTextSize(16);
         myWindow = getWindow();
+        //Set screen always ON if selected
+        if (config.getPreferenceB("KEEPSCREENON", false)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
         //VK2ETA Delay title update until after modem init (capability list is NULL)
         //AndFlmsg.mHandler.post(AndFlmsg.updatetitle);
 
@@ -4531,10 +4676,19 @@ public class AndFlmsg extends AppCompatActivity {
         SignalQuality = (ProgressBar) findViewById(R.id.signal_quality);
 
         // Reset modem display in case it was blanked out by a new oncreate call
-        myModemTV.setText(ModemBuffer);
-        myModemSC = (ScrollView) findViewById(R.id.modemscrollview);
+        //myModemTV.setText(ModemBuffer);
+        //myModemSC = (ScrollView) findViewById(R.id.modemscrollview);
         // update with whatever we have already accumulated then scroll
-        AndFlmsg.mHandler.post(AndFlmsg.addtomodem);
+        //AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
+        myModemSC = (ScrollView) findViewById(R.id.modemscrollview);
+        myModemTV.setText(ModemBuffer, TextView.BufferType.SPANNABLE);
+        //Make sure we go to the bottom to enable auto-scroll
+        myModemSC.fullScroll(View.FOCUS_DOWN);
+        //Set flag to force scrolldown on modem updates
+        mustScrollDown = true;
+        // update with whatever we have already accumulated then scroll
+        //RadioMSG.mHandler.post(RadioMSG.setModemScreen);
+        AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
 
         // Advise user of which screen we are in
         middleToastText(getString(R.string.txt_ModemScreen));
@@ -4673,6 +4827,8 @@ public class AndFlmsg extends AppCompatActivity {
                                     myTempModemTV.setTextIsSelectable(false);
                                 }
                             }
+                            //Force a scroll to the bottom of the screen on next update
+                            mustScrollDown = true;
                         }
                     }
                     AndFlmsg.mHandler.post(AndFlmsg.updatetitle);

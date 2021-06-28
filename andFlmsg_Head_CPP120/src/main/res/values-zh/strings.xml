@@ -4,7 +4,7 @@
     <string name="bt_AddMessage">添加消息</string>
     <string name="bt_AddToHXField">添加到HX字段</string>
     <string name="bt_ClearLog">删除日志</string>
-    <string name="bt_Compose">撰写</string>
+    <string name="bt_Compose">新建</string>
     <string name="bt_Continue">继续</string>
     <string name="bt_CopyToDrafts">复制到草稿箱</string>
     <string name="bt_CopyToOutbox">复制到发件箱</string>
@@ -21,8 +21,8 @@
     <string name="bt_PlainText">纯文本</string>
     <string name="bt_PrevMode">上一模式</string>
     <string name="bt_Return">返回</string>
-    <string name="bt_ReturnToModem">返回到解码器</string>
-    <string name="bt_ReturnToTerminal">返回到终端</string>
+    <string name="bt_ReturnToModem">返回解码界面</string>
+    <string name="bt_ReturnToTerminal">返回\n终端界面</string>
     <string name="bt_RxRsID">接收RsID</string>
     <string name="bt_SaveAgain">再次保存</string>
     <string name="bt_SaveToDrafts">保存到草稿箱</string>
@@ -34,7 +34,7 @@
     <string name="bt_Share">分享</string>
     <string name="bt_SlantLeft">向左倾斜</string>
     <string name="bt_SlantRight">向右倾斜</string>
-<string name="bt_SpeedColor">速率/色彩</string>
+    <string name="bt_SpeedColor">速率/色彩</string>
     <string name="bt_SqlchDown">静噪 降</string>
     <string name="bt_SqlchUp">静噪 升</string>
     <string name="bt_StopTx">停止发射</string>
@@ -65,7 +65,7 @@
     <string name="pref_DetectThorPreamble">检测THOR前同步码</string>
     <string name="pref_EmailAddress">电子邮件地址</string>
     <string name="pref_EncoderForCompression">压缩编码器</string>
-    <string name="pref_EndOfXmtID">消息末尾发送RSID</string>
+    <string name="pref_EndOfXmtID">邮件结束时发送RSID</string>
     <string name="pref_ExtractTimesOut">提取超时</string>
     <string name="pref_FILENAME">文件名称</string>
     <string name="pref_FilterBandwidthFactor">滤波器带宽系数(1.0 to 2.0)</string>
@@ -143,7 +143,7 @@
     </string>
     <string name="txt_Color">彩色</string>
     <string name="txt_ComposeViewLongPress">
-撰写界面\n\n 长按表单以创建新消息
+新建界面\n\n 长按表单创建邮件
     </string>
     <string name="txt_CopiedFile">复制的文件</string>
     <string name="txt_Digital">数据</string>
@@ -179,7 +179,7 @@
     <string name="txt_ModemON">调制解调器 开启</string>
     <string name="txt_ModemScreen">解码界面</string>
     <string name="txt_MsgRxTimeout">
-\"\n由于首选项中设置的超时而中止新邮件接收)!\"
+\"\n由于首选项中设置的超时而中止新邮件接收!\"
     </string>
     <string name="txt_No">否</string>
     <string name="txt_NoFlmsgStatement">
@@ -210,7 +210,7 @@
     <string name="txt_RawFlmsg">原始图像</string>
     <string name="txt_ReceivedMessage">收到消息</string>
     <string name="txt_ReceivingFile">接收文件</string>
-    <string name="txt_ReceivingNewMessage">正在接收新邮件...</string>
+    <string name="txt_ReceivingNewMessage">\n\n 正在接收新邮件...</string>
     <string name="txt_ReceivingNewMessageDiscardingOld">
 \"\n\n接收新消息，有部分数据丢失\n\"
     </string>
@@ -233,7 +233,7 @@
 已发送邮件界面\n\n长按一条消息即可查看
     </string>
     <string name="txt_SentMessagefile">发送消息文件</string>
-    <string name="txt_Shared">共享</string>
+    <string name="txt_Shared">分享</string>
     <string name="txt_SharingPurpose">
 选择您分享此消息的目的是：
     </string>
@@ -244,7 +244,7 @@
 模板查看界面 \n\n长按模板可基于该模板创建新消息
     </string>
     <string name="txt_TerminalScreen">终端界面</string>
-    <string name="txt_ToDraftsFolderAs">到草稿文件夹为</string>
+    <string name="txt_ToDraftsFolderAs">到草稿文件夹</string>
     <string name="txt_ToFolder">至</string>
     <string name="txt_ToOutboxFolder">到发件箱文件夹</string>
     <string name="txt_Transmitting">传送中</string>
@@ -274,13 +274,6 @@
     <string name="values_Low">低</string>
     <string name="values_Medium">中</string>
     <string name="values_VeryHigh">非常高</string>
-    <string name="pref_DOMINOEX" translatable="false">DOMINOEX</string>
-    <string name="pref_MT63" translatable="false">MT63</string>
-    <string name="pref_OLIVIA" translatable="false">OLIVIA</string>
-    <string name="pref_PSK" translatable="false">PSK</string>
-    <string name="pref_THOR" translatable="false">THOR</string>
-    <string name="txt_app_name" translatable="false">AndFlmsg</string>
-    <string name="txt_0000" translatable="false">0000</string>
     <string name="pref_ButtonTextSize">按钮文字大小（默认为12）</string>
     <string name="txt_BluetoothAudio">蓝牙音频</string>
     <string name="txt_Settings">首选项</string>
@@ -298,4 +291,7 @@
 找不到备份文件\n\n 首先使用“保存首选项”选项。
     </string>
     <string name="txt_PleaseChangeMode">此模式不支持发送邮件。请更换模式。</string>
+    <string name="pref_AllowSelectOnBackScrollSummary">允许在后滚动时选择文本</string>
+    <string name="pref_AllowSelectOnBackScroll">仅适用于调制解调器屏幕（实验性）</string>
+    <string name="pref_KeepScreenOn">保持屏幕开启</string>
 </resources>

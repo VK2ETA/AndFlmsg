@@ -37,8 +37,8 @@ import ar.com.daidalos.afiledialog.FileChooserDialog;
 public class Processor extends Service {
 
 
-    static String application = "AndFlmsg 1.4.3.03"; // Used to preset an empty status
-    static String version = "Version 1.4.3.03, 20210225";
+    static String application = "AndFlmsg 1.5.0-RC2"; // Used to preset an empty status
+    static String version = "Version 1.5.0-RC2, 20210628";
 
     static boolean onWindows = true;
     static String ModemPreamble = "";  // String to send before any Tx Buffer
@@ -90,7 +90,6 @@ public class Processor extends Service {
 
     // globals to pass info to gui windows
     static String monitor = "";
-    static String TXmonitor = "";
     static String TermWindow = "";
     static String Status = AndFlmsg.myContext.getString(R.string.txt_Listening);
     static int cpuload;
@@ -136,7 +135,7 @@ public class Processor extends Service {
 
         //Make sure the display strings are blank
         Processor.monitor = "";
-        Processor.TXmonitor = "";
+        Modem.txModemBuffer.delete(0, Modem.txModemBuffer.length());
         Processor.TermWindow = "";
     }
 
@@ -175,7 +174,7 @@ public class Processor extends Service {
     //Post to main terminal window
     public static void PostToModem(String text) {
         Processor.monitor += text;
-        AndFlmsg.mHandler.post(AndFlmsg.addtomodem);
+        AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
     }
 
 

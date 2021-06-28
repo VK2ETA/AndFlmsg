@@ -35,7 +35,6 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.Base64;
 import android.widget.Button;
-import android.widget.EditText;
 
 
 public class Modem {
@@ -63,10 +62,13 @@ public class Modem {
     public final static double RSID_SAMPLE_RATE = 11025.0f;
 
     private static boolean FirstBracketReceived = false;
-    public static String MonitorString = "";
+    //public static String rxModemBuffer = "";
+    public static StringBuffer rxModemBuffer = new StringBuffer(11000); //1000 char more than max kept, but expandable anyway
+    public static StringBuffer txModemBuffer = new StringBuffer(11000); //1000 char more than max kept, but expandable anyway
+
     public static boolean WrapLF = false;
     private static String BlockString = "";
-    private static long lastCharacterTime = 0;
+    public static long lastCharacterTime = 0;
     //	private static SampleRateConversion myResampler;
 
     public static double frequency = 1500.0;
@@ -192,7 +194,7 @@ public class Modem {
     //Called from the C++ side to echo the transmitted characters
     public static void putEchoChar(int txedChar) {
         Processor.monitor += (char) txedChar;
-        AndFlmsg.mHandler.post(AndFlmsg.addtomodem);
+        AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
     }
 
 
@@ -251,6 +253,7 @@ public class Modem {
             //}
             //Display updated bitmap
             AndFlmsg.mHandler.post(AndFlmsg.updateMfskPicture);
+
         }
     }
 
@@ -309,8 +312,7 @@ public class Modem {
                 FileInputStream fileISi = new FileInputStream(fi);
                 BufferedReader buf0 = new BufferedReader(new InputStreamReader(fileISi));
                 String readString0 = new String();
-                FileOutputStream fileOutputStrm = null;
-                fileOutputStrm = new FileOutputStream(tempFolderPath + Processor.lastReceivedMessageFname);
+                FileOutputStream fileOutputStrm = new FileOutputStream(tempFolderPath + Processor.lastReceivedMessageFname);
                 try {
                     picBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                     out.flush();
@@ -346,7 +348,9 @@ public class Modem {
                             readString0 += "\n";
                         }
                         //Write that line
-                        fileOutputStrm.write(readString0.getBytes(), 0, readString0.length());
+                        //Bug found by Liu Xinnan: Non-ASCII characters were not encoded properly as they were in UTF-8 (multi bytes)
+                        // fileOutputStrm.write(readString0.getBytes(), 0, readString0.length());
+                        fileOutputStrm.write(readString0.getBytes("UTF-8"), 0, readString0.getBytes("UTF-8").length);
                     }
                 } catch (IOException e) {
                     //Processor.PostToTerminal("Error copying: " + fileName + " " + e + "\n");
@@ -659,6 +663,30 @@ public class Modem {
     }
 
 
+    //Appends received string to modem buffer
+    public static void appendToModemBuffer(String rxedCharacters) {
+        synchronized(AndFlmsg.lockObject) {
+            AndFlmsg.ModemBuffer.append(rxedCharacters);
+        }
+    }
+
+
+    //Appends received buffer to modem buffer
+    public static void appendToModemBuffer(StringBuffer rxedBuffer) {
+        synchronized(AndFlmsg.lockObject) {
+            AndFlmsg.ModemBuffer.append(rxedBuffer);
+        }
+    }
+
+
+    //Same for single character
+    public static void appendToModemBuffer(char rxedCharacter) {
+        synchronized(AndFlmsg.lockObject) {
+            AndFlmsg.ModemBuffer.append(rxedCharacter);
+        }
+    }
+
+
     public static void startmodem() {
         modemThreadOn = true;
 
@@ -721,7 +749,7 @@ public class Modem {
                         //debugging only
                         //Message.addEntryToLog(Message.dateTimeStamp() + "Done 'initCModem'");
                         //Android Debug
-                        //   Modem.MonitorString = modemInitResult;
+                        //   Modem.rxModemBuffer = modemInitResult;
                         //Prepare RSID Modem
                         createRsidModem();
                         //debugging only
@@ -752,7 +780,7 @@ public class Modem {
                                     // any left-over characters from the previous modem (critical
                                     // for MT63 and Olivia in particular)
                                     //Done in processRxChar() below now
-                                    //Modem.MonitorString += rsidReturnedString;
+                                    //Modem.rxModemBuffer += rsidReturnedString;
                                     //Processing of the characters received
                                     for (int i = 0; i < rsidReturnedString.length(); i++) {
                                         processRxChar(rsidReturnedString.charAt(i));
@@ -764,7 +792,7 @@ public class Modem {
                                     //if (rsidReturnedString.startsWith("\nRSID:")) {
                                     if (rsidReturnedString.contains("\nRSID:")) {
                                         //We have a new modem and/or centre frequency
-                                        //Modem.MonitorString += rsidReturnedString; //Done elsewhere now
+                                        //Modem.rxModemBuffer += rsidReturnedString; //Done elsewhere now
                                         //Update the RSID waterfall frequency too
                                         frequency = getCurrentFrequency();
                                         Processor.RxModem = getCurrentMode();
@@ -788,11 +816,15 @@ public class Modem {
                             }
                             //Post to monitor (Modem) window after each buffer processing
                             //Add TX frame too if present
-                            if (Modem.MonitorString.length() > 0 || Processor.TXmonitor.length() > 0) {
-                                Processor.monitor += Modem.MonitorString + Processor.TXmonitor;
-                                Processor.TXmonitor = "";
-                                Modem.MonitorString = "";
-                                AndFlmsg.mHandler.post(AndFlmsg.addtomodem);
+                            if (rxModemBuffer.length() > 0 || txModemBuffer.length() > 0) {
+                                //Processor.monitor += Modem.rxModemBuffer + Processor.txModemBuffer;
+                                //Processor.txModemBuffer = "";
+                                //Modem.rxModemBuffer = "";
+                                appendToModemBuffer(rxModemBuffer);
+                                rxModemBuffer.delete(0, rxModemBuffer.length());
+                                appendToModemBuffer(txModemBuffer);
+                                txModemBuffer.delete(0, txModemBuffer.length());
+                                AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
                             }
                         }
                     }//while (RxON)
@@ -951,7 +983,8 @@ public class Modem {
                 }
                 break;
             case 10: //Line Feed
-                MonitorString += "\n";
+                //rxModemBuffer += "\n";
+                rxModemBuffer.append("\n");
                 if (Processor.ReceivingForm ||
                         FirstBracketReceived) {
                     BlockString += inChar;
@@ -986,7 +1019,8 @@ public class Modem {
         }
         if (inChar > 31) //Display non-control characters
         {
-            MonitorString += inChar;
+            //rxModemBuffer += inChar;
+            rxModemBuffer.append(inChar);
         }
     }
 

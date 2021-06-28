@@ -7,6 +7,7 @@ package com.AndFlmsg;
 
 import android.annotation.SuppressLint;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 public class CheckSum {
@@ -51,16 +52,21 @@ public class CheckSum {
                 0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
         };
 
+        //Should that be using UTF-8 characters translation into bytes?
+        // byte[] bytes = intext.getBytes();
+        try {
+            byte[] bytes = intext.getBytes("UTF-8");
+            //int crc1 = 0x0000;
+            int crc1 = 0xFFFF;
+            for (byte b : bytes) {
+                crc1 = (crc1 >>> 8) ^ table[(crc1 ^ b) & 0xff];
+            }
 
-        byte[] bytes = intext.getBytes();
-        //int crc1 = 0x0000;
-        int crc1 = 0xFFFF;
-        for (byte b : bytes) {
-            crc1 = (crc1 >>> 8) ^ table[(crc1 ^ b) & 0xff];
+            Encrypted += Integer.toHexString(crc1).toUpperCase(Locale.US);
+            return Encrypted.substring(Encrypted.length() - 4);
+        } catch (UnsupportedEncodingException e) {
+            return "0000";
         }
-
-        Encrypted += Integer.toHexString(crc1).toUpperCase(Locale.US);
-        return Encrypted.substring(Encrypted.length() - 4);
     }
 }
 

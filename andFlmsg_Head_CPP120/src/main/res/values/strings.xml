@@ -122,6 +122,8 @@
     <string name="pref_UseGPSTime">Use GPS Time</string>
     <string name="pref_UserInterface">USER INTERFACE</string>
     <string name="pref_WhenNewBWOrTonesSelected">When new BW/Tones selected</string>
+    <string name="pref_AllowSelectOnBackScroll">Valid for Modem screen only (Experimental)</string>
+    <string name="pref_AllowSelectOnBackScrollSummary">Allow text selection on back scroll</string>
 
     <string name="txt_About">About</string>
     <string name="txt_AndFormat">\nAnd its Format:</string>
@@ -260,5 +262,6 @@
     <string name="txt_YouWantToRestoreSettingsToDefault">Are you sure you want to Restore the KEY settings to default? \n\n Personal Data and non-communication critical data will be preserved.</string>
     <string name="txt_NoBackupFileFound">No Backup File Found\n\n Use \"Save Preferences\" option first.</string>
     <string name="txt_PleaseChangeMode">Cannot send messages in current mode. Please change mode.</string>
+    <string name="pref_KeepScreenOn">Keep Screen ON</string>
 
 </resources>

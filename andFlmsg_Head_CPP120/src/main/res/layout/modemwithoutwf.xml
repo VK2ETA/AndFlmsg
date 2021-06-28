@@ -54,12 +54,30 @@
 		android:layout_width="fill_parent"
 		android:layout_height="0dp" 
 		android:layout_weight="0.93">
-		<TextView android:id="@+id/modemview"
-		    android:text="@string/txt_ModemScreen"
+		<LinearLayout
+			android:id="@+id/FrameLayout1C"
 			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:layout_weight="4">
-		</TextView>
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:weightSum="1">
+			<TextView
+				android:id="@+id/topofscrollview"
+				android:layout_width="fill_parent"
+				android:layout_height="5px"
+				android:layout_weight="0.1"></TextView>
+			<TextView
+				android:id="@+id/modemview"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:layout_weight="0.9"
+				android:text="Modem Screen"
+				android:textIsSelectable="false"></TextView>
+			<TextView
+				android:id="@+id/endofscrollview"
+				android:layout_width="fill_parent"
+				android:layout_height="5px"
+				android:layout_weight="0.1"></TextView>
+		</LinearLayout>
 	</ScrollView>
 	<LinearLayout
 	    android:id="@+id/FrameLayout2"

@@ -257,5 +257,8 @@
     <string name="txt_NoBackupFileFound">Fichier de Sauvegarde des Parametres n\'éxiste pas. Utilisez \"Sauver les Paramètres\" au préalable.</string>
     <string name="txt_YouWantToOverwriteSettings">Confirmez la Restauration des Paramètres Courants par le Fichier de Sauvegarde?</string>
     <string name="txt_PleaseChangeMode">Impossible d\'envoyer les messages dans ce mode. Changer de Mode SVP.</string>
+    <string name="pref_AllowSelectOnBackScroll">Pour l\'écran Modem seulement (Expérimental)</string>
+    <string name="pref_AllowSelectOnBackScrollSummary">" Autoriser la sélection de texte sur défilement arrière"</string>
+    <string name="pref_KeepScreenOn">Garder l\'écran allumé</string>
 
 </resources>

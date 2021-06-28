@@ -28,9 +28,15 @@
             android:key="BUTTONTEXTSIZE"
             android:title="@string/pref_ButtonTextSize">
         </EditTextPreference>
-
-
-
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="KEEPSCREENON"
+            android:title="@string/pref_KeepScreenOn"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="ALLOWSELECTONBACKSCROLL"
+            android:summary="@string/pref_AllowSelectOnBackScroll"
+            android:title="@string/pref_AllowSelectOnBackScrollSummary" />
     </PreferenceScreen>
 
     <PreferenceScreen
