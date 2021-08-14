@@ -294,4 +294,5 @@
     <string name="pref_AllowSelectOnBackScrollSummary">允许在后滚动时选择文本</string>
     <string name="pref_AllowSelectOnBackScroll">仅适用于调制解调器屏幕（实验性）</string>
     <string name="pref_KeepScreenOn">保持屏幕开启</string>
+    <string name="pref_PrependId">在消息前发送呼号</string>
 </resources>

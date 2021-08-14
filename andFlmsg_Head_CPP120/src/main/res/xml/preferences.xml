@@ -65,6 +65,12 @@
                 android:key="SLOWCPU"
                 android:summary="@string/pref_SaveCpuResources"
                 android:title="@string/pref_SlowCpu" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="PREPENDID"
+                android:title="@string/pref_PrependId" />
+
         </PreferenceCategory>
 
         <PreferenceCategory

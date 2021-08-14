@@ -252,5 +252,6 @@
     <string name="pref_AllowSelectOnBackScroll">Dotyczy tylko ekranu modemu (eksperymentalne)</string>
     <string name="pref_AllowSelectOnBackScrollSummary">Zezwalaj na zaznaczanie tekstu przy przewijaniu wstecz</string>
     <string name="pref_KeepScreenOn">" Pozostaw ekran włączony"</string>
+    <string name="pref_PrependId">" Wyślij de znak wywoławczy przed wiadomością"</string>
 
 </resources>

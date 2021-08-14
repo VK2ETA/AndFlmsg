@@ -260,5 +260,6 @@
     <string name="pref_AllowSelectOnBackScroll">Pour l\'écran Modem seulement (Expérimental)</string>
     <string name="pref_AllowSelectOnBackScrollSummary">" Autoriser la sélection de texte sur défilement arrière"</string>
     <string name="pref_KeepScreenOn">Garder l\'écran allumé</string>
+    <string name="pref_PrependId">Envoyer l\'indicatif avant le message</string>
 
 </resources>

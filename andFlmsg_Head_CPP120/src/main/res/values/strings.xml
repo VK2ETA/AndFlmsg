@@ -263,5 +263,6 @@
     <string name="txt_NoBackupFileFound">No Backup File Found\n\n Use \"Save Preferences\" option first.</string>
     <string name="txt_PleaseChangeMode">Cannot send messages in current mode. Please change mode.</string>
     <string name="pref_KeepScreenOn">Keep Screen ON</string>
+    <string name="pref_PrependId">Send \"de Callsign\" before message</string>
 
 </resources>

@@ -2,7 +2,6 @@
  * Processor.java
  *
  * Copyright (C) 2011 John Douyere (VK2ETA)
- * Based on Pskmail from Per Crusefalk and Rein Couperus
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,8 +36,8 @@ import ar.com.daidalos.afiledialog.FileChooserDialog;
 public class Processor extends Service {
 
 
-    static String application = "AndFlmsg 1.5.0-RC2"; // Used to preset an empty status
-    static String version = "Version 1.5.0-RC2, 20210628";
+    static String application = "AndFlmsg 1.5.0"; // Used to preset an empty status
+    static String version = "Version 1.5.0, 20210812";
 
     static boolean onWindows = true;
     static String ModemPreamble = "";  // String to send before any Tx Buffer

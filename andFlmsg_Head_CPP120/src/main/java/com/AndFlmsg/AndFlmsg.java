@@ -416,49 +416,9 @@ public class AndFlmsg extends AppCompatActivity {
         }
     };
 
-    /*
-    // Create runnable for posting to modem window
-    public static final Runnable updateModemScreen = new Runnable() {
-        public void run() {
-            // myTV.setText(Processor.TermWindow);
-            if (myModemTV != null) {
-                //Only add the size limited ModemBuffer otherwise we overload the textview display
-                //myModemTV.append(Processor.monitor);
-                ModemBuffer += Processor.monitor;
-                Processor.monitor = "";
-                //Noted a slowing down of Gui after a large number of characters are received
-                //Reduced the buffer size if (ModemBuffer.length() > 60000)
-                if (ModemBuffer.length() > 10000)
-                    ModemBuffer = ModemBuffer.substring(5000);
-                //Reassign only the size limited buffer
-                myModemTV.setText(ModemBuffer);
-                // Then scroll to the bottom
-                if (myModemSC != null) {
-                    myModemSC.post(new Runnable() {
-                        public void run() {
-                            myModemSC.fullScroll(View.FOCUS_DOWN);
-                            // myModemSC.smoothScrollBy(20,0);
-                        }
-                    });
-                }
-            }
-        }
-    };
-    */
 
-    static Rect scrollViewOnScreen;
-    static int scX;
-    static int scY;
-    static Rect actualPosition = new Rect();
-
-    static Point size = new Point();
-
-    static int screenWidth = size.x;
-    static int screenHeight = size.y;
-    static Display display;
-
+    //Lock for updating the receive display buffer (Concurrent updates with the Modem thread)
     public static final Object lockObject = new Object();
-
 
     //Check if a view is visible. Used here to detect when the user scrolls back in the
     //  Modem screen. In which case we do not autoscroll to the bottom and we allow
@@ -471,25 +431,21 @@ public class AndFlmsg extends AppCompatActivity {
             return false;
         }
         //final Rect actualPosition = new Rect();
-        actualPosition = new Rect();
+        Rect actualPosition = new Rect();
         view.getGlobalVisibleRect(actualPosition);
         int[] location = new int[2];
         parentView.getLocationOnScreen(location);
         //int scX = parentView.getWidth();
         //int scY = parentView.getHeight();
-        scX = parentView.getWidth();
-        scY = parentView.getHeight();
+        int scX = parentView.getWidth();
+        int scY = parentView.getHeight();
         scX += location[0];
         scY += location[1];
         //
-        display = myInstance.getWindowManager().getDefaultDisplay();
+        Display display = myInstance.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
         display.getSize(size);
-        screenWidth = size.x;
-        screenHeight = size.y;
-        //
-        //final Rect screen = new Rect(0, 0, getScreenWidth(), getScreenHeight());
-        //final Rect scrollViewOnScreen = new Rect(location[0], location[1], scX, scY);
-        scrollViewOnScreen = new Rect(location[0], location[1], scX, scY);
+        Rect scrollViewOnScreen = new Rect(location[0], location[1], scX, scY);
         //return actualPosition.intersect(scrollViewOnScreen);
         if (bottom) {
             int visiblePart = scY - actualPosition.bottom;
@@ -498,14 +454,6 @@ public class AndFlmsg extends AppCompatActivity {
             int visiblePart = location[1] - actualPosition.bottom;
             return visiblePart < 3;
         }
-    }
-
-    public static int getScreenWidth() {
-        return Resources.getSystem().getDisplayMetrics().widthPixels;
-    }
-
-    public static int getScreenHeight() {
-        return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
 
     static boolean mustScrollDown = true;
@@ -3880,8 +3828,15 @@ public class AndFlmsg extends AppCompatActivity {
                                                     returnFromFormView();
                                                     // prepare a runnable for updating the GUI list
                                                     displayMessagesRunnable = new DisplayMessagesRunner();
+                                                    //Need to send Station ID with message
+                                                    String preamble = "";
+                                                    if (config.getPreferenceB("PREPENDID", false)) {
+                                                        preamble = "\n\n" +  "...de " +  config.getPreferenceS("CALL", "NoCall") + "\n... start\n";
+                                                    } else {
+                                                        preamble = "\n\n\n... start\n";
+                                                    }
                                                     //MFSK picture Tx addition
-                                                    Modem.txData(Processor.DirOutbox, mFileName, "\n\n\n... start\n"
+                                                    Modem.txData(Processor.DirOutbox, mFileName, preamble
                                                                     + bufferToTx + "... end\n\n\n", (digitalImages ? 0 : Message.attachedPictureCount),
                                                             Message.attachedPictureTxSPP, Message.attachedPictureColour, Modem.modemCapListString[Processor.imageTxModemIndex]);
                                                 } else {
@@ -4585,8 +4540,15 @@ public class AndFlmsg extends AppCompatActivity {
                         }
                         String bufferToTx = Message.formatForTx(Processor.DirOutbox, msgToSend[i], digitalImages, true); //Allow compression
                         displayMessagesRunnable = new DisplayMessagesRunner();
+                        //Need to send Station ID with message
+                        String preamble = "";
+                        if (config.getPreferenceB("PREPENDID", false)) {
+                            preamble = "\n\n" +  "...de " +  config.getPreferenceS("CALL", "NoCall") + "\n... start\n";
+                        } else {
+                            preamble = "\n\n\n... start\n";
+                        }
                         //Attached Images addition
-                        Modem.txData(Processor.DirOutbox, msgToSend[i], "\n\n\n... start\n"
+                        Modem.txData(Processor.DirOutbox, msgToSend[i], preamble
                                         + bufferToTx + "... end\n\n\n", (digitalImages ? 0 : Message.attachedPictureCount),
                                 Message.attachedPictureTxSPP, Message.attachedPictureColour, imgModeForAllMsg);
                         // Wait until the end of Transmission to queue the next file
@@ -4675,11 +4637,6 @@ public class AndFlmsg extends AppCompatActivity {
         // initialise squelch and signal quality dislay
         SignalQuality = (ProgressBar) findViewById(R.id.signal_quality);
 
-        // Reset modem display in case it was blanked out by a new oncreate call
-        //myModemTV.setText(ModemBuffer);
-        //myModemSC = (ScrollView) findViewById(R.id.modemscrollview);
-        // update with whatever we have already accumulated then scroll
-        //AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
         myModemSC = (ScrollView) findViewById(R.id.modemscrollview);
         myModemTV.setText(ModemBuffer, TextView.BufferType.SPANNABLE);
         //Make sure we go to the bottom to enable auto-scroll
