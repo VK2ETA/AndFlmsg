@@ -261,5 +261,14 @@
     <string name="pref_AllowSelectOnBackScrollSummary">" Autoriser la sélection de texte sur défilement arrière"</string>
     <string name="pref_KeepScreenOn">Garder l\'écran allumé</string>
     <string name="pref_PrependId">Envoyer l\'indicatif avant le message</string>
+    <string name="pref_RIGCONTROL">CONTROLE TRX</string>
+    <string name="pref_PttMethod">Methode PTT</string>
+    <string name="pref_RtsIsPttSignalLine">RTS comme signal PTT</string>
+    <string name="pref_DtrIsPttSignalLine">DTR comme signal PTT</string>
+    <string name="pref_CatIsPtt">PTT via Commande Hamlib</string>
+    <string name="pref_StartOfTransmitPttDelay">Retard Audio</string>
+    <string name="pref_DelayInMsecBeforeStartingAudio">Retard en mSec avant envoi Audio</string>
+    <string name="pref_EndtOfTransmitPttDelay">Retard relâche PTT</string>
+    <string name="pref_DelayInMsecBeforeReleasingPtt">Retard en mSec avant la relâche PTT</string>
 
 </resources>

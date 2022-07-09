@@ -264,5 +264,14 @@
     <string name="txt_PleaseChangeMode">Cannot send messages in current mode. Please change mode.</string>
     <string name="pref_KeepScreenOn">Keep Screen ON</string>
     <string name="pref_PrependId">Send \"de Callsign\" before message</string>
+    <string name="pref_RIGCONTROL">RIG CONTROL</string>
+    <string name="pref_PttMethod">PTT Method</string>
+    <string name="pref_RtsIsPttSignalLine">RTS as PTT Signal</string>
+    <string name="pref_DtrIsPttSignalLine">DTR as PTT Signal</string>
+    <string name="pref_CatIsPtt">PTT via Hamlib Command</string>
+    <string name="pref_StartOfTransmitPttDelay">Start of Audio Delay</string>
+    <string name="pref_DelayInMsecBeforeStartingAudio">Delay in mSec before Audio Start</string>
+    <string name="pref_EndtOfTransmitPttDelay">PTT Release Delay</string>
+    <string name="pref_DelayInMsecBeforeReleasingPtt">Delay in mSec before PTT release</string>
 
 </resources>

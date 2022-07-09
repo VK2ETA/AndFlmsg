@@ -8,13 +8,14 @@ buildscript {
     }
     dependencies {
         //classpath 'com.android.tools.build:gradle:3.4.1'
-        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath 'com.android.tools.build:gradle:3.4.3'
     }
 }
 
 allprojects {
     repositories {
         //google()
+        maven { url 'https://jitpack.io' }
         maven { url 'https://maven.google.com' }
         //maven {
         //    url 'https://maven.google.com/'

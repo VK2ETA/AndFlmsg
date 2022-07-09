@@ -16,8 +16,11 @@
 package com.AndFlmsg;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.*;
 import android.graphics.Bitmap;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbManager;
 import android.media.*;
 import android.media.MediaRecorder.*;
 
@@ -27,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.*;
 
@@ -35,6 +39,10 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.Base64;
 import android.widget.Button;
+
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 
 public class Modem {
@@ -55,6 +63,7 @@ public class Modem {
     private static boolean RxON = false;
     private static int bufferSize = 0;
     private final static float sampleRate = 8000.0f;
+    public static boolean tune = false;
 
     //Must match the rsid.h declaration: #define RSID_FFT_SIZE		1024
     public static final int RSID_FFT_SIZE = 1024;
@@ -1095,6 +1104,8 @@ public class Modem {
                         Thread.sleep(500);
                         //						}
 
+                        //Ptt ON
+                        setPtt();
                         //Open and initialise the sound system
                         int intSize = 4 * android.media.AudioTrack.getMinBufferSize(8000,
                                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT); //Android check the multiplier value for the buffer size
@@ -1106,6 +1117,21 @@ public class Modem {
                         //Launch TX
                         txAt.setStereoVolume(1.0f, 1.0f);
                         txAt.play();
+                        //Set requested volume AFTER we open the audio track as some devices (e.g. Oppo have two different volumes for when in or out of audio track
+                        AudioManager audioManager = (AudioManager) AndFlmsg.myContext.getSystemService(Context.AUDIO_SERVICE);
+                        try {
+                            int maxVolume;
+                            int stream = AndFlmsg.toBluetooth ? AndFlmsg.STREAM_BLUETOOTH_SCO : AudioManager.STREAM_MUSIC;
+                            maxVolume = audioManager.getStreamMaxVolume(stream);
+                            int mediaVolume = config.getPreferenceI("MEDIAVOLUME", 100);
+                            if (mediaVolume < 5) mediaVolume = 5;
+                            if (mediaVolume > 100) mediaVolume = 100;
+                            maxVolume = maxVolume * mediaVolume / 100;
+                            audioManager.setStreamVolume(stream,
+                                    maxVolume, 0);  // 0 can also be changed to AudioManager.FLAG_PLAY_SOUND
+                        } catch (Exception e) {
+                            AndFlmsg.middleToastText("Error Adjusting Volume");
+                        }
                         //Initalise the C++ modem TX side
                         String frequencySTR = config.getPreferenceS("AFREQUENCY", "1500");
                         frequency = Integer.parseInt(frequencySTR);
@@ -1139,8 +1165,8 @@ public class Modem {
                                 modemCode = Modem.getMode(txPictureTxMode);
                             }
                             //Change to MFSK Image modem
-//			    Modem.createCModem(modemCode);
-//			    Modem.initCModem(frequency);
+                            //			    Modem.createCModem(modemCode);
+                            //			    Modem.initCModem(frequency);
                             //changeCModem(modemCode, frequency);
                             TxMFSKPicture picModem = new TxMFSKPicture(modemCode);
                             //PictureTxRSID picRSIDTx = new PictureTxRSID();
@@ -1214,6 +1240,8 @@ public class Modem {
                         //debugging only
                         //Message.addEntryToLog(Message.dateTimeStamp() + "Done 'txAt.release'");
 
+                        //Ptt OFF
+                        resetPtt();
                         //if the TX was complete, move message from Outbox to Sent folder
                         //Detect if it was a simple text sent from the terminal window (no folder and filename)
                         if (!Modem.stopTX && (txFolder.length() > 0) && (txFileName.length() > 0)) {
@@ -1252,7 +1280,180 @@ public class Modem {
         }
     }
 
-    ;
+
+
+    //Connect to USB Serial device if present
+    private static void connectUsbDevice() {
+
+        synchronized (AndFlmsg.lockUSB) {
+            // Find all available drivers from attached devices.
+            UsbManager manager = (UsbManager) AndFlmsg.myContext.getSystemService(Context.USB_SERVICE);
+            List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
+            if (availableDrivers.isEmpty()) {
+                AndFlmsg.middleToastText("PTT via Serial Port Requested, But No Supported Device Found");
+                return;
+            }
+
+            // Open a connection to the first available driver.
+            UsbSerialDriver driver = availableDrivers.get(0);
+            UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+
+        /*
+        if (connection == null) {
+            // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
+            middleToastText("Permission not granted. Disconnect / Reconnect");
+            return;
+        }
+        */
+
+            if (connection == null && AndFlmsg.usbPermission == AndFlmsg.UsbPermission.Unknown && !manager.hasPermission(driver.getDevice())) {
+                //middleToastText("Intent to Request Permission");
+                AndFlmsg.usbPermission = AndFlmsg.UsbPermission.Requested;
+                PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(AndFlmsg.myContext, 0, new Intent(AndFlmsg.INTENT_ACTION_GRANT_USB), 0);
+                manager.requestPermission(driver.getDevice(), usbPermissionIntent);
+                return;
+            }
+            if (connection == null) {
+                if (!manager.hasPermission(driver.getDevice()))
+                    AndFlmsg.middleToastText("USB Permission Denied");
+                else
+                    AndFlmsg.middleToastText("USB connection failed");
+                return;
+            }
+
+            if (AndFlmsg.usbSerialPort == null || (AndFlmsg.usbSerialPort != null && !AndFlmsg.usbSerialPort.isOpen())) {
+                AndFlmsg.usbSerialPort = driver.getPorts().get(0); // Most devices have just one usbSerialPort (usbSerialPort 0)
+                try {
+                    AndFlmsg.usbSerialPort.open(connection);
+                    AndFlmsg.usbSerialPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+                    //usbSerialPort.setRTS(<default here>);
+                    //Same for DTR
+                    AndFlmsg.middleToastText("USB Serial Initialised.");
+                } catch (IOException e) {
+                    AndFlmsg.middleToastText("Error at USB serial init: " + e);
+                }
+            }
+        }
+    }
+
+
+    private static void setPtt() {
+
+        //Rig control for PTT (RTS/DTR/CAT Command)
+        boolean pttViaRTS = config.getPreferenceB("RTSASPTT", false);
+        boolean pttViaDTR = config.getPreferenceB("DTRASPTT", false);
+        boolean pttViaCAT = config.getPreferenceB("CATASPTT", false);
+        if (pttViaRTS | pttViaDTR | pttViaCAT) {
+            //Send PTT ON command if possible
+            if (AndFlmsg.usbSerialPort != null && AndFlmsg.usbSerialPort.isOpen()) {
+                //AndFlmsg.middleToastText("PTT ON");
+                try {
+                    if (pttViaRTS) {
+                        AndFlmsg.usbSerialPort.setRTS(true);
+                    }
+                    if (pttViaDTR) {
+                        AndFlmsg.usbSerialPort.setDTR(true);
+                    }
+                    if (pttViaCAT) {
+                        //Send Cat PTT ON Command
+                    }
+                } catch (IOException e) {
+                    AndFlmsg.middleToastText("IO Exception in PTT ON");
+                    //Try to re-connect
+                    connectUsbDevice();
+                }
+            }
+            //Delay Audio for required period
+            int audioSendDelay = config.getPreferenceI("AUDIODELAYAFTERPTT", 0);
+            //Max 5 seconds
+            if (audioSendDelay > 5000) {
+                audioSendDelay = 5000;
+            }
+            if (audioSendDelay > 0) {
+                try {
+                    Thread.sleep(audioSendDelay);
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    private static void resetPtt() {
+
+        //Rig control for PTT (RTS/DTR/CAT Command)
+        boolean pttViaRTS = config.getPreferenceB("RTSASPTT", false);
+        boolean pttViaDTR = config.getPreferenceB("DTRASPTT", false);
+        boolean pttViaCAT = config.getPreferenceB("CATASPTT", false);
+        //Release PTT
+        if (pttViaRTS | pttViaDTR | pttViaCAT) {
+            //Delay PTT Release
+            int pttReleaseDelay = config.getPreferenceI("PTTDELAYAFTERAUDIO", 0);
+            //Max 5 seconds
+            if (pttReleaseDelay > 5000) {
+                pttReleaseDelay = 5000;
+            }
+            if (pttReleaseDelay > 0) {
+                try {
+                    Thread.sleep(pttReleaseDelay);
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+            }
+            //Send PTT OFF command if possible
+            if (AndFlmsg.usbSerialPort != null && AndFlmsg.usbSerialPort.isOpen()) {
+                //AndFlmsg.middleToastText("PTT OFF");
+                try {
+                    if (pttViaRTS) {
+                        AndFlmsg.usbSerialPort.setRTS(false);
+                    }
+                    if (pttViaDTR) {
+                        AndFlmsg.usbSerialPort.setDTR(false);
+                    }
+                    if (pttViaCAT) {
+                        //Send Cat PTT ON Command
+                    }
+                } catch (IOException e) {
+                    AndFlmsg.middleToastText("IO Exception in PTT OFF");
+                    //Try to re-connect
+                    connectUsbDevice();
+                }
+            }
+        }
+    }
+
+
+    //Generates a tone of X milliseconds
+    //Frequency is taken from static variable "frequency"
+    private static void generateSingleTone(int duration, boolean forTune) {
+        int sr = 8000;
+        int symlen = (int) (1 * sr / 100); //10 milliseconds increments
+        short[] outbuf = new short[symlen];
+
+        double phaseincr;
+        double phase = 0.0;
+        phaseincr = 2.0 * Math.PI * frequency / sr;
+
+        int volumebits = Integer.parseInt(config.getPreferenceS("VOLUME", "8"));
+
+        //Round up to next 10 milliseconds increment
+        duration = (duration + 9) / 10;
+
+        for (int i = 0; i < duration; i++) {
+            for (int j = 0; j < symlen; j++) {
+                phase += phaseincr;
+                if (phase > 2.0 * Math.PI) phase -= 2.0 * Math.PI;
+                outbuf[j] = (short) ((int) (Math.sin(phase) * 8386560) >> volumebits);
+            }
+            if ((forTune && tune) || (!forTune && !stopTX)) {
+                txAt.write(outbuf, 0, symlen);
+            } else {
+                //Terminate loop
+                i = duration;
+            }
+        }
+    }
 
 
     //Send Tune in a separate thread so that the UI thread is not blocked
@@ -1288,6 +1489,9 @@ public class Modem {
             Processor.TXActive = true;
             AndFlmsg.mHandler.post(AndFlmsg.updatetitle);
 
+            //Ptt ON
+            setPtt();
+
             String frequencySTR = config.getPreferenceS("AFREQUENCY", "1500");
             int frequency = Integer.parseInt(frequencySTR);
 
@@ -1300,37 +1504,44 @@ public class Modem {
             if (AndFlmsg.toBluetooth) {
                 //Android Bluetooth hack test
                 //		        	at = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, intSize , AudioTrack.MODE_STREAM);
-                at = new AudioTrack(AudioManager.STREAM_VOICE_CALL, 8000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
+                txAt = new AudioTrack(AudioManager.STREAM_VOICE_CALL, 8000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
             } else {
-                at = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
+                txAt = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
             }
 
             //Open audiotrack
-            at.setStereoVolume(1.0f, 1.0f);
-            at.play();
+            txAt.setStereoVolume(1.0f, 1.0f);
+            txAt.play();
 
-            int sr = 8000; // should be active_modem->get_samplerate();
-            int symlen = (int) (1 * sr); //1 second buffer
-            short[] outbuf = new short[symlen];
-
-            double phaseincr;
-            double phase = 0.0;
-            phaseincr = 2.0 * Math.PI * frequency / sr;
-
-            for (int i = 0; i < 3; i++) { //3 seconds tune
-                for (int j = 0; j < symlen; j++) {
-                    phase += phaseincr;
-                    if (phase > 2.0 * Math.PI) phase -= 2.0 * Math.PI;
-                    outbuf[j] = (short) ((int) (Math.sin(phase) * 8386560) >> volumebits);
-                }
-                at.write(outbuf, 0, symlen);
+            //Set requested volume AFTER we open the audio track as some devices (e.g. Oppo have two different volumes for when in or out of audio track
+            AudioManager audioManager = (AudioManager) AndFlmsg.myContext.getSystemService(Context.AUDIO_SERVICE);
+            try {
+                int maxVolume;
+                int stream = AndFlmsg.toBluetooth ? AndFlmsg.STREAM_BLUETOOTH_SCO : AudioManager.STREAM_MUSIC;
+                maxVolume = audioManager.getStreamMaxVolume(stream);
+                int mediaVolume = config.getPreferenceI("MEDIAVOLUME", 100);
+                if (mediaVolume < 5) mediaVolume = 5;
+                if (mediaVolume > 100) mediaVolume = 100;
+                maxVolume = maxVolume * mediaVolume / 100;
+                audioManager.setStreamVolume(stream,
+                        maxVolume, 0);  // 0 can also be changed to AudioManager.FLAG_PLAY_SOUND
+            } catch (Exception e) {
+                AndFlmsg.middleToastText("Error Adjusting Volume");
             }
-
+            //How long is the tune?
+            int tuneLength = config.getPreferenceI("TUNEDURATION", 4);
+            //Check valid?
+            tuneLength = (tuneLength > 60 ? 60 : tuneLength);
+            tuneLength = (tuneLength < 0 ? 0 : tuneLength);
+            //Value of 0 means toggle so set to max of 60 seconds tune
+            tuneLength = (tuneLength == 0 ? 60 : tuneLength);
+            tune = true;
+            generateSingleTone(tuneLength * 1000, true);
             //Stop audio track
-            at.stop();
+            txAt.stop();
             //Wait for end of audio play to avoid
             //overlaps between end of TX and start of RX
-            while (at.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+            while (txAt.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
@@ -1338,7 +1549,10 @@ public class Modem {
                 }
             }
             //Close audio track
-            at.release();
+            txAt.release();
+            //Ptt OFF
+            resetPtt();
+            //Flag end of TX
             Processor.TXActive = false;
             //Restart the modem receiving side
             unPauseRxModem();
@@ -1347,5 +1561,4 @@ public class Modem {
         }
     }
 
-    ;
 }

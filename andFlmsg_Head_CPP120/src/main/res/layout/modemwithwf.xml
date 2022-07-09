@@ -49,7 +49,26 @@
             android:layout_weight="0.5"
             android:text="@string/txt_TxRsID" />
     </LinearLayout>
-    <ScrollView
+	<LinearLayout
+		android:id="@+id/FrameLayout1A1"
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="22dp"
+		android:layout_weight="0.01" >
+		android:weightSum="1" >
+		<TextView
+			android:id="@+id/volumetext"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="0.9"
+			android:text="Vol:" />
+		<SeekBar android:id="@+id/volumeSlider"
+			android:layout_weight="0.1"
+			android:layout_width="fill_parent"
+			android:layout_gravity="bottom"
+			android:layout_height="wrap_content" />
+	</LinearLayout>
+	<ScrollView
         android:id="@+id/modemscrollview"
         android:layout_width="fill_parent"
         android:layout_height="60dp"

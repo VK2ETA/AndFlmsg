@@ -25,7 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,13 +39,16 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -70,8 +75,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Location;
-import android.location.LocationListener;
+//import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
@@ -130,9 +134,13 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
@@ -234,15 +242,14 @@ public class AndFlmsg extends AppCompatActivity {
     private static String jsEncodedImageLine = null;
 
     public static LocationManager locationManager;
-    public GPSListener locationListener = new GPSListener();
-    public static boolean GPSisON = false;
-    public static boolean GPSTimeAcquired = false;
-    public static int DeviceToGPSTimeCorrection = 0;
+    //public GPSListener locationListener = new GPSListener();
+    //public static boolean GPSisON = false;
+    //public static boolean GPSTimeAcquired = false;
+    //public static int DeviceToGPSTimeCorrection = 0;
 
     public static String TerminalBuffer = "";
     //public static String ModemBuffer = "";
     public static StringBuffer ModemBuffer = new StringBuffer(11000); //1000 char more than max kept, but expandable anyway
-
 
     // Member object for processing of Rx and Tx
     // Can be stopped (i.e no RX) to save battery and allow Android to reclaim
@@ -295,6 +302,7 @@ public class AndFlmsg extends AppCompatActivity {
     public static boolean toBluetooth = false;
     public static AudioManager mAudioManager;
     public static BluetoothAdapter mBluetoothAdapter = null;
+    public static final int STREAM_BLUETOOTH_SCO = 6;
 
     //Bluetooth file transfers
     public static BroadcastReceiver mReceiver = null;
@@ -325,6 +333,17 @@ public class AndFlmsg extends AppCompatActivity {
 
     // Listener for changes in preferences
     public static OnSharedPreferenceChangeListener splistener;
+
+    //USB serial interface
+    private static final String ACTION_USB_PERMISSION = "com.AndFlmsg.USB_PERMISSION";
+    public static UsbSerialPort usbSerialPort = null;
+    public enum UsbPermission { Unknown, Requested, Granted, Denied };
+    public static UsbPermission usbPermission = UsbPermission.Unknown;
+    public static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
+    //Lock for updating the receive display buffer (Concurrent updates with the Modem thread)
+    public static final Object lockUSB = new Object();
+
+
 
     // Create runnable for updating the waterfall display
     public static final Runnable updatewaterfall = new Runnable() {
@@ -1037,7 +1056,7 @@ public class AndFlmsg extends AppCompatActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
-        //Monitor the reception of Files via Bluetooth between devices
+        //Monitor the reception of Files via Bluetooth and USB between devices
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1045,6 +1064,8 @@ public class AndFlmsg extends AppCompatActivity {
                 String dataString = intent.getDataString();
                 String mpackage = intent.getPackage();
                 String type = intent.getType();
+
+                //middleToastText("Action: " + action);
 
                 if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
                     //now file transmitting is starting, flag it!
@@ -1057,17 +1078,38 @@ public class AndFlmsg extends AppCompatActivity {
                     // - make sure this disconnection not initiated for any other reason.
                     //Same as above
                     //topToastText(getString(R.string.txt_BTDisconnected));
-                } else {
-                    //debug
-                    //topToastText("Other Action");
+                } else if (ACTION_USB_PERMISSION.equals(action) || INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
+                    synchronized (this) {
+                        //middleToastText("Authorisation requested");
+                        UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+                        if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                            if(device != null){
+
+                                boolean pttViaRTS = config.getPreferenceB("RTSASPTT", false);
+                                boolean pttViaDTR = config.getPreferenceB("DTRASPTT", false);
+                                boolean pttViaCAT = config.getPreferenceB("CATASPTT", false);
+                                if (pttViaRTS | pttViaDTR | pttViaCAT) {
+                                    //if required, initialised the USB Serial port
+                                    usbPermission = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
+                                            ? UsbPermission.Granted : UsbPermission.Denied;
+                                    connectUsbDevice();
+                                }
+                            }
+                        }
+                        else {
+                            //Log.d(TAG, "permission denied for device " + device);
+                        }
+                    }
                 }
             }
-
         };
 
-        //Bluetooth File transfers (Receiving listener)
+        //Bluetooth File transfers and USB Serial device connection (Receiving listener)
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(ACTION_USB_PERMISSION);
+        filter.addAction(INTENT_ACTION_GRANT_USB);
         //Not called filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         this.registerReceiver(mReceiver, filter);
 
@@ -1277,6 +1319,7 @@ public class AndFlmsg extends AppCompatActivity {
             }
         }
         AndFlmsg.mHandler.post(AndFlmsg.updatetitle);
+
     }
 
     @Override
@@ -1302,6 +1345,14 @@ public class AndFlmsg extends AppCompatActivity {
             //Reset update flag for subsequent calls of onResume
             updateCsvField = false;
         }
+        //USB device init if required
+        boolean pttViaRTS = config.getPreferenceB("RTSASPTT", false);
+        boolean pttViaDTR = config.getPreferenceB("DTRASPTT", false);
+        boolean pttViaCAT = config.getPreferenceB("CATASPTT", false);
+        if (pttViaRTS | pttViaDTR | pttViaCAT) {
+            //if required, initialised the USB Serial port
+            connectUsbDevice();
+        }
     }
 
     @Override
@@ -1309,6 +1360,60 @@ public class AndFlmsg extends AppCompatActivity {
         super.onDestroy();
     }
 
+
+    //Connect to USB Serial device if present
+    private void connectUsbDevice() {
+
+        synchronized (lockUSB) {
+            // Find all available drivers from attached devices.
+            UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+            List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
+            if (availableDrivers.isEmpty()) {
+                middleToastText("PTT via Serial Port Requested, But No Supported Device Found");
+                return;
+            }
+
+            // Open a connection to the first available driver.
+            UsbSerialDriver driver = availableDrivers.get(0);
+            UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+
+        /*
+        if (connection == null) {
+            // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
+            middleToastText("Permission not granted. Disconnect / Reconnect");
+            return;
+        }
+        */
+
+            if (connection == null && usbPermission == UsbPermission.Unknown && !manager.hasPermission(driver.getDevice())) {
+                //middleToastText("Intent to Request Permission");
+                usbPermission = UsbPermission.Requested;
+                PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(myContext, 0, new Intent(INTENT_ACTION_GRANT_USB), 0);
+                manager.requestPermission(driver.getDevice(), usbPermissionIntent);
+                return;
+            }
+            if (connection == null) {
+                if (!manager.hasPermission(driver.getDevice()))
+                    middleToastText("USB Permission Denied");
+                else
+                    middleToastText("USB connection failed");
+                return;
+            }
+
+            if (usbSerialPort == null || (usbSerialPort != null && !usbSerialPort.isOpen())) {
+                usbSerialPort = driver.getPorts().get(0); // Most devices have just one usbSerialPort (usbSerialPort 0)
+                try {
+                    usbSerialPort.open(connection);
+                    usbSerialPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+                    //usbSerialPort.setRTS(<default here>);
+                    //Same for DTR
+                    middleToastText("USB Serial Initialised.");
+                } catch (IOException e) {
+                    middleToastText("Error at USB serial init: " + e);
+                }
+            }
+        }
+    }
 
     /*
      * Only necessary with popup windows
@@ -1382,18 +1487,58 @@ public class AndFlmsg extends AppCompatActivity {
 
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
+                } else {
+                    //VK2ETA: addition to handle non-primary volumes
+                    final String extStorDir = Environment.getExternalStorageDirectory() + "";
+                    final String[] storPath = extStorDir.split("/");
+                    final String result = File.separator + storPath[1] + File.separator + type + File.separator + split[1];
+                    return result;
                 }
-
-                // TODO handle non-primary volumes
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
+                String id = DocumentsContract.getDocumentId(uri);
+                if (!TextUtils.isEmpty(id)) {
+                    try {
+                        //Error or no action when selecting a "Downloads" top level source
+                        final Uri contentUri = ContentUris.withAppendedId(
+                                Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        return getDataColumn(context, contentUri, null, null);
+                    } catch (NumberFormatException e) {
+                        /* Only on API >= 29. Not yet targeted, keep code for later
+                        //Does id starts with "msf:"
+                        if (id.startsWith("msf:")) {
+                            final String[] split = id.split(":");
+                            final String selection = "_id=?";
+                            final String[] selectionArgs = new String[] { split[1] };
+                            return getDataColumn(context, MediaStore.Downloads.EXTERNAL_CONTENT_URI, selection, selectionArgs);
+                        } else
+                            return null;
+                        */
+                        if (id != null && id.startsWith("msf:")) {
+                            //final File file = new File(mContext.getCacheDir(), Constant.TEMP_FILE + Objects.requireNonNull(mContext.getContentResolver().getType(imageUri)).split("/")[1]);
 
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                            final String imgFileName = Processor.HomePath + Processor.Dirprefix
+                                    + Processor.DirTemp + Processor.Separator + "_imgTempCopyFromDownloads";
+                            final File file = new File(imgFileName);
+                            try (final InputStream inputStream = myContext.getContentResolver().openInputStream(uri);
+                                 OutputStream output = new FileOutputStream(file)) {
+                                final byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                                int read;
 
-                return getDataColumn(context, contentUri, null, null);
+                                while ((read = inputStream.read(buffer)) != -1) {
+                                    output.write(buffer, 0, read);
+                                }
+
+                                output.flush();
+                                return imgFileName;
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                            return null;
+                        }
+                    }
+                }
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
@@ -2055,6 +2200,7 @@ public class AndFlmsg extends AppCompatActivity {
         return true;
     }
 
+    /*
     // Handles callbacks from GPS service
     private class GPSListener implements LocationListener {
 
@@ -2074,6 +2220,7 @@ public class AndFlmsg extends AppCompatActivity {
             GPSisON = true;
         }
     }
+    */
 
     // Simple text transparent popups (Top of screen)
     public static void topToastText(String message) {
@@ -4601,6 +4748,26 @@ public class AndFlmsg extends AppCompatActivity {
 
     }
 
+    private void setVolume(int sliderValue) {
+        AudioManager audioManager = (AudioManager) AndFlmsg.myContext.getSystemService(Context.AUDIO_SERVICE);
+        try {
+            int maxVolume;
+            int stream = AndFlmsg.toBluetooth ? STREAM_BLUETOOTH_SCO : AudioManager.STREAM_MUSIC;
+            maxVolume = audioManager.getStreamMaxVolume(stream);
+            maxVolume = maxVolume * sliderValue / 100;
+            audioManager.setStreamVolume(stream, maxVolume, 0);
+            //Save the new value in preferences
+            SharedPreferences.Editor editor = AndFlmsg.mysp.edit();
+            editor.putString("MEDIAVOLUME", Integer.toString(sliderValue));
+            // Commit the edits!
+            editor.commit();
+
+        } catch (Exception e) {
+            AndFlmsg.middleToastText("Error Adjusting Volume");
+        }
+
+    }
+
     // Display the Modem layout and associate it's buttons
     private void displayModem(int screenAnimation, boolean withWaterfall) {
 
@@ -4737,6 +4904,26 @@ public class AndFlmsg extends AppCompatActivity {
                     config.setPreferenceB("TXRSID", false);
                     Modem.txRsidOn = false;
                 }
+            }
+        });
+
+        //Initialize the volume slider bar
+        SeekBar volControl = (SeekBar)findViewById(R.id.volumeSlider);
+        int mediaVolume = config.getPreferenceI("MEDIAVOLUME", 100);
+        volControl.setMax(100);
+        volControl.setProgress(mediaVolume);
+        volControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar arg0) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar arg0) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+                setVolume(arg1);
             }
         });
 
@@ -4878,9 +5065,27 @@ public class AndFlmsg extends AppCompatActivity {
             public void onClick(View v) {
                 try {
 
-                    if (!Processor.TXActive && !Processor.ReceivingForm
-                            && Modem.modemState == Modem.RXMODEMRUNNING) {
-                        Modem.TxTune();
+                    //if (!Processor.TXActive && !Processor.ReceivingForm
+                    //        && Modem.modemState == Modem.RXMODEMRUNNING) {
+                    //    Modem.TxTune();
+                    //}
+
+                    int tuneLength = config.getPreferenceI("TUNEDURATION", 4);
+
+                    if (tuneLength == 0) {
+                        Modem.tune = !Modem.tune;
+                        if (Modem.tune) {
+                            if (!Processor.TXActive && !Processor.ReceivingForm
+                                    && Modem.modemState == Modem.RXMODEMRUNNING) {
+                                Modem.TxTune();;
+                            }
+                        }
+                    } else {
+                        if (!Processor.TXActive && !Processor.ReceivingForm
+                                && Modem.modemState == Modem.RXMODEMRUNNING) {
+                            //Modem.sendToneSequence(0, "", false);
+                            Modem.TxTune();
+                        }
                     }
                 }
                 // JD fix this catch action

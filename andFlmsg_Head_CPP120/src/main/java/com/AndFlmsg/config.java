@@ -355,8 +355,8 @@ public class config {
                         //editor.putString("RGWORDSPERLINE", "5");
                         //editor.putBoolean("SHOWARLDESC",true);
                         //GPS Time
-                        editor.putBoolean("USEGPSTIME",false);
-                        editor.putString("LEAPSECONDS","0");
+                        //editor.putBoolean("USEGPSTIME",false);
+                        //editor.putString("LEAPSECONDS","0");
                         //Commit the changes
                         editor.commit();
 

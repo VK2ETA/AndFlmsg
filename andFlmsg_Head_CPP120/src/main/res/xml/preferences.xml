@@ -52,27 +52,27 @@
                 android:key="VOLUME"
                 android:summary="@string/pref_ModemVolume"
                 android:title="@string/pref_ModemVolume"></ListPreference>
-
             <EditTextPreference
                 android:defaultValue="1500"
                 android:inputType="number"
                 android:key="AFREQUENCY"
                 android:summary="@string/pref_AudioFrequency"
                 android:title="@string/pref_AudioFrequency"></EditTextPreference>
-
+            <EditTextPreference
+                android:defaultValue="4"
+                android:key="TUNEDURATION"
+                android:summary="0 = Toggle, OR 1 to 60 Seconds"
+                android:title="Tune Button Tone Duration"></EditTextPreference>
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="SLOWCPU"
                 android:summary="@string/pref_SaveCpuResources"
                 android:title="@string/pref_SlowCpu" />
-
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="PREPENDID"
                 android:title="@string/pref_PrependId" />
-
         </PreferenceCategory>
-
         <PreferenceCategory
             android:key="modesspecificsCAT"
             android:title="@string/pref_ModesSpecificSettings">
@@ -93,8 +93,6 @@
                     android:entryValues="@array/rsid_errors_values"
                     android:key="RSID_ERRORS"
                     android:title="@string/pref_AllowErrors" />
-
-
             </PreferenceScreen>
             <PreferenceScreen
                 android:key="pskPS"
@@ -242,11 +240,42 @@
                     android:key="MT63AT500"
                     android:title="@string/pref_AllowManualTuning" />
             </PreferenceScreen>
-
         </PreferenceCategory>
-
     </PreferenceScreen>
+
     <PreferenceScreen
+        android:key="rigcontrolPS"
+        android:title="@string/pref_RIGCONTROL">
+        <PreferenceCategory
+            android:key="PttCategory"
+            android:title="@string/pref_PttMethod">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="RTSASPTT"
+            android:title="@string/pref_RtsIsPttSignalLine" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="DTRASPTT"
+            android:title="@string/pref_DtrIsPttSignalLine" />
+        <CheckBoxPreference
+            android:enabled="false"
+            android:defaultValue="false"
+            android:key="CATASPTT"
+            android:title="@string/pref_CatIsPtt" />
+        <EditTextPreference
+            android:defaultValue="0"
+            android:key="AUDIODELAYAFTERPTT"
+            android:summary="@string/pref_DelayInMsecBeforeStartingAudio"
+            android:title="@string/pref_StartOfTransmitPttDelay" />
+        <EditTextPreference
+            android:defaultValue="0"
+            android:key="PTTDELAYAFTERAUDIO"
+            android:summary="@string/pref_DelayInMsecBeforeReleasingPtt"
+            android:title="@string/pref_EndtOfTransmitPttDelay" />
+    </PreferenceCategory>
+</PreferenceScreen>
+
+<PreferenceScreen
         android:key="imageattachmentPS"
         android:title="@string/pref_IMAGEATTACHMENT">
         <EditTextPreference
@@ -260,6 +289,7 @@
             android:summary="0 (smallest file) to 100 (best quality)"
             android:title="@string/pref_JpegCompressionQuality" />
     </PreferenceScreen>
+
     <PreferenceScreen
         android:key="dataexchangePS"
         android:title="@string/pref_DATAEXCHANGE">
@@ -286,6 +316,7 @@
             android:summary="@string/pref_AbortFormRxAfter"
             android:title="@string/pref_ExtractTimesOut" />
     </PreferenceScreen>
+
     <PreferenceScreen
         android:key="userPS"
         android:title="@string/pref_PERSONALDATA">
@@ -309,6 +340,7 @@
             android:key="EMAIL"
             android:title="@string/pref_EmailAddress" />
     </PreferenceScreen>
+
     <PreferenceScreen
         android:key="datetimePS"
         android:title="@string/pref_DateTimeFormat">
@@ -325,6 +357,7 @@
             android:key="UTC"
             android:title="@string/pref_TimeFormat" />
     </PreferenceScreen>
+
     <PreferenceScreen
         android:key="filePS"
         android:title="@string/pref_FILENAME">
@@ -345,6 +378,7 @@
             android:key="SERNBR"
             android:title="@string/pref_NextSerialNumber" />
     </PreferenceScreen>
+
     <PreferenceScreen
         android:key="RadiogramPS"
         android:title="@string/pref_RADIOGRAM">
