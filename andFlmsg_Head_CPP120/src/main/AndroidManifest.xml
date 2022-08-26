@@ -25,7 +25,7 @@
             android:theme="@style/Theme.AppCompat"
             android:windowSoftInputMode="stateHidden"
             android:launchMode="singleTop" >
-            <!--  android:launchMode="singleInstance" --> >
+            <!--  android:launchMode="singleInstance" -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

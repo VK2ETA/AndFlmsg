@@ -1079,7 +1079,7 @@ public class AndFlmsg extends AppCompatActivity {
                     //Same as above
                     //topToastText(getString(R.string.txt_BTDisconnected));
                 } else if (ACTION_USB_PERMISSION.equals(action) || INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
-                    synchronized (this) {
+                    synchronized (AndFlmsg.lockUSB) {
                         //middleToastText("Authorisation requested");
                         UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 

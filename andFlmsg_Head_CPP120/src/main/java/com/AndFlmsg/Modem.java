@@ -1298,16 +1298,17 @@ public class Modem {
             UsbSerialDriver driver = availableDrivers.get(0);
             UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
 
-        /*
-        if (connection == null) {
-            // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
-            middleToastText("Permission not granted. Disconnect / Reconnect");
-            return;
-        }
-        */
+            /*
+            if (connection == null) {
+                // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
+                middleToastText("Permission not granted. Disconnect / Reconnect");
+                return;
+            }
+            */
+            //Processor.PostToModem("Connection :" + connection == null ? " Null" : connection.toString());
 
             if (connection == null && AndFlmsg.usbPermission == AndFlmsg.UsbPermission.Unknown && !manager.hasPermission(driver.getDevice())) {
-                //middleToastText("Intent to Request Permission");
+                //Debug Processor.PostToModem("Requesting permission");
                 AndFlmsg.usbPermission = AndFlmsg.UsbPermission.Requested;
                 PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(AndFlmsg.myContext, 0, new Intent(AndFlmsg.INTENT_ACTION_GRANT_USB), 0);
                 manager.requestPermission(driver.getDevice(), usbPermissionIntent);
@@ -1321,7 +1322,8 @@ public class Modem {
                 return;
             }
 
-            if (AndFlmsg.usbSerialPort == null || (AndFlmsg.usbSerialPort != null && !AndFlmsg.usbSerialPort.isOpen())) {
+            //debug always open regardless
+            //if (AndFlmsg.usbSerialPort == null || (AndFlmsg.usbSerialPort != null && !AndFlmsg.usbSerialPort.isOpen())) {
                 AndFlmsg.usbSerialPort = driver.getPorts().get(0); // Most devices have just one usbSerialPort (usbSerialPort 0)
                 try {
                     AndFlmsg.usbSerialPort.open(connection);
@@ -1329,11 +1331,58 @@ public class Modem {
                     //usbSerialPort.setRTS(<default here>);
                     //Same for DTR
                     AndFlmsg.middleToastText("USB Serial Initialised.");
+                    //Debug  Processor.PostToModem("USB Serial Initialised.");
                 } catch (IOException e) {
                     AndFlmsg.middleToastText("Error at USB serial init: " + e);
+                    //Debug  Processor.PostToModem("Error at USB serial init: " + e);
                 }
-            }
+            //}
         }
+    }
+
+
+    //Send the PTT command and tries to recover if an error is detected
+    private static void sendPttCommand(boolean PttOnOff) {
+
+        boolean pttViaRTS = config.getPreferenceB("RTSASPTT", false);
+        boolean pttViaDTR = config.getPreferenceB("DTRASPTT", false);
+        boolean pttViaCAT = config.getPreferenceB("CATASPTT", false);
+        String switchStr = PttOnOff ? "ON" : "OFF";
+        try {
+            if (pttViaRTS) {
+                AndFlmsg.usbSerialPort.setRTS(PttOnOff);
+            }
+            if (pttViaDTR) {
+                AndFlmsg.usbSerialPort.setDTR(PttOnOff);
+            }
+            if (pttViaCAT) {
+                //Send Cat PTT ON Command
+            }
+            //Debug  Processor.PostToModem("PTT command " + switchStr + " sent ok");
+        } catch (IOException e) {
+            //Debug  Processor.PostToModem("IO Exception in PTT " + switchStr + " : " + e.getMessage().toString());
+            //Try to re-connect just in time
+            connectUsbDevice();
+            try {
+                if (pttViaRTS) {
+                    AndFlmsg.usbSerialPort.setRTS(PttOnOff);
+                }
+                if (pttViaDTR) {
+                    AndFlmsg.usbSerialPort.setDTR(PttOnOff);
+                }
+                if (pttViaCAT) {
+                    //Send Cat PTT ON Command
+                }
+                //Debug  Processor.PostToModem("PTT command " + switchStr + " sent ok");
+            } catch (IOException e1) {
+                //Debug  Processor.PostToModem("2nd IO Exception in PTT " + switchStr+ " : " + e1.getMessage().toString());
+                //give up
+                // Try to re-connect
+                //connectUsbDevice();
+            }
+
+        }
+
     }
 
 
@@ -1347,22 +1396,8 @@ public class Modem {
             //Send PTT ON command if possible
             if (AndFlmsg.usbSerialPort != null && AndFlmsg.usbSerialPort.isOpen()) {
                 //AndFlmsg.middleToastText("PTT ON");
-                try {
-                    if (pttViaRTS) {
-                        AndFlmsg.usbSerialPort.setRTS(true);
-                    }
-                    if (pttViaDTR) {
-                        AndFlmsg.usbSerialPort.setDTR(true);
-                    }
-                    if (pttViaCAT) {
-                        //Send Cat PTT ON Command
-                    }
-                } catch (IOException e) {
-                    AndFlmsg.middleToastText("IO Exception in PTT ON");
-                    //Try to re-connect
-                    connectUsbDevice();
-                }
-            }
+                sendPttCommand(true);
+           }
             //Delay Audio for required period
             int audioSendDelay = config.getPreferenceI("AUDIODELAYAFTERPTT", 0);
             //Max 5 seconds
@@ -1404,21 +1439,7 @@ public class Modem {
             //Send PTT OFF command if possible
             if (AndFlmsg.usbSerialPort != null && AndFlmsg.usbSerialPort.isOpen()) {
                 //AndFlmsg.middleToastText("PTT OFF");
-                try {
-                    if (pttViaRTS) {
-                        AndFlmsg.usbSerialPort.setRTS(false);
-                    }
-                    if (pttViaDTR) {
-                        AndFlmsg.usbSerialPort.setDTR(false);
-                    }
-                    if (pttViaCAT) {
-                        //Send Cat PTT ON Command
-                    }
-                } catch (IOException e) {
-                    AndFlmsg.middleToastText("IO Exception in PTT OFF");
-                    //Try to re-connect
-                    connectUsbDevice();
-                }
+                sendPttCommand(false);
             }
         }
     }

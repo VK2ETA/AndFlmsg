@@ -36,8 +36,8 @@ import ar.com.daidalos.afiledialog.FileChooserDialog;
 public class Processor extends Service {
 
 
-    static String application = "AndFlmsg 1.6.0.4 - Test USB Serial PTT"; // Used to preset an empty status
-    static String version = "Version 1.6.0.4, 20220629";
+    static String application = "AndFlmsg 1.6.0.6 - Test USB Serial PTT"; // Used to preset an empty status
+    static String version = "Version 1.6.0.6, 20220826";
 
     static boolean onWindows = true;
     static String ModemPreamble = "";  // String to send before any Tx Buffer
@@ -172,7 +172,8 @@ public class Processor extends Service {
 
     //Post to main terminal window
     public static void PostToModem(String text) {
-        Processor.monitor += text;
+        //Processor.monitor += text;
+        AndFlmsg.ModemBuffer.append(text);
         AndFlmsg.mHandler.post(AndFlmsg.updateModemScreen);
     }
 
