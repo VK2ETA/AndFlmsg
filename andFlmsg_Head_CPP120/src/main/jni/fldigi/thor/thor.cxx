@@ -206,15 +206,17 @@ thor::thor(int md) : hilbert(0), fft(0), filter_reset(false) {
     flushlength = 4;
 
     switch (mode) {
-// 11.025 kHz modes
-	case MODE_THOR5:
-        //Android to use 8Khz sampling rate
-        //symlen = 2048
-        symlen = 1486;
-		doublespaced = 2;
-		//samplerate = 11025;
-        samplerate = 8000;
-		break;
+
+        // 11.025 kHz modes (normally)
+
+        case MODE_THOR5:
+            //Android to use 8Khz sampling rate
+            //symlen = 2048
+            symlen = 1486;
+            doublespaced = 2;
+            //samplerate = 11025;
+            samplerate = 8000;
+            break;
 
         case MODE_THOR11:
             doublespaced = 1;
@@ -231,6 +233,17 @@ thor::thor(int md) : hilbert(0), fft(0), filter_reset(false) {
             //		symlen = 512;
             //		samplerate = 11025;
             symlen = 371;
+            samplerate = 8000;
+            break;
+
+        case MODE_THOR44:
+            //cap |= CAP_IMG;
+            //Android to use 8Khz sampling rate
+            //symlen = 256;
+            //doublespaced = 1;
+            //samplerate = 11025;
+            symlen = 186;
+            doublespaced = 1;
             samplerate = 8000;
             break;
 
@@ -284,6 +297,25 @@ thor::thor(int md) : hilbert(0), fft(0), filter_reset(false) {
             idepth = 50; // 0.5 sec interleave
             flushlength = 40;
             break;
+
+        case MODE_THOR32:
+            //cap |= CAP_IMG;
+            symlen = 256;
+            doublespaced = 1;
+            samplerate = 8000;
+            break;
+
+        case MODE_THOR56:
+            //cap |= CAP_IMG;
+            //8000 sample rate in Android
+            // symlen = 290;
+            symlen = 145;
+            doublespaced = 1;
+            //samplerate = 16000;
+            samplerate = 8000;
+            break;
+
+// default mode
 
         case MODE_THOR16:
         default:
@@ -347,7 +379,7 @@ thor::thor(int md) : hilbert(0), fft(0), filter_reset(false) {
         Dec = new viterbi(THOR_K15, K15_POLY1, K15_POLY2);
         //Androis check: Fldigi 4.1.15:  Dec->settraceback (15 * 12); // Long constraint length codes require longer traceback
         Dec->settraceback(PATHMEM - 1); // Long constraint length codes require longer traceback
-	} else {
+    } else {
         Enc = new encoder(THOR_K, THOR_POLY1, THOR_POLY2);
         Dec = new viterbi(THOR_K, THOR_POLY1, THOR_POLY2);
         Dec->settraceback(45);
