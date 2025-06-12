@@ -8,3 +8,4 @@ The display and entry forms can be independently modified in order to match the 
 
 It does basically most of what the fully featured version of FLMSG does.
 
+Installable apk, manuals in the Releases section.
