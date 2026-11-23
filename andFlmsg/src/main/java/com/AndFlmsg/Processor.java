@@ -35,8 +35,9 @@ import androidx.activity.result.ActivityResultLauncher;
 public class Processor extends Service {
 
 
-    static String application = "AndFlmsg 1.7.0.0"; // Used to preset an empty status
-    static String version = "Version 1.7.0.0, 20250909";
+    static final String application = "AndFlmsg " + BuildConfig.VERSION_NAME; // Used to preset an empty status
+    static final String version = "Version " + BuildConfig.VERSION_NAME
+            + ", " + BuildConfig.VERSION_DATE;
 
     static boolean onWindows = true;
     static String ModemPreamble = "";  // String to send before any Tx Buffer
