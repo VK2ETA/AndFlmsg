@@ -2623,43 +2623,6 @@ public class AndFlmsg extends AppCompatActivity {
     public static final int header_reason_FROM = 3;
 
 
-
-/* Not used anymore; kept for reference
- *
- Used with this calling section of code:
- 	     FileChooserDialog folderDialog = new FileChooserDialog(AndFlmsg.myContext);
-	    folderDialog.loadFolder(Processor.HomePath +
-			Processor.Dirprefix + Processor.DirImages);
-	    folderDialog.setFolderMode(false);
-	    folderDialog.setFilter(".+\\.png$|.+\\.PNG$|.+\\.jpg$|.+\\.JPG$");
-	    folderDialog.setShowOnlySelectable(true);
-	    folderDialog.addListener(onImageSelectedListener);
-	    folderDialog.show();
-
-    // Handling of selected folder//
-    private static FileChooserDialog.OnFileSelectedListener onImageSelectedListener = new FileChooserDialog.OnFileSelectedListener() {
-	public void onFileSelected(Dialog source, File file) {
-	    source.hide();
-	    final File myImageFile = file;
-	    ((Activity) AndFlmsg.myContext).runOnUiThread(new Runnable() {
-		public void run() {
-		    String jsAction = "javascript:setSource('"
-			    + _imgFieldToUpdate + "','" + "file://" + myImageFile.getAbsoluteFile().getAbsolutePath() + "')";
-		    mWebView.loadUrl(jsAction);
-		}
-	    });
-
-
-	}
-	public void onFileSelected(Dialog source, File folder, String name) {
-	    source.hide();
-	    Toast toast = Toast.makeText(AndFlmsg.myContext, "ERROR: Should not ask to create file: " + folder.getName() + "/" + name, Toast.LENGTH_LONG);
-	    toast.show();
-	}
-    };
-*/
-
-
     // Allows Javascript to call Android methods for submitting form data,
     // perforn form specific actions, pre-fill date and time fields, etc...
     public class JavascriptAccess {
