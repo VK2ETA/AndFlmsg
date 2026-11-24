@@ -55,6 +55,11 @@ android {
         cruncherEnabled = false
     }
 
+    //TODO: Temp fix, remove after gradle upgrade
+    packagingOptions {
+        exclude 'META-INF/com.android.tools/proguard/coroutines.pro'
+    }
+
     externalNativeBuild {
         ndkBuild {
             path 'src/main/jni/Android.mk'
