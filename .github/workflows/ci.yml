@@ -22,9 +22,6 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
-      # The current toolchain is Gradle 5.1.1 / AGP 3.4.3, which needs JDK 11.
-      # Install the Android SDK with JDK 17 first, then switch to JDK 11 for
-      # Gradle.
       - name: Set up JDK 17 for the Android SDK tools
         uses: actions/setup-java@v6
         with:
@@ -47,6 +44,7 @@ jobs:
           distribution: temurin
           java-version: "11"
 
+      #TODO: Remove this after updating Gradle
       - name: Point Gradle at the NDK
         run: |
           sdk_root="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"

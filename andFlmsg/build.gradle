@@ -26,11 +26,7 @@ android {
         targetCompatibility 1.8
     }
     compileSdkVersion 33
-    // AGP 3.4.3 accepts but ignores ndkVersion. It locates ndk-build's NDK
-    // via ANDROID_NDK_HOME or ndk.dir in local.properties. The declaration is
-    // kept for the planned toolchain upgrade.
     ndkVersion "21.4.7075529"
-
 
     defaultConfig {
         applicationId "com.AndFlmsg"
@@ -57,12 +53,6 @@ android {
 
     aaptOptions {
         cruncherEnabled = false
-    }
-
-    packagingOptions {
-        // AGP 3.4 does not deduplicate this file from the transitive
-        // AndroidX coroutines dependencies.
-        exclude 'META-INF/com.android.tools/proguard/coroutines.pro'
     }
 
     externalNativeBuild {
