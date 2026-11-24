@@ -55,6 +55,9 @@ jobs:
           fi
           echo "ANDROID_NDK_HOME=${ndk_dir}" >> "$GITHUB_ENV"
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Assemble debug APK
         run: bash ./gradlew --no-daemon :andFlmsg:assembleDebug
 

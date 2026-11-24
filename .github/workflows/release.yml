@@ -1,0 +1,171 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to validate against version.properties (optional for a dry run)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      ANDROID_BUILD_TOOLS_VERSION: "33.0.0"
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Resolve and validate version
+        id: version
+        env:
+          DISPATCH_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          version_code="$(sed -n 's/^versionCode=//p' version.properties | tr -d '[:space:]')"
+          version_name="$(sed -n 's/^versionName=//p' version.properties | tr -d '[:space:]')"
+          if ! [[ "$version_code" =~ ^[0-9]+$ ]] || [ -z "$version_name" ]; then
+            echo "::error::version.properties must define an integer versionCode and versionName"
+            exit 1
+          fi
+
+          expected_tag="v${version_name}"
+          actual_tag=""
+          if [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            actual_tag="${GITHUB_REF_NAME}"
+          elif [ -n "${DISPATCH_TAG:-}" ]; then
+            actual_tag="${DISPATCH_TAG}"
+          fi
+
+          if [ -n "$actual_tag" ] && [ "$actual_tag" != "$expected_tag" ]; then
+            echo "::error::Tag $actual_tag does not match versionName $version_name (expected $expected_tag)"
+            exit 1
+          fi
+
+          echo "version_code=$version_code" >> "$GITHUB_OUTPUT"
+          echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
+          echo "expected_tag=$expected_tag" >> "$GITHUB_OUTPUT"
+          echo "Actual tag: ${actual_tag:-<none: workflow_dispatch dry run>}"
+          echo "Expected tag: $expected_tag"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: "16111833"
+          packages: >-
+            platform-tools
+            platforms;android-33
+            build-tools;28.0.3
+            ndk;21.4.7075529
+
+      #TODO: Remove this after updating Gradle
+      - name: Set up JDK 11 for Gradle
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "11"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      #TODO: Remove this after updating Gradle
+      - name: Point Gradle at the NDK
+        run: |
+          sdk_root="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          ndk_dir="${sdk_root}/ndk/21.4.7075529"
+          if [ ! -d "$ndk_dir" ]; then
+            echo "::error::NDK not found at ${ndk_dir}"
+            exit 1
+          fi
+          echo "ANDROID_NDK_HOME=${ndk_dir}" >> "$GITHUB_ENV"
+
+      - name: Import release keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is not configured"
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/andflmsg-release.p12"
+          test -s "$RUNNER_TEMP/andflmsg-release.p12"
+
+      - name: Assemble release APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/andflmsg-release.p12
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew :andFlmsg:assembleRelease
+
+      - name: Verify APK signature and version
+        run: |
+          set -euo pipefail
+          apk="andFlmsg/build/outputs/apk/release/andFlmsg-release.apk"
+          build_tools="${ANDROID_SDK_ROOT}/build-tools/${ANDROID_BUILD_TOOLS_VERSION}"
+          test -f "$apk"
+          "${build_tools}/apksigner" verify --verbose --print-certs "$apk"
+          badging="$("${build_tools}/aapt" dump badging "$apk")"
+          printf '%s\n' "$badging"
+          printf '%s\n' "$badging" | grep -q "versionCode='${{ steps.version.outputs.version_code }}'"
+          printf '%s\n' "$badging" | grep -q "versionName='${{ steps.version.outputs.version_name }}'"
+
+      - name: Stage APK and SHA-256 checksum
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          apk_name="andFlmsg-${{ steps.version.outputs.version_name }}.apk"
+          cp "andFlmsg/build/outputs/apk/release/andFlmsg-release.apk" "release/$apk_name"
+          (cd release && sha256sum "$apk_name" > "$apk_name.sha256" && sha256sum -c "$apk_name.sha256")
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: andflmsg-release-${{ steps.version.outputs.version_name }}
+          path: release/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish GitHub Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          files=(release/*.apk release/*.sha256)
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "${files[@]}" --clobber
+          else
+            gh release create "$tag" "${files[@]}" \
+              --title "AndFlmsg ${{ steps.version.outputs.version_name }}" \
+              --generate-notes \
+              --latest \
+              --verify-tag
+          fi
+
+      - name: Remove imported keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/andflmsg-release.p12"
