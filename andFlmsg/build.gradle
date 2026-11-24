@@ -1,5 +1,24 @@
 apply plugin: 'com.android.application'
 
+// Single source of truth for versionCode/versionName/versionDate.
+def versionFile = rootProject.file('version.properties')
+if (!versionFile.isFile()) {
+    throw new GradleException("Missing version.properties at ${versionFile}")
+}
+def versionProps = new Properties()
+versionFile.withInputStream { versionProps.load(it) }
+
+def versionCodeText = versionProps.getProperty('versionCode', '').trim()
+def versionNameText = versionProps.getProperty('versionName', '').trim()
+def versionDateText = versionProps.getProperty('versionDate', '').trim()
+if (!(versionCodeText ==~ /\d+/) || versionNameText.isEmpty()
+        || !(versionDateText ==~ /\d{8}/)) {
+    throw new GradleException(
+        'version.properties must define an integer versionCode, a non-empty ' +
+        'versionName, and an 8-digit versionDate')
+}
+def appVersionCode = versionCodeText.toInteger()
+
 android {
 
     compileOptions {
@@ -14,6 +33,9 @@ android {
         applicationId "com.AndFlmsg"
         minSdk 23
         targetSdkVersion 33
+        versionCode appVersionCode
+        versionName versionNameText
+        buildConfigField "String", "VERSION_DATE", "\"${versionDateText}\""
         externalNativeBuild {
             ndkBuild {
                 abiFilters 'armeabi-v7a','arm64-v8a'
