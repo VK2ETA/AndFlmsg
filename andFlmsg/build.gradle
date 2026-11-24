@@ -26,12 +26,11 @@ android {
         targetCompatibility 1.8
     }
     compileSdkVersion 33
-    ndkPath "/home/jdouyere/Android/Sdk/android-ndk-r21e"
-
+    ndkVersion "21.4.7075529"
 
     defaultConfig {
         applicationId "com.AndFlmsg"
-        minSdk 23
+        minSdkVersion 23
         targetSdkVersion 33
         versionCode appVersionCode
         versionName versionNameText
@@ -52,12 +51,13 @@ android {
         }
     }
 
-    buildFeatures {
-        buildConfig true
-    }
-
     aaptOptions {
         cruncherEnabled = false
+    }
+
+    //TODO: Temp fix, remove after gradle upgrade
+    packagingOptions {
+        exclude 'META-INF/com.android.tools/proguard/coroutines.pro'
     }
 
     externalNativeBuild {

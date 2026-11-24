@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 17 for the Android SDK tools
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: "16111833"
+          packages: >-
+            platform-tools
+            platforms;android-33
+            build-tools;28.0.3
+            ndk;21.4.7075529
+
+      - name: Set up JDK 11 for Gradle
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "11"
+
+      #TODO: Remove this after updating Gradle
+      - name: Point Gradle at the NDK
+        run: |
+          sdk_root="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          ndk_dir="${sdk_root}/ndk/21.4.7075529"
+          if [ ! -d "$ndk_dir" ]; then
+            echo "::error::NDK not found at ${ndk_dir}"
+            exit 1
+          fi
+          echo "ANDROID_NDK_HOME=${ndk_dir}" >> "$GITHUB_ENV"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Assemble debug APK
+        run: bash ./gradlew --no-daemon :andFlmsg:assembleDebug
+
+      # TODO: Enable after fixing lint issues.
+      # - name: Lint
+      #   run: bash ./gradlew --no-daemon :andFlmsg:lintDebug :andFlmsg:lintRelease
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: andflmsg-debug
+          path: andFlmsg/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
