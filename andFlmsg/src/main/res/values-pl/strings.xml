@@ -230,8 +230,8 @@
     <string name="txt_crash_toast_text">Wyślij do autora wiadomość e-mail z informacjami o awarii, aby pomóc w korekcie problemów. Dzięki i 73.</string>
     <string name="txt_license">
     Oprogramowanie open source na licencji GNU.\n\n     Na podstawie Fldigi i Flmsg by David (Dave) Freese (W1HKJ) i zespół.\n\Ten program jest rozpowszechniany z nadzieją, że będzie przydatny, ale BEZ JAKIEJKOLWIEK GWARANCJI; nawet domyślnej gwarancji PRZYDATNOŚCI HANDLOWEJ lub PRZYDATNOŚCI DO OKREŚLONYCH CELÓW.
-        \nCzytaj Powszechną Licencję Publiczną GNU, aby uzyskać więcej informacji. \ n \ n \ nProgram zawiera bibliotekę FileDialog (Copyright 2013 Jose F. Maldonado), na podstawie następującej licencji:
-        \nTa biblioteka jest wolnym oprogramowaniem; można go redystrybuować i / lub modyfikować zgodnie z warunkami GNU Lesser General Public License opublikowaną przez Free Software Foundation; albo wersję 3 Licencji, albo (według Państwa wyboru) dowolną późniejszą wersję.        \n Niniejsza biblioteka jest rozpowszechniana z nadzieją, że będzie przydatna, ale BEZ JAKIEJKOLWIEK GWARANCJI; nawet domyślnej gwarancji PRZYDATNOŚCI HANDLOWEJ lub PRZYDATNOŚCI DO OKREŚLONYCH CELÓW. Aby uzyskać więcej informacji, zobacz GNU Lesser General Public Licence.       \n Powinieneś otrzymać kopię GNU Lesser General Public Licence wraz z tą biblioteką; Jeśli nie, zobacz http://www.gnu.org/licenses/.    </string>
+        \nCzytaj Powszechną Licencję Publiczną GNU, aby uzyskać więcej informacji.
+    </string>
 
     <string name="values_High">Wysoki</string>
     <string name="values_Low">Niski</string>

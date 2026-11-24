@@ -289,72 +289,8 @@ public class Processor extends Service {
         }
 
         makeDirectoriesAndCopyForms(HomePath);
-/*
-        if (HomePath.length() == 0) {
-
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
-                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION |
-                        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                AndFlmsg.folderPickerLauncher.launch(intent);
-        }
-
-            AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(AndFlmsg.myContext);
-            myAlertDialog.setMessage(AndFlmsg.myContext.getString(R.string.txt_ChooseLocForNbemsFiles));
-            myAlertDialog.setCancelable(false);
-            myAlertDialog.setPositiveButton(AndFlmsg.myContext.getString(R.string.txt_UseDefault),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //Save new Home Folder
-                            SharedPreferences.Editor editor = AndFlmsg.mysp.edit();
-                            editor.putString("BASEPATH", defaultPath);
-                            // Commit the edits!
-                            editor.commit();
-                            //Make folders and copy forms
-                            makeDirectoriesAndCopyForms(defaultPath);
-                        }
-                    });
-            myAlertDialog.setNegativeButton(AndFlmsg.myContext.getString(R.string.txt_UseThisFolder),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            FileChooserDialog folderDialog = new FileChooserDialog(AndFlmsg.myContext);
-                            folderDialog.loadFolder(defaultPath);
-                            folderDialog.setFolderMode(true);
-                            folderDialog.addListener(onFileSelectedListener);
-                            folderDialog.show();
-                        }
-                    });
-            myAlertDialog.show();
-
-        } else {
-            makeDirectoriesAndCopyForms(HomePath);
-        }
-        */
     }
 
-
-    // Handling of selected folder//
- /*   private static FileChooserDialog.OnFileSelectedListener onFileSelectedListener = new FileChooserDialog.OnFileSelectedListener() {
-        public void onFileSelected(Dialog source, File file) {
-            source.hide();
-            //Toast toast = Toast.makeText(AndFlmsg.myContext, "Base Folder Selected: " + file.getAbsoluteFile().getAbsolutePath(), Toast.LENGTH_LONG);
-            //toast.show();
-            //Save new Home Folder
-            SharedPreferences.Editor editor = AndFlmsg.mysp.edit();
-            editor.putString("BASEPATH", file.getAbsoluteFile().getAbsolutePath());
-            // Commit the edits!
-            editor.commit();
-            //Now make the directories if not present and copy forms if at first run
-            makeDirectoriesAndCopyForms(file.getAbsoluteFile().getAbsolutePath());
-        }
-
-        public void onFileSelected(Dialog source, File folder, String name) {
-            source.hide();
-            loggingclass.writelog("ERROR in File Chooser - Should not ask to create file: " + folder.getName() + "/" + name, null, true);
-        }
-    };
-*/
 
     /* Not used
     private static void deleteRecursive(File fileOrDirectory) {

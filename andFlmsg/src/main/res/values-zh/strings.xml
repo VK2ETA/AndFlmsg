@@ -268,7 +268,7 @@
 请把软件使用问题通过电子邮件向作者反应，以帮助解决问题。 谢谢，73。
     </string>
     <string name="txt_license">
-\n\n基于David（Dave）Freese（W1HKJ）和团队的Fldigi和Flmsg开发。\n\n发布本程序的目的是希望它会有用，但不作任何保证；甚至没有对适用性或特定用途适用性的暗示保证。 \n有关更多详细信息，请参见GNU通用公共许可证。\n\n\n在以下许可下，包含aFileDialog库（版权所有2013 Jose F. Maldonado）：\n该库是免费软件；您可以根据自由软件基金会（Free Software Foundation）发布的GNU通用公共许可协议（GNU Lesser General Public License）的条款重新分发和/或修改它；许可的版本3，或（由您选择）任何更高的版本。 \n发布该库是希望它会有用，但没有任何保证；甚至没有对适用性或特定用途适用性的暗示保证。有关更多详细信息，请参见GNU较小通用公共许可证。 \n您应该已经与该库一起收到了GNU通用公共通用许可证的副本；如果没有，请参阅http://www.gnu.org/licenses/。
+\n\n基于David（Dave）Freese（W1HKJ）和团队的Fldigi和Flmsg开发。\n\n发布本程序的目的是希望它会有用，但不作任何保证；甚至没有对适用性或特定用途适用性的暗示保证。 \n有关更多详细信息，请参见GNU通用公共许可证。
     </string>
     <string name="values_High">高</string>
     <string name="values_Low">低</string>
